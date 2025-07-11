@@ -9,7 +9,6 @@ require('dotenv').config({ path: '../.env' })
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-//추가된거
 const authRoutes = require('./routes/auth');
 var app = express();
 
