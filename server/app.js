@@ -3,10 +3,14 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var cors = require('cors');
+require('dotenv').config({ path: '../.env' })
+
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-
+//추가된거
+const authRoutes = require('./routes/auth');
 var app = express();
 
 // view engine setup
@@ -19,8 +23,15 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+//CORS 설정
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/api/auth', authRoutes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
