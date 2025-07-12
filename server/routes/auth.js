@@ -18,12 +18,11 @@ router.post('/register', async (req, res) => {
 
         //커넥션 풀로 연결
         const [existingUsers] = await pool.execute(
-            'SELECT id FROM test_users WHERE email = ?',
+            'SELECT id FROM users WHERE email = ?',
             [email]
         );
 
         if (existingUsers.length > 0) {
-            await connection.end();
             return res.status(400).json({
                 success: false,
                 message: '이미 존재하는 이메일입니다.'
@@ -31,13 +30,13 @@ router.post('/register', async (req, res) => {
         }
 
         const [result] = await pool.execute(
-            'INSERT INTO test_users (name, email) VALUES (?, ?)',
-            [username, email]
+            'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+            [username, email, password]
         );
 
         res.status(201).json({
             success: true,
-            message: '회원가입이 완료되었습니다!',
+            message: '✅ 회원가입이 완료되었습니다!',
             user: {
                 id: result.insertId,
                 username: username,
