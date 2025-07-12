@@ -142,8 +142,9 @@ router.get('/oauth/github/callback', async (req, res) => {
         // TODO: 실제 사용자 저장 로직
 
         // 성공 시 프론트엔드로 리다이렉트 (토큰과 함께)
-        res.redirect(`http://localhost:5173/dashboard?token=${accessToken}&user=${encodeURIComponent(JSON.stringify(userData))}`);
-        // res.redirect(`http://localhost:5173/`)
+        res.redirect(`http://localhost:5173/aquarium?token=${accessToken}&user=${encodeURIComponent(JSON.stringify(userData))}`);
+        //res.redirect(`http://localhost:5173/dashboard?token=${accessToken}&user=${encodeURIComponent(JSON.stringify(userData))}`);
+
 
     } catch (error) {
         console.error('GitHub OAuth 에러:', error);

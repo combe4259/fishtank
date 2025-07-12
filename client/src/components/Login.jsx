@@ -73,7 +73,7 @@ export default function Login() {
 
                 // 대시보드로 이동
                 setTimeout(() => {
-                    navigate('/dashboard');
+                    navigate('/aquarium');
                 }, 1000);
             } else {
                 setMessage('❌ ' + data.message);
