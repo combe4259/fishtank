@@ -6,10 +6,10 @@ const router = express.Router();
 
 // 회원가입 API
 router.post('/signup', async (req, res) => {
-    const { username, email, password } = req.body;
+    const { email, password } = req.body;
 
     try {
-        if (!username || !email || !password) {
+        if (!email || !password) {
             return res.status(400).json({
                 success: false,
                 message: '모든 필드를 입력해주세요.'
@@ -30,8 +30,8 @@ router.post('/signup', async (req, res) => {
         }
 
         const [result] = await pool.execute(
-            'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
-            [username, email, password]
+            'INSERT INTO users (email, password) VALUES (?, ?)',
+            [email, password]
         );
 
         res.status(201).json({
@@ -39,7 +39,6 @@ router.post('/signup', async (req, res) => {
             message: '✅ 회원가입이 완료되었습니다!',
             user: {
                 id: result.insertId,
-                username: username,
                 email: email
             }
         });
@@ -86,7 +85,6 @@ router.post('/login', async (req, res) => {
             message: '로그인 성공!',
             user: {
                 id: users[0].id,
-                username: users[0].username,
                 email: users[0].email
             }
         });
