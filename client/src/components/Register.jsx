@@ -28,7 +28,7 @@ export default function Register() {
         setMessage('');
 
         try {
-            const response = await fetch('http://localhost:3001/api/auth/register', {
+            const response = await fetch('http://localhost:3001/api/user/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -117,6 +117,24 @@ export default function Register() {
                                 {loading ? '가입 중...' : '회원가입'}
                             </div>
                         </div>
+
+
+                        // Register.jsx의 회원가입 버튼 아래에 추가
+                        {/* 로그인 페이지로 이동 링크 */}
+                        <div style={{
+                            textAlign: 'center',
+                            marginTop: '15px'
+                        }}>
+                            <span style={{ color: '#666', fontSize: '14px' }}>
+                        이미 계정이 있으신가요?{' '}
+                            <span onClick={() => window.location.href = '/'}>
+                            로그인하기
+                            </span>
+                        </span>
+                        </div>
+
+
+
 
                          {/*메시지 표시 */}
                         {message && (
