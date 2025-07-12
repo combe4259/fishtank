@@ -9,8 +9,7 @@ require('dotenv').config({ path: '../.env' })
 const {testConnection} = require('./config/database')
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-const authRoutes = require('./routes/auth');
+const authRoutes = require('./routes/user');
 var app = express();
 
 // view engine setup
@@ -32,8 +31,7 @@ app.use(cors({
 }));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/api/auth', authRoutes);
+app.use('/api/user', authRoutes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
