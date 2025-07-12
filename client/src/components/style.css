@@ -1,0 +1,181 @@
+.screen {
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+}
+
+.screen .overlap-wrapper {
+    background-color: #ffffff;
+    height: 946px;
+    width: 1918px;
+}
+
+.screen .overlap {
+    background-image: url(/image-1.png);
+    /*background: linear-gradient(135deg, #87CEEB, #4682B4, #1E90FF);*/
+    background-position: 50% 50%;
+    background-size: cover;
+    height: 946px;
+    width: 1914px;
+}
+
+.screen .frame {
+    background-color: #ffffffb2;
+    border-radius: 35px;
+    box-shadow: inset 0px -4px 20px #00488340;
+    height: 796px;
+    left: 645px;
+    overflow: hidden;
+    position: relative;
+    top: 75px;
+    width: 628px;
+}
+
+.screen .text-wrapper {
+    color: #000000;
+    font-family: "눈누 기초고딕 Regular-Regular", Helvetica;
+    font-size: 40px;
+    font-weight: 400;
+    left: 127px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    text-align: center;
+    top: 150px;
+    width: 373px;
+}
+
+.screen .div {
+    height: 149px;
+    left: 37px;
+    position: absolute;
+    top: 199px;
+    width: 556px;
+}
+
+.screen .div-wrapper {
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: inset 0px -2px 10px #00488340;
+    height: 72px;
+    left: 12px;
+    overflow: hidden;
+    position: absolute;
+    top: 69px;
+    width: 532px;
+}
+
+.screen .text-wrapper-2 {
+    color: #b5b5b5;
+    font-family: "눈누 기초고딕 Regular-Regular", Helvetica;
+    font-size: 24px;
+    font-weight: 400;
+    left: 27px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    text-align: center;
+    top: 19px;
+    width: 110px;
+}
+
+.screen .text-wrapper-3 {
+    color: #000000;
+    font-family: "눈누 기초고딕 Regular-Regular", Helvetica;
+    font-size: 24px;
+    font-weight: 400;
+    left: 0;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    text-align: center;
+    top: 28px;
+    width: 110px;
+}
+
+.screen .frame-2 {
+    height: 149px;
+    left: 37px;
+    position: absolute;
+    top: 348px;
+    width: 556px;
+}
+
+.screen .overlap-group-wrapper {
+    background-color: #e7e7e7;
+    border-radius: 20px;
+    box-shadow: inset 0px -2px 10px #00488340;
+    height: 75px;
+    left: 49px;
+    overflow: hidden;
+    position: absolute;
+    top: 535px;
+    width: 532px;
+}
+
+.screen .overlap-group {
+    height: 36px;
+    left: 141px;
+    position: relative;
+    top: 19px;
+    width: 249px;
+}
+
+.screen .text-wrapper-4 {
+    color: #000000;
+    font-family: "눈누 기초고딕 Regular-Regular", Helvetica;
+    font-size: 24px;
+    font-weight: 400;
+    left: 18px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    text-align: center;
+    top: 4px;
+    width: 231px;
+}
+
+.screen .ellipse {
+    height: 36px;
+    left: 0;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    width: 36px;
+}
+
+.screen .frame-3 {
+    background-color: #ffefc0;
+    border-radius: 20px;
+    box-shadow: inset 0px -2px 10px #00488340;
+    height: 75px;
+    left: 48px;
+    overflow: hidden;
+    position: absolute;
+    top: 644px;
+    width: 532px;
+}
+
+.screen .text-wrapper-5 {
+    color: #ffffff;
+    font-family: "눈누 기초고딕 Regular-Regular", Helvetica;
+    font-size: 24px;
+    font-weight: 400;
+    left: 151px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    text-align: center;
+    top: 23px;
+    width: 231px;
+}
+
+.screen .image {
+    height: 128px;
+    left: 212px;
+    position: absolute;
+    top: 10px;
+    width: 206px;
+}

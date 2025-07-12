@@ -1,10 +1,9 @@
-import Register from './components/Register'
 import './App.css'
-
+import Screen from './components/Screen.jsx'
 function App() {
     return (
         <div className="App">
-            <Register />
+            <Screen/>
         </div>
     )
 }

@@ -1,21 +1,10 @@
 const express = require('express');
-const mysql = require('mysql2/promise');
 
-console.log('DB_HOST:', process.env.DB_HOST);
-console.log('DB_USER:', process.env.DB_USER);
-
+const {pool, createConnection} = require('../config/database')
 const router = express.Router();
 
-// MySQL 연결 설정
-const dbConfig = {
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 3306,
-    user: process.env.DB_USER || 'fishtank',
-    password: process.env.DB_PASSWORD || 'fishtank',
-    database: process.env.DB_NAME || 'fishtank'
-};
 
-// 회원가입 API (JWT 제거)
+// 회원가입 API
 router.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
 
@@ -27,9 +16,8 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        const connection = await mysql.createConnection(dbConfig);
-
-        const [existingUsers] = await connection.execute(
+        //커넥션 풀로 연결
+        const [existingUsers] = await pool.execute(
             'SELECT id FROM test_users WHERE email = ?',
             [email]
         );
@@ -42,12 +30,10 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        const [result] = await connection.execute(
+        const [result] = await pool.execute(
             'INSERT INTO test_users (name, email) VALUES (?, ?)',
             [username, email]
         );
-
-        await connection.end();
 
         res.status(201).json({
             success: true,

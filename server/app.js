@@ -6,6 +6,7 @@ var logger = require('morgan');
 var cors = require('cors');
 require('dotenv').config({ path: '../.env' })
 
+const {testConnection} = require('./config/database')
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -18,7 +19,9 @@ app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+//HTML <form>에서 POST 방식으로 데이터를 보낼 때,
+// 그 데이터를 req.body에 파싱해서 넣어주는 역할
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -47,5 +50,22 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+(async () => {
+  try {
+    console.log('데이터베이스 연결 테스트 중...');
+    const dbConnected = await testConnection();
+    if (!dbConnected) {
+      console.error('데이터베이스 연결 실패');
+      process.exit(1);
+    }
+    console.log('데이터베이스 연결 성공');
+    return true;
+  } catch (error) {
+    console.error('앱 초기화 실패:', error);
+    process.exit(1);
+  }
+})();
+
 
 module.exports = app;
