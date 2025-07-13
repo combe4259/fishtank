@@ -1,11 +1,11 @@
-// routes/github.js
 const express = require('express');
 const { Octokit } = require('octokit');
 const { pool } = require('../config/database');
 const router = express.Router();
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
-// // JWT 검증 미들웨어
+
+// JWT 검증 미들웨어
 const authenticateToken = (req, res, next) => {
     console.log('JWT 인증 미들웨어 시작...');
     console.log('요청 헤더 확인:');
@@ -159,7 +159,7 @@ router.get('/commits/today', authenticateToken, async (req, res) => {
 });
 
 // GitHub 주간 커밋 통계 API
-router.get('/commits/week',authenticateToken, async (req, res) => {
+router.get('/commits/week', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.userId;
 
@@ -192,7 +192,6 @@ router.get('/commits/week',authenticateToken, async (req, res) => {
             const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
             const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000 - 1);
 
-            // 해당 날짜의 커밋 수 계산 (간단화를 위해 주요 레포만)
             let dayCommits = 0;
 
             try {
@@ -227,11 +226,22 @@ router.get('/commits/week',authenticateToken, async (req, res) => {
             });
         }
 
+        // 스트릭 계산: 연속으로 커밋한 일수
+        let streak = 0;
+        for (let i = weeklyStats.length - 1; i >= 0; i--) {
+            if (weeklyStats[i].commits > 0) {
+                streak++;
+            } else {
+                break;
+            }
+        }
+
         res.json({
             success: true,
             data: {
                 weeklyStats,
-                totalWeekCommits: weeklyStats.reduce((sum, day) => sum + day.commits, 0)
+                totalWeekCommits: weeklyStats.reduce((sum, day) => sum + day.commits, 0),
+                streak // 추가된 스트릭 정보
             }
         });
 
@@ -240,6 +250,124 @@ router.get('/commits/week',authenticateToken, async (req, res) => {
         res.status(500).json({
             success: false,
             message: '주간 커밋 통계를 가져올 수 없습니다.'
+        });
+    }
+});
+
+router.get('/stats', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+
+        const [users] = await pool.execute(
+            'SELECT github_token, github_username FROM users WHERE id = ?',
+            [userId]
+        );
+
+        if (users.length === 0 || !users[0].github_token) {
+            return res.status(404).json({
+                success: false,
+                message: 'GitHub 계정이 연동되지 않았습니다.'
+            });
+        }
+
+        const { github_token, github_username } = users[0];
+        const octokit = new Octokit({ auth: github_token });
+
+        // 오늘 날짜 (KST 기준)
+        const today = new Date();
+        const koreanToday = new Date(today.getTime() + (9 * 60 * 60 * 1000));
+        const todayStart = new Date(koreanToday.getFullYear(), koreanToday.getMonth(), koreanToday.getDate());
+
+        // 모든 레포지토리 가져오기
+        const { data: repos } = await octokit.rest.repos.listForUser({
+            username: github_username,
+            type: 'owner',
+            per_page: 100
+        });
+
+        let openIssues = 0;
+        let openPrs = 0;
+        let totalCommitsToday = 0;
+        let todayCommits = [];
+
+        // 각 레포지토리에서 통계 수집
+        for (const repo of repos) {
+            try {
+                // 오픈 이슈 수
+                const { data: issues } = await octokit.rest.issues.listForRepo({
+                    owner: github_username,
+                    repo: repo.name,
+                    state: 'open',
+                    per_page: 100
+                });
+                openIssues += issues.length;
+
+                // 오픈 PR 수
+                const { data: pulls } = await octokit.rest.pulls.list({
+                    owner: github_username,
+                    repo: repo.name,
+                    state: 'open',
+                    per_page: 100
+                });
+                openPrs += pulls.length;
+
+                // 오늘 커밋 (기존 로직 재사용)
+                const { data: commits } = await octokit.rest.repos.listCommits({
+                    owner: github_username,
+                    repo: repo.name,
+                    author: github_username,
+                    since: todayStart.toISOString(),
+                    until: new Date(todayStart.getTime() + 24 * 60 * 60 * 1000 - 1).toISOString(),
+                    per_page: 100
+                });
+
+                const todayRepoCommits = commits.filter(commit => {
+                    const commitDate = new Date(commit.commit.author.date);
+                    const commitKoreanDate = new Date(commitDate.getTime() + (9 * 60 * 60 * 1000));
+                    return commitKoreanDate.toDateString() === todayStart.toDateString();
+                });
+
+                todayCommits.push(...todayRepoCommits.map(commit => ({
+                    sha: commit.sha.substring(0, 7),
+                    message: commit.commit.message.split('\n')[0],
+                    repository: repo.name,
+                    time: new Date(commit.commit.author.date).toLocaleTimeString('ko-KR', {
+                        timeZone: 'Asia/Seoul',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }),
+                    url: commit.html_url,
+                    date: commit.commit.author.date
+                })));
+
+                totalCommitsToday += todayRepoCommits.length;
+
+            } catch (repoError) {
+                console.log(`레포 ${repo.name}에서 데이터를 가져올 수 없습니다:`, repoError.message);
+                continue;
+            }
+        }
+
+        // 시간순 정렬
+        todayCommits.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        res.json({
+            success: true,
+            data: {
+                totalCommitsToday,
+                commits: todayCommits.slice(0, 10),
+                date: todayStart.toLocaleDateString('ko-KR'),
+                issues: openIssues,
+                prs: openPrs,
+                username: github_username
+            }
+        });
+
+    } catch (error) {
+        console.error('GitHub 통계 조회 에러:', error);
+        res.status(500).json({
+            success: false,
+            message: 'GitHub 통계 정보를 가져올 수 없습니다.'
         });
     }
 });

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {Fish, Github, CheckCircle, Activity, Plus, Trash2, BarChart} from 'lucide-react';
-
-import Card from '../../components/common/Card/Card.jsx'
+import { Fish, Github, CheckCircle, Activity, Plus, Trash2, BarChart } from 'lucide-react';
+import Card from '../../components/common/Card/Card.jsx';
 import DashboardChart from '../../components/aquarium/DashboardChart/DashboardChart';
 import { styles } from './MyAquarium-styles';
 
@@ -10,7 +9,9 @@ const MyAquarium = () => {
   const [newTodo, setNewTodo] = useState('');
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [githubData, setGithubData] = useState(null); // GitHub 데이터 상태 추가
+  const [githubData, setGithubData] = useState(null); // 오늘의 커밋 데이터
+  const [weeklyStats, setWeeklyStats] = useState({ weeklyStats: [], totalWeekCommits: 0, streak: 0 }); // 주간 통계 데이터
+  const [githubStats, setGithubStats] = useState({ issues: 0, prs: '0/0' }); // 이슈와 PR 통계
   const [todos, setTodos] = useState([
     { id: 1, name: 'React 컴포넌트 개발', status: 'completed' },
     { id: 2, name: 'API 연동 작업', status: 'completed' },
@@ -20,7 +21,7 @@ const MyAquarium = () => {
   // 프로필 및 GitHub 데이터 조회
   useEffect(() => {
     fetchUserProfile();
-    fetchGithubData();
+    fetchAllData();
   }, []);
 
   // 사용자 프로필 API 호출
@@ -54,29 +55,55 @@ const MyAquarium = () => {
     }
   };
 
-  // GitHub 커밋 데이터 조회
-  const fetchGithubData = async () => {
+  // 모든 GitHub 데이터 가져오기
+  const fetchAllData = async () => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) return;
+      if (!token) {
+        console.error('토큰이 없습니다!');
+        return;
+      }
 
-      const response = await fetch('http://localhost:3001/api/github/commits/today', {
+      // 오늘의 커밋 데이터 가져오기
+      const todayResponse = await fetch('http://localhost:3001/api/github/commits/today', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
+      const todayData = await todayResponse.json();
+      if (todayData.success) {
+        setGithubData(todayData.data);
+      }
 
-      const data = await response.json();
+      // 주간 통계 데이터 가져오기
+      const weeklyResponse = await fetch('http://localhost:3001/api/github/commits/week', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      const weeklyData = await weeklyResponse.json();
+      if (weeklyData.success) {
+        setWeeklyStats(weeklyData.data);
+      }
 
-      if (data.success) {
-        setGithubData(data.data);
-      } else {
-        console.log('GitHub 데이터 조회 실패:', data.message);
+      // 이슈와 PR 통계 데이터 가져오기
+      const statsResponse = await fetch('http://localhost:3001/api/github/stats', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      const statsData = await statsResponse.json();
+      if (statsData.success) {
+        setGithubStats(statsData.data);
       }
     } catch (error) {
-      console.log('GitHub 데이터 조회 에러:', error);
+      console.error('GitHub 데이터 조회 에러:', error);
     }
   };
 
@@ -124,9 +151,9 @@ const MyAquarium = () => {
         commits: userProfile?.githubStats?.publicRepos || 0,
         todayCommits: githubData?.totalCommitsToday || 0,
         recentCommits: githubData?.commits || [],
-        streak: 120,
-        issues: 3,
-        prs: '4/6'
+        streak: weeklyStats.streak,
+        issues: githubStats.issues, // 동적으로 가져옴
+        prs: githubStats.prs // 동적으로 가져옴
       }
     },
     {
@@ -137,7 +164,7 @@ const MyAquarium = () => {
         completed: 67,
         total: 100,
         recent: [
-          { id: 1, name: 'React 컴포넌트 개발', status: 'completed' },
+          { id: 1, name: 'React 컴포� component 개발', status: 'completed' },
           { id: 2, name: 'API 연동 작업', status: 'completed' },
           { id: 3, name: 'UI 디자인 수정', status: 'pending' }
         ]
@@ -159,7 +186,6 @@ const MyAquarium = () => {
     );
   }
 
-  // 전역 변수로 선언하여 중복 방지
   const completedCount = todos.filter(todo => todo.status === 'completed').length;
   const completionPercentage = Math.round((completedCount / todos.length) * 100) || 0;
 
@@ -188,21 +214,24 @@ const MyAquarium = () => {
                 {/* GitHub 카드 */}
                 <div style={styles.metricCard}>
                   <div style={styles.metricHeader}>
-                    <Github style={{ width: '20px', height: '20px', color: '#ffffff' }} />
+                    <Github style={{ width: '20px', height: '20px', color: '#10b981' }} />
                     <span style={styles.metricTitle}>GitHub 활동</span>
                     <span style={styles.fireIcon}>
-                      🔥 오늘 {githubData?.totalCommitsToday || 0}개 커밋
-                    </span>
+                    🔥 오늘 {githubData?.totalCommitsToday || 0}개 커밋
+                  </span>
                   </div>
                   <div style={styles.statBox}>
+                    <div style={styles.metricIcon}><Activity size={24} color="#3b82f6" /></div>
                     <div style={styles.statNumber}>{userProfile?.githubStats?.publicRepos || 0}</div>
                     <div style={styles.statLabel}>공개 레포지토리</div>
                   </div>
                   <div style={styles.statBox}>
+                    <div style={styles.metricIcon}><CheckCircle size={24} color="#f59e0b" /></div>
                     <div style={styles.statNumber}>{userProfile?.githubStats?.followers || 0}</div>
                     <div style={styles.statLabel}>팔로워</div>
                   </div>
                   <div style={styles.statBox}>
+                    <div style={styles.metricIcon}><Github size={24} color="#8b5cf6" /></div>
                     <div style={styles.statNumber}>{userProfile?.githubStats?.following || 0}</div>
                     <div style={styles.statLabel}>팔로잉</div>
                   </div>
@@ -221,7 +250,7 @@ const MyAquarium = () => {
                 {/* 투두리스트 카드 */}
                 <div style={styles.metricCard}>
                   <div style={styles.metricHeader}>
-                    <CheckCircle style={{ width: '20px', height: '20px', color: '#ffffff' }} />
+                    <CheckCircle style={{ width: '20px', height: '20px', color: '#10b981' }} />
                     <span style={styles.metricTitle}>투두리스트</span>
                     <span style={styles.progressBadge}>{completionPercentage}% 완료</span>
                   </div>
@@ -233,7 +262,7 @@ const MyAquarium = () => {
                             cy="50"
                             r="40"
                             fill="none"
-                            stroke="rgba(255,255,255,0.2)"
+                            stroke="rgba(255, 255, 255, 0.2)"
                             strokeWidth="8"
                         />
                         <circle
@@ -261,7 +290,7 @@ const MyAquarium = () => {
                                 style={{
                                   width: '14px',
                                   height: '14px',
-                                  color: todo.status === 'completed' ? '#10b981' : 'rgba(255,255,255,0.4)'
+                                  color: todo.status === 'completed' ? '#10b981' : 'rgba(255, 255, 255, 0.4)',
                                 }}
                             />
                             <span style={todo.status === 'completed' ? styles.completedTodoText : styles.pendingTodoText}>
@@ -279,22 +308,56 @@ const MyAquarium = () => {
       case 'github': {
         return (
             <div style={styles.tabContent}>
+              {/* 스트릭 표시 */}
+              <div style={styles.streakSection}>
+                <span style={styles.streakIcon}>🔥</span>
+                <span style={styles.streakText}>{weeklyStats.streak}일 연속</span>
+              </div>
+
+              {/* GitHub 통계 */}
               <div style={styles.githubStats}>
-                <div style={styles.metricNumber}>{githubData?.totalCommitsToday || 0}</div>
-                <div style={styles.metricLabel}>오늘 커밋</div>
+                <div style={styles.statItem}>
+                  <div style={styles.metricIcon}><Github size={24} color="#10b981" /></div>
+                  <div style={styles.statNumber}>{githubData?.totalCommitsToday || 0}</div>
+                  <div style={styles.statLabel}>오늘 커밋</div>
+                </div>
                 <div style={styles.statBox}>
+                  <div style={styles.metricIcon}><Activity size={24} color="#3b82f6" /></div>
                   <div style={styles.statNumber}>{userProfile?.githubStats?.publicRepos || 0}</div>
                   <div style={styles.statLabel}>총 레포지토리</div>
                 </div>
                 <div style={styles.statBox}>
-                  <div style={styles.statNumber}>{currentTab.data.issues}</div>
+                  <div style={styles.metricIcon}><CheckCircle size={24} color="#f59e0b" /></div>
+                  <div style={styles.statNumber}>{githubStats.issues}</div>
                   <div style={styles.statLabel}>오픈 이슈</div>
                 </div>
                 <div style={styles.statBox}>
-                  <div style={styles.statNumber}>{currentTab.data.prs}</div>
+                  <div style={styles.metricIcon}><Github size={24} color="#8b5cf6" /></div>
+                  <div style={styles.statNumber}>{githubStats.prs}</div>
                   <div style={styles.statLabel}>PR 현황</div>
                 </div>
               </div>
+
+              {/* 주간 활동 그래프 */}
+              <div style={styles.weeklyActivitySection}>
+                <h4 style={styles.weeklyActivityTitle}>주간 활동 내역</h4>
+                <div style={styles.weeklyActivityGraph}>
+                  {weeklyStats.weeklyStats.map((day, index) => (
+                      <div key={index} style={styles.barContainer}>
+                        <div
+                            style={{
+                              ...styles.bar,
+                              height: `${day.commits * 10}px`,
+                              backgroundColor: day.commits > 0 ? '#10b981' : '#e5e7eb',
+                            }}
+                        />
+                        <span style={styles.barLabel}>{day.date}</span>
+                      </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 최근 커밋 */}
               <div style={styles.recentActivity}>
                 <h4 style={styles.activityTitle}>
                   오늘의 커밋 ({githubData?.date || new Date().toLocaleDateString('ko-KR')})
@@ -306,7 +369,7 @@ const MyAquarium = () => {
                             <div style={{
                               display: 'flex',
                               justifyContent: 'space-between',
-                              alignItems: 'center'
+                              alignItems: 'center',
                             }}>
                               <div>
                                 <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
@@ -346,7 +409,7 @@ const MyAquarium = () => {
                   <div style={styles.progressBar}>
                     <div style={{
                       ...styles.progressFill,
-                      width: `${completionPercentage}%`
+                      width: `${completionPercentage}%`,
                     }}></div>
                   </div>
                 </div>
@@ -378,7 +441,7 @@ const MyAquarium = () => {
                             style={{
                               width: '16px',
                               height: '16px',
-                              color: todo.status === 'completed' ? '#10b981' : '#e5e7eb'
+                              color: todo.status === 'completed' ? '#10b981' : '#e5e7eb',
                             }}
                         />
                       </button>
@@ -558,8 +621,8 @@ const MyAquarium = () => {
                 }}>
                   <span style={{ color: '#94a3b8' }}>오늘 커밋</span>
                   <span style={{ color: '#10b981', fontWeight: 'bold' }}>
-                    {githubData?.totalCommitsToday || 0}개
-                  </span>
+                  {githubData?.totalCommitsToday || 0}개
+                </span>
                 </div>
                 <div style={{
                   display: 'flex',
@@ -568,8 +631,8 @@ const MyAquarium = () => {
                 }}>
                   <span style={{ color: '#94a3b8' }}>총 레포</span>
                   <span style={{ color: '#3B82F6', fontWeight: 'bold' }}>
-                    {userProfile?.githubStats?.publicRepos || 0}개
-                  </span>
+                  {userProfile?.githubStats?.publicRepos || 0}개
+                </span>
                 </div>
                 <div style={{
                   display: 'flex',
@@ -578,8 +641,8 @@ const MyAquarium = () => {
                 }}>
                   <span style={{ color: '#94a3b8' }}>팔로워</span>
                   <span style={{ color: '#8B5CF6', fontWeight: 'bold' }}>
-                    {userProfile?.githubStats?.followers || 0}명
-                  </span>
+                  {userProfile?.githubStats?.followers || 0}명
+                </span>
                 </div>
                 {githubData?.commits?.length > 0 && (
                     <div style={{
