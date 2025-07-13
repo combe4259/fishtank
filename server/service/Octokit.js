@@ -13,7 +13,7 @@ const octokit = new Octokit({
     try {
         const response = await octokit.request('GET /repos/{owner}/{repo}/commits', {
             owner: 'combe4259',
-            repo: 'account_book',
+            repo: 'fishtank',
             headers: {
                 'X-GitHub-Api-Version': '2022-11-28'
             }

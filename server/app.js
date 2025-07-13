@@ -10,6 +10,7 @@ const {testConnection} = require('./config/database')
 
 var indexRouter = require('./routes/index');
 const authRoutes = require('./routes/user');
+const githubRoutes = require('./routes/github');
 var app = express();
 
 // view engine setup
@@ -32,6 +33,7 @@ app.use(cors({
 
 app.use('/', indexRouter);
 app.use('/api/user', authRoutes);
+app.use('/api/github', githubRoutes);
 
 
 

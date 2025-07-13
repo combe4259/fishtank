@@ -1,17 +1,111 @@
-import React, { useState } from 'react';
-import { Fish, Droplets, Sparkles, Github, CheckCircle, Calendar, Archive, Activity, Plus, Trash2, BarChart3 } from 'lucide-react';
-import Card from '../../components/common/Card/Card';
+import React, { useState, useEffect } from 'react';
+import { Fish, Github, CheckCircle, Activity, Plus, Trash2, BarChart } from 'lucide-react';
+import Card from '../../components/common/Card/Card.jsx';
 import DashboardChart from '../../components/aquarium/DashboardChart/DashboardChart';
 import { styles } from './MyAquarium-styles';
 
 const MyAquarium = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [newTodo, setNewTodo] = useState('');
+  const [userProfile, setUserProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [githubData, setGithubData] = useState(null); // 오늘의 커밋 데이터
+  const [weeklyStats, setWeeklyStats] = useState({ weeklyStats: [], totalWeekCommits: 0, streak: 0 }); // 주간 통계 데이터
+  const [githubStats, setGithubStats] = useState({ issues: 0, prs: '0/0' }); // 이슈와 PR 통계
   const [todos, setTodos] = useState([
     { id: 1, name: 'React 컴포넌트 개발', status: 'completed' },
     { id: 2, name: 'API 연동 작업', status: 'completed' },
     { id: 3, name: 'UI 디자인 수정', status: 'pending' }
   ]);
+
+  // 프로필 및 GitHub 데이터 조회
+  useEffect(() => {
+    fetchUserProfile();
+    fetchAllData();
+  }, []);
+
+  // 사용자 프로필 API 호출
+  const fetchUserProfile = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('토큰이 없습니다.');
+        return;
+      }
+
+      const response = await fetch('http://localhost:3001/api/user/profile', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setUserProfile(data.user);
+      } else {
+        console.error('프로필 조회 실패:', data.message);
+      }
+    } catch (error) {
+      console.error('프로필 조회 에러:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 모든 GitHub 데이터 가져오기
+  const fetchAllData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('토큰이 없습니다!');
+        return;
+      }
+
+      // 오늘의 커밋 데이터 가져오기
+      const todayResponse = await fetch('http://localhost:3001/api/github/commits/today', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      const todayData = await todayResponse.json();
+      if (todayData.success) {
+        setGithubData(todayData.data);
+      }
+
+      // 주간 통계 데이터 가져오기
+      const weeklyResponse = await fetch('http://localhost:3001/api/github/commits/week', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      const weeklyData = await weeklyResponse.json();
+      if (weeklyData.success) {
+        setWeeklyStats(weeklyData.data);
+      }
+
+      // 이슈와 PR 통계 데이터 가져오기
+      const statsResponse = await fetch('http://localhost:3001/api/github/stats', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      const statsData = await statsResponse.json();
+      if (statsData.success) {
+        setGithubStats(statsData.data);
+      }
+    } catch (error) {
+      console.error('GitHub 데이터 조회 에러:', error);
+    }
+  };
 
   const addTodo = () => {
     if (newTodo.trim()) {
@@ -41,12 +135,12 @@ const MyAquarium = () => {
     { id: 2, name: '파이썬이', species: 'Python 뱀물고기', level: 3 },
   ];
 
-  // 대시보드 탭 데이터
+  // 대시보드 탭 데이터 (GitHub 실제 데이터 반영)
   const dashboardTabs = [
     {
       id: 'dashboard',
       label: '대시보드',
-      icon: BarChart3,
+      icon: BarChart,
       data: {}
     },
     {
@@ -54,10 +148,12 @@ const MyAquarium = () => {
       label: 'GitHub',
       icon: Github,
       data: {
-        commits: 85,
-        streak: 120,
-        issues: 3,
-        prs: '4/6'
+        commits: userProfile?.githubStats?.publicRepos || 0,
+        todayCommits: githubData?.totalCommitsToday || 0,
+        recentCommits: githubData?.commits || [],
+        streak: weeklyStats.streak,
+        issues: githubStats.issues, // 동적으로 가져옴
+        prs: githubStats.prs // 동적으로 가져옴
       }
     },
     {
@@ -68,31 +164,28 @@ const MyAquarium = () => {
         completed: 67,
         total: 100,
         recent: [
-          { id: 1, name: 'React 컴포넌트 개발', status: 'completed' },
+          { id: 1, name: 'React 컴포� component 개발', status: 'completed' },
           { id: 2, name: 'API 연동 작업', status: 'completed' },
           { id: 3, name: 'UI 디자인 수정', status: 'pending' }
-        ]
-      }
-    },
-    {
-      id: 'usage',
-      label: '컴퓨터 사용량',
-      icon: Activity,
-      data: {
-        todayUsage: '6시간 24분',
-        weeklyAverage: '7시간 18분',
-        mostUsedApp: 'VS Code',
-        productivity: 67,
-        applications: [
-          { name: 'VS Code', time: '3시간 12분', color: '#007ACC' },
-          { name: 'Chrome', time: '2시간 45분', color: '#4285F4' },
-          { name: 'Figma', time: '1시간 8분', color: '#F24E1E' }
         ]
       }
     }
   ];
 
-  // 전역 변수로 선언하여 중복 방지
+  if (loading) {
+    return (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          fontSize: '18px'
+        }}>
+          로딩 중...
+        </div>
+    );
+  }
+
   const completedCount = todos.filter(todo => todo.status === 'completed').length;
   const completionPercentage = Math.round((completedCount / todos.length) * 100) || 0;
 
@@ -121,30 +214,35 @@ const MyAquarium = () => {
                 {/* GitHub 카드 */}
                 <div style={styles.metricCard}>
                   <div style={styles.metricHeader}>
-                    <Github style={{ width: '20px', height: '20px', color: '#ffffff' }} />
+                    <Github style={{ width: '20px', height: '20px', color: '#10b981' }} />
                     <span style={styles.metricTitle}>GitHub 활동</span>
-                    <span style={styles.fireIcon}>🔥 7일 연속</span>
+                    <span style={styles.fireIcon}>
+                    🔥 오늘 {githubData?.totalCommitsToday || 0}개 커밋
+                  </span>
                   </div>
-                  <div style={styles.metricStats}>
-                    <div style={styles.metricStat}>
-                      <div style={styles.metricNumber}>85</div>
-                      <div style={styles.metricLabel}>월별 커밋</div>
-                    </div>
-                    <div style={styles.metricStat}>
-                      <div style={styles.metricNumber}>120</div>
-                      <div style={styles.metricLabel}>최고 연속</div>
-                    </div>
-                    <div style={styles.metricStat}>
-                      <div style={styles.metricNumber}>4/6</div>
-                      <div style={styles.metricLabel}>PR 현황</div>
-                    </div>
+                  <div style={styles.statBox}>
+                    <div style={styles.metricIcon}><Activity size={24} color="#3b82f6" /></div>
+                    <div style={styles.statNumber}>{userProfile?.githubStats?.publicRepos || 0}</div>
+                    <div style={styles.statLabel}>공개 레포지토리</div>
+                  </div>
+                  <div style={styles.statBox}>
+                    <div style={styles.metricIcon}><CheckCircle size={24} color="#f59e0b" /></div>
+                    <div style={styles.statNumber}>{userProfile?.githubStats?.followers || 0}</div>
+                    <div style={styles.statLabel}>팔로워</div>
+                  </div>
+                  <div style={styles.statBox}>
+                    <div style={styles.metricIcon}><Github size={24} color="#8b5cf6" /></div>
+                    <div style={styles.statNumber}>{userProfile?.githubStats?.following || 0}</div>
+                    <div style={styles.statLabel}>팔로잉</div>
                   </div>
                   <div style={styles.metricFooter}>
                     <span>오늘 커밋</span>
                     <div style={styles.commitBadges}>
-                      <span style={styles.commitBadge}>08:30</span>
-                      <span style={styles.commitBadge}>14:20</span>
-                      <span style={styles.commitBadge}>18:45</span>
+                      {githubData?.commits?.slice(0, 3).map((commit, index) => (
+                          <span key={index} style={styles.commitBadge}>{commit.time}</span>
+                      )) || [
+                        <span key="default" style={styles.commitBadge}>없음</span>
+                      ]}
                     </div>
                   </div>
                 </div>
@@ -152,7 +250,7 @@ const MyAquarium = () => {
                 {/* 투두리스트 카드 */}
                 <div style={styles.metricCard}>
                   <div style={styles.metricHeader}>
-                    <CheckCircle style={{ width: '20px', height: '20px', color: '#ffffff' }} />
+                    <CheckCircle style={{ width: '20px', height: '20px', color: '#10b981' }} />
                     <span style={styles.metricTitle}>투두리스트</span>
                     <span style={styles.progressBadge}>{completionPercentage}% 완료</span>
                   </div>
@@ -164,7 +262,7 @@ const MyAquarium = () => {
                             cy="50"
                             r="40"
                             fill="none"
-                            stroke="rgba(255,255,255,0.2)"
+                            stroke="rgba(255, 255, 255, 0.2)"
                             strokeWidth="8"
                         />
                         <circle
@@ -192,7 +290,7 @@ const MyAquarium = () => {
                                 style={{
                                   width: '14px',
                                   height: '14px',
-                                  color: todo.status === 'completed' ? '#10b981' : 'rgba(255,255,255,0.4)'
+                                  color: todo.status === 'completed' ? '#10b981' : 'rgba(255, 255, 255, 0.4)',
                                 }}
                             />
                             <span style={todo.status === 'completed' ? styles.completedTodoText : styles.pendingTodoText}>
@@ -203,34 +301,6 @@ const MyAquarium = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* 컴퓨터 사용량 카드 */}
-                <div style={styles.metricCard}>
-                  <div style={styles.metricHeader}>
-                    <Activity style={{ width: '20px', height: '20px', color: '#ffffff' }} />
-                    <span style={styles.metricTitle}>컴퓨터 사용량</span>
-                  </div>
-                  <div style={styles.usageOverview}>
-                    <div style={styles.usageMainStat}>
-                      <div style={styles.usageTime}>6시간 24분</div>
-                      <div style={styles.usageLabel}>오늘 사용량</div>
-                    </div>
-                    <div style={styles.usageApps}>
-                      <div style={styles.usageApp}>
-                        <div style={{...styles.appDot, background: '#007ACC'}}></div>
-                        <span>VS Code 3h 12m</span>
-                      </div>
-                      <div style={styles.usageApp}>
-                        <div style={{...styles.appDot, background: '#4285F4'}}></div>
-                        <span>Chrome 2h 45m</span>
-                      </div>
-                      <div style={styles.usageApp}>
-                        <div style={{...styles.appDot, background: '#F24E1E'}}></div>
-                        <span>Figma 1h 8m</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
         );
@@ -238,30 +308,88 @@ const MyAquarium = () => {
       case 'github': {
         return (
             <div style={styles.tabContent}>
+              {/* 스트릭 표시 */}
+              <div style={styles.streakSection}>
+                <span style={styles.streakIcon}>🔥</span>
+                <span style={styles.streakText}>{weeklyStats.streak}일 연속</span>
+              </div>
+
+              {/* GitHub 통계 */}
               <div style={styles.githubStats}>
-                <div style={styles.statBox}>
-                  <div style={styles.statNumber}>{currentTab.data.commits}</div>
-                  <div style={styles.statLabel}>월별 커밋</div>
+                <div style={styles.statItem}>
+                  <div style={styles.metricIcon}><Github size={24} color="#10b981" /></div>
+                  <div style={styles.statNumber}>{githubData?.totalCommitsToday || 0}</div>
+                  <div style={styles.statLabel}>오늘 커밋</div>
                 </div>
                 <div style={styles.statBox}>
-                  <div style={styles.statNumber}>{currentTab.data.streak}</div>
-                  <div style={styles.statLabel}>최고 연속</div>
+                  <div style={styles.metricIcon}><Activity size={24} color="#3b82f6" /></div>
+                  <div style={styles.statNumber}>{userProfile?.githubStats?.publicRepos || 0}</div>
+                  <div style={styles.statLabel}>총 레포지토리</div>
                 </div>
                 <div style={styles.statBox}>
-                  <div style={styles.statNumber}>{currentTab.data.issues}</div>
+                  <div style={styles.metricIcon}><CheckCircle size={24} color="#f59e0b" /></div>
+                  <div style={styles.statNumber}>{githubStats.issues}</div>
                   <div style={styles.statLabel}>오픈 이슈</div>
                 </div>
                 <div style={styles.statBox}>
-                  <div style={styles.statNumber}>{currentTab.data.prs}</div>
+                  <div style={styles.metricIcon}><Github size={24} color="#8b5cf6" /></div>
+                  <div style={styles.statNumber}>{githubStats.prs}</div>
                   <div style={styles.statLabel}>PR 현황</div>
                 </div>
               </div>
+
+              {/* 주간 활동 그래프 */}
+              <div style={styles.weeklyActivitySection}>
+                <h4 style={styles.weeklyActivityTitle}>주간 활동 내역</h4>
+                <div style={styles.weeklyActivityGraph}>
+                  {weeklyStats.weeklyStats.map((day, index) => (
+                      <div key={index} style={styles.barContainer}>
+                        <div
+                            style={{
+                              ...styles.bar,
+                              height: `${day.commits * 10}px`,
+                              backgroundColor: day.commits > 0 ? '#10b981' : '#e5e7eb',
+                            }}
+                        />
+                        <span style={styles.barLabel}>{day.date}</span>
+                      </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 최근 커밋 */}
               <div style={styles.recentActivity}>
-                <h4 style={styles.activityTitle}>최근 커밋</h4>
+                <h4 style={styles.activityTitle}>
+                  오늘의 커밋 ({githubData?.date || new Date().toLocaleDateString('ko-KR')})
+                </h4>
                 <div style={styles.commitList}>
-                  <div style={styles.commitItem}>feat: GitHub OAuth 로그인 구현</div>
-                  <div style={styles.commitItem}>fix: 카드 스타일 수정</div>
-                  <div style={styles.commitItem}>docs: API 엔드포인트 업데이트</div>
+                  {githubData?.commits?.length > 0 ? (
+                      githubData.commits.map((commit, index) => (
+                          <div key={index} style={styles.commitItem}>
+                            <div style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                            }}>
+                              <div>
+                                <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+                                  {commit.message}
+                                </div>
+                                <div style={{ fontSize: '12px', color: '#94a3b8' }}>
+                                  {commit.repository} • {commit.sha}
+                                </div>
+                              </div>
+                              <div style={{ fontSize: '12px', color: '#94a3b8' }}>
+                                {commit.time}
+                              </div>
+                            </div>
+                          </div>
+                      ))
+                  ) : (
+                      <div style={styles.commitItem}>
+                        오늘은 아직 커밋이 없습니다. 🐠
+                      </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -281,7 +409,7 @@ const MyAquarium = () => {
                   <div style={styles.progressBar}>
                     <div style={{
                       ...styles.progressFill,
-                      width: `${completionPercentage}%`
+                      width: `${completionPercentage}%`,
                     }}></div>
                   </div>
                 </div>
@@ -313,7 +441,7 @@ const MyAquarium = () => {
                             style={{
                               width: '16px',
                               height: '16px',
-                              color: todo.status === 'completed' ? '#10b981' : '#e5e7eb'
+                              color: todo.status === 'completed' ? '#10b981' : '#e5e7eb',
                             }}
                         />
                       </button>
@@ -332,48 +460,6 @@ const MyAquarium = () => {
             </div>
         );
       }
-      case 'usage': {
-        return (
-            <div style={styles.tabContent}>
-              <div style={styles.usageOverview}>
-                <div style={styles.usageStats}>
-                  <div style={styles.usageStatItem}>
-                    <div style={styles.usageLabel}>오늘 사용량</div>
-                    <div style={styles.usageValue}>{currentTab.data.todayUsage}</div>
-                  </div>
-                  <div style={styles.usageStatItem}>
-                    <div style={styles.usageLabel}>주간 평균</div>
-                    <div style={styles.usageValue}>{currentTab.data.weeklyAverage}</div>
-                  </div>
-                  <div style={styles.usageStatItem}>
-                    <div style={styles.usageLabel}>생산성</div>
-                    <div style={styles.usageValue}>{currentTab.data.productivity}%</div>
-                  </div>
-                </div>
-              </div>
-
-              <div style={styles.appUsageSection}>
-                <h4 style={styles.appUsageTitle}>앱별 사용 시간</h4>
-                <div style={styles.appUsageList}>
-                  {currentTab.data.applications.map((app) => (
-                      <div key={app.name} style={styles.appUsageItem}>
-                        <div style={styles.appInfo}>
-                          <div
-                              style={{
-                                ...styles.appIcon,
-                                background: app.color
-                              }}
-                          ></div>
-                          <span style={styles.appName}>{app.name}</span>
-                        </div>
-                        <span style={styles.appTime}>{app.time}</span>
-                      </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-        );
-      }
       default:
         return null;
     }
@@ -387,22 +473,39 @@ const MyAquarium = () => {
             {/* 프로필 카드 */}
             <Card style={styles.profileCard}>
               <div style={styles.profileAvatar}>
-                <span style={styles.avatarEmoji}>🐠</span>
+                {userProfile?.profileImageUrl ? (
+                    <img
+                        src={userProfile.profileImageUrl}
+                        alt="프로필"
+                        style={{
+                          width: '60px',
+                          height: '60px',
+                          borderRadius: '50%',
+                          objectFit: 'cover'
+                        }}
+                    />
+                ) : (
+                    <span style={styles.avatarEmoji}>🐠</span>
+                )}
               </div>
-              <h3 style={styles.profileName}>SpongeBob</h3>
-              <p style={styles.profileLevel}>Level 15</p>
+              <h3 style={styles.profileName}>
+                {userProfile?.username || '사용자'}
+              </h3>
+              <p style={styles.profileLevel}>
+                Level {userProfile?.gameStats?.level || 1}
+              </p>
               <div style={styles.profileStats}>
                 <div style={styles.statItem}>
-                  <div style={styles.statValue}>12</div>
-                  <div style={styles.statLabel}>물고기</div>
+                  <div style={styles.statValue}>{userProfile?.gameStats?.fishCoins || 0}</div>
+                  <div style={styles.statLabel}>코인</div>
                 </div>
                 <div style={styles.statItem}>
-                  <div style={styles.statValue}>5</div>
-                  <div style={styles.statLabel}>친구</div>
+                  <div style={styles.statValue}>{userProfile?.gameStats?.experiencePoints || 0}</div>
+                  <div style={styles.statLabel}>경험치</div>
                 </div>
                 <div style={styles.statItem}>
-                  <div style={styles.statValue}>8</div>
-                  <div style={styles.statLabel}>업적</div>
+                  <div style={styles.statValue}>{githubData?.totalCommitsToday || 0}</div>
+                  <div style={styles.statLabel}>오늘 커밋</div>
                 </div>
               </div>
             </Card>
@@ -446,7 +549,6 @@ const MyAquarium = () => {
 
             {/* 하단 대시보드 */}
             <Card style={styles.dashboardCard}>
-              {/* 대시보드 탭 네비게이션 */}
               <div style={styles.tabNavigation}>
                 {dashboardTabs.map((tab) => {
                   const IconComponent = tab.icon;
@@ -459,7 +561,7 @@ const MyAquarium = () => {
                             ...(activeTab === tab.id ? styles.tabButtonActive : {})
                           }}
                       >
-                        <IconComponent style={{ width: '18px', height: '18px' }} />
+                        {IconComponent && <IconComponent style={{ width: '18px', height: '18px' }} />}
                         <span>{tab.label}</span>
                       </button>
                   );
@@ -494,7 +596,70 @@ const MyAquarium = () => {
               </div>
             </Card>
 
-            {/* 오늘의 할일 차트 */}
+            {/* GitHub 활동 요약 카드 */}
+            <Card style={{ marginTop: '20px', padding: '15px' }}>
+              <h3 style={{
+                color: '#ffffff',
+                marginBottom: '15px',
+                fontSize: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <Github style={{ width: '18px', height: '18px', color: '#3B82F6' }} />
+                GitHub 요약
+              </h3>
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  fontSize: '14px'
+                }}>
+                  <span style={{ color: '#94a3b8' }}>오늘 커밋</span>
+                  <span style={{ color: '#10b981', fontWeight: 'bold' }}>
+                  {githubData?.totalCommitsToday || 0}개
+                </span>
+                </div>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  fontSize: '14px'
+                }}>
+                  <span style={{ color: '#94a3b8' }}>총 레포</span>
+                  <span style={{ color: '#3B82F6', fontWeight: 'bold' }}>
+                  {userProfile?.githubStats?.publicRepos || 0}개
+                </span>
+                </div>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  fontSize: '14px'
+                }}>
+                  <span style={{ color: '#94a3b8' }}>팔로워</span>
+                  <span style={{ color: '#8B5CF6', fontWeight: 'bold' }}>
+                  {userProfile?.githubStats?.followers || 0}명
+                </span>
+                </div>
+                {githubData?.commits?.length > 0 && (
+                    <div style={{
+                      marginTop: '10px',
+                      padding: '8px',
+                      background: 'rgba(16, 185, 129, 0.1)',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      color: '#10b981'
+                    }}>
+                      최근: {githubData.commits[0].message.substring(0, 30)}
+                      {githubData.commits[0].message.length > 30 ? '...' : ''}
+                    </div>
+                )}
+              </div>
+            </Card>
+
             <DashboardChart />
           </div>
         </div>
