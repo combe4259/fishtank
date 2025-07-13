@@ -5,7 +5,6 @@ import { Gem, Filter, ShoppingBag } from 'lucide-react';
 import { styles } from './shop-styles';
 
 const Shop = () => {
-  const [selectedCategory, setSelectedCategory] = useState('all');
 
   const shopFishes = [
     { id: 1, name: '청어', species: 'React Fish', price: 100, rarity: 'common', image: '/fish1.png' },
@@ -26,9 +25,8 @@ const Shop = () => {
     { value: 'legendary', label: '전설', color: '#f59e0b' },
   ];
 
-  const filteredFishes = selectedCategory === 'all'
-      ? shopFishes
-      : shopFishes.filter(fish => fish.rarity === selectedCategory);
+  const filteredFishes = shopFishes;
+
 
   const handleBuyFish = (fish) => {
     alert(`${fish.name}을(를) 구매하시겠습니까? 가격: ${fish.price} 코인`);
@@ -54,32 +52,7 @@ const Shop = () => {
           </div>
         </div>
 
-        {/* 카테고리 필터 */}
-        <div style={styles.categoryBar}>
-          <div style={styles.categoryLabel}>
-            <Filter style={{ width: '20px', height: '20px', color: '#6b7280' }} />
-            <span>카테고리</span>
-          </div>
-          <div style={styles.categoryButtons}>
-            {categories.map(category => (
-                <button
-                    key={category.value}
-                    onClick={() => setSelectedCategory(category.value)}
-                    style={{
-                      ...styles.categoryButton,
-                      ...(selectedCategory === category.value ? {
-                        ...styles.categoryButtonActive,
-                        borderColor: category.color,
-                        background: `${category.color}15`
-                      } : {})
-                    }}
-                >
-                  <span style={styles.categoryDot} />
-                  {category.label}
-                </button>
-            ))}
-          </div>
-        </div>
+
 
         {/* 상점 카드 */}
         <Card style={styles.shopCard}>
