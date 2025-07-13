@@ -69,18 +69,18 @@ export const styles = {
     color: '#3b82f6',
     marginBottom: '4px'
   },
-  statLabel: {
-    fontSize: '12px',
-    color: '#6b7280'
-  },
+
 
   // 메인 아쿠아리움
   aquariumWrapper: {
     position: 'relative',
-    height: '100%'
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '20px'
   },
   aquariumContainer: {
-    height: '100%',
+    height: '400px', // 높이를 줄여서 대시보드 공간 확보
     background: 'linear-gradient(180deg, #7dd3fc 0%, #0ea5e9 50%, #0284c7 100%)',
     borderRadius: '32px',
     position: 'relative',
@@ -164,6 +164,449 @@ export const styles = {
     background: 'rgba(255, 255, 255, 0.7)',
     animation: 'float 4s ease-in-out infinite',
     boxShadow: '0 0 10px rgba(255, 255, 255, 0.3)'
+  },
+
+  // 대시보드 카드 (새로 추가)
+  dashboardCard: {
+    background: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: '24px',
+    padding: '24px',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
+    minHeight: '300px'
+  },
+
+  // 탭 네비게이션
+  tabNavigation: {
+    display: 'flex',
+    background: '#f8fafc',
+    borderRadius: '16px',
+    padding: '4px',
+    marginBottom: '20px',
+    gap: '4px'
+  },
+  tabButton: {
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    padding: '12px 16px',
+    borderRadius: '12px',
+    border: 'none',
+    background: 'transparent',
+    color: '#64748b',
+    fontSize: '14px',
+    fontWeight: '500',
+    cursor: 'pointer',
+    transition: 'all 0.3s',
+    whiteSpace: 'nowrap'
+  },
+  tabButtonActive: {
+    background: 'white',
+    color: '#1e293b',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+  },
+
+  // 탭 컨텐츠
+  tabContent: {
+    minHeight: '200px'
+  },
+
+  // 대시보드 전체 스타일
+  dashboardHeader: {
+    marginBottom: '24px',
+    textAlign: 'center'
+  },
+  dashboardTitle: {
+    fontSize: '24px',
+    fontWeight: 'bold',
+    color: '#1a1a1a',
+    marginBottom: '8px'
+  },
+  dateInfo: {
+    fontSize: '14px',
+    color: '#6b7280'
+  },
+  metricsGrid: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+  },
+
+  metricCard: {
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    borderRadius: '20px',
+    padding: '20px',
+    color: 'white',
+    boxShadow: '0 8px 24px rgba(102, 126, 234, 0.3)'
+  },
+  metricHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: '16px'
+  },
+  metricTitle: {
+    fontSize: '16px',
+    fontWeight: '600',
+    flex: 1,
+    marginLeft: '8px'
+  },
+  fireIcon: {
+    fontSize: '12px',
+    background: 'rgba(255, 255, 255, 0.2)',
+    padding: '4px 8px',
+    borderRadius: '12px'
+  },
+  progressBadge: {
+    fontSize: '12px',
+    background: 'rgba(16, 185, 129, 0.8)',
+    padding: '4px 8px',
+    borderRadius: '12px'
+  },
+  metricStats: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '12px',
+    marginBottom: '16px'
+  },
+  metricStat: {
+    textAlign: 'center'
+  },
+  metricNumber: {
+    fontSize: '20px',
+    fontWeight: 'bold',
+    marginBottom: '4px'
+  },
+  metricLabel: {
+    fontSize: '11px',
+    opacity: 0.8
+  },
+  metricFooter: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    fontSize: '12px',
+    opacity: 0.9
+  },
+  commitBadges: {
+    display: 'flex',
+    gap: '4px'
+  },
+  commitBadge: {
+    background: 'rgba(255, 255, 255, 0.2)',
+    padding: '2px 6px',
+    borderRadius: '6px',
+    fontSize: '10px'
+  },
+
+  // 투두 진행률 스타일
+  todoProgress: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px'
+  },
+  todoCircle: {
+    position: 'relative',
+    width: '80px',
+    height: '80px'
+  },
+  progressSvg: {
+    width: '100%',
+    height: '100%',
+    transform: 'rotate(0deg)'
+  },
+  todoCount: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    textAlign: 'center'
+  },
+  todoCompleted: {
+    fontSize: '24px',
+    fontWeight: 'bold'
+  },
+  todoTotal: {
+    fontSize: '16px',
+    opacity: 0.7
+  },
+  recentTodos: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px'
+  },
+  recentTodoItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    fontSize: '12px'
+  },
+  completedTodoText: {
+    textDecoration: 'line-through',
+    opacity: 0.6
+  },
+  pendingTodoText: {
+    opacity: 0.9
+  },
+
+  // 사용량 스타일
+  usageMainStat: {
+    textAlign: 'center'
+  },
+  usageTime: {
+    fontSize: '24px',
+    fontWeight: 'bold',
+    marginBottom: '4px'
+  },
+
+  usageApps: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px'
+  },
+  usageApp: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    fontSize: '12px'
+  },
+  appDot: {
+    width: '8px',
+    height: '8px',
+    borderRadius: '50%'
+  },
+
+  // GitHub 탭 스타일
+  githubStats: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap: '16px',
+    marginBottom: '20px'
+  },
+  statBox: {
+    background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+    borderRadius: '12px',
+    padding: '16px',
+    textAlign: 'center',
+    border: '1px solid rgba(59, 130, 246, 0.1)'
+  },
+  statNumber: {
+    fontSize: '24px',
+    fontWeight: 'bold',
+    color: '#1e40af',
+    marginBottom: '4px'
+  },
+  statLabel: {
+    fontSize: '12px',
+    color: '#64748b'
+  },
+  recentActivity: {
+    background: '#f8fafc',
+    borderRadius: '12px',
+    padding: '16px'
+  },
+  activityTitle: {
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: '12px'
+  },
+  commitList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px'
+  },
+  commitItem: {
+    fontSize: '13px',
+    color: '#6b7280',
+    padding: '8px 12px',
+    background: 'white',
+    borderRadius: '8px',
+    border: '1px solid #e5e7eb'
+  },
+
+  // 투두리스트 탭 스타일
+  progressSection: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '20px',
+    marginBottom: '20px'
+  },
+  progressCircle: {
+    width: '80px',
+    height: '80px',
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: '20px'
+  },
+  progressText: {
+    fontSize: '20px',
+    fontWeight: 'bold'
+  },
+  progressInfo: {
+    flex: 1
+  },
+  completedTasks: {
+    fontSize: '16px',
+    color: '#374151',
+    fontWeight: '500',
+    marginBottom: '8px'
+  },
+  progressBar: {
+    height: '8px',
+    background: '#e5e7eb',
+    borderRadius: '4px',
+    overflow: 'hidden'
+  },
+  progressFill: {
+    height: '100%',
+    background: 'linear-gradient(90deg, #10b981 0%, #059669 100%)',
+    borderRadius: '4px',
+    transition: 'width 0.5s ease-out'
+  },
+  addTodoSection: {
+    display: 'flex',
+    gap: '8px',
+    marginBottom: '20px'
+  },
+  todoInput: {
+    flex: 1,
+    padding: '12px 16px',
+    border: '2px solid #e5e7eb',
+    borderRadius: '12px',
+    fontSize: '14px',
+    outline: 'none',
+    transition: 'border-color 0.3s'
+  },
+  addTodoButton: {
+    width: '44px',
+    height: '44px',
+    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+    border: 'none',
+    borderRadius: '12px',
+    color: 'white',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all 0.3s'
+  },
+  todoList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px'
+  },
+  todoItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    padding: '12px',
+    background: '#f8fafc',
+    borderRadius: '8px',
+    border: '1px solid #e5e7eb',
+    transition: 'all 0.3s'
+  },
+  todoCheckbox: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    padding: '2px'
+  },
+  completedTodo: {
+    textDecoration: 'line-through',
+    color: '#9ca3af',
+    flex: 1
+  },
+  pendingTodo: {
+    color: '#374151',
+    flex: 1
+  },
+  deleteTodoButton: {
+    background: 'none',
+    border: 'none',
+    color: '#ef4444',
+    cursor: 'pointer',
+    padding: '4px',
+    borderRadius: '4px',
+    transition: 'all 0.3s'
+  },
+
+  // 컴퓨터 사용량 탭 스타일
+  usageOverview: {
+    marginBottom: '20px'
+  },
+  usageStats: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '16px'
+  },
+  usageStatItem: {
+    background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+    borderRadius: '12px',
+    padding: '16px',
+    textAlign: 'center',
+    border: '1px solid rgba(59, 130, 246, 0.1)'
+  },
+  usageLabel: {
+    fontSize: '12px',
+    color: '#64748b',
+    marginBottom: '8px'
+  },
+  usageValue: {
+    fontSize: '18px',
+    fontWeight: 'bold',
+    color: '#1e40af'
+  },
+  appUsageSection: {
+    background: '#f8fafc',
+    borderRadius: '12px',
+    padding: '16px'
+  },
+  appUsageTitle: {
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: '12px'
+  },
+  appUsageList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px'
+  },
+  appUsageItem: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '8px 12px',
+    background: 'white',
+    borderRadius: '8px',
+    border: '1px solid #e5e7eb'
+  },
+  appInfo: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px'
+  },
+  appIcon: {
+    width: '16px',
+    height: '16px',
+    borderRadius: '4px'
+  },
+  appName: {
+    fontSize: '13px',
+    color: '#374151',
+    fontWeight: '500'
+  },
+  appTime: {
+    fontSize: '13px',
+    color: '#6b7280'
   },
 
   // 오른쪽 사이드바
@@ -311,6 +754,37 @@ styleSheet.textContent = `
   
   .fish:hover .fishIcon {
     transform: scale(1.1);
+  }
+  
+  /* 탭 버튼 호버 효과 */
+  .tabButton:hover:not(.tabButtonActive) {
+    background: rgba(255, 255, 255, 0.7);
+    color: #374151;
+  }
+  
+  /* 투두 관련 호버 효과 */
+  .todoInput:focus {
+    border-color: #3b82f6;
+  }
+  
+  .addTodoButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+  
+  .todoItem:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+  }
+  
+  .deleteTodoButton:hover {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+  
+  .todoCheckbox:hover {
+    background: #f3f4f6;
+    border-radius: 4px;
   }
 `;
 document.head.appendChild(styleSheet);
