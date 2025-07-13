@@ -10,6 +10,7 @@
     "@octokit/rest": "^22.0.0",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
+    "octokit": "^3.1.2",
     "debug": "~2.6.9",
     "dotenv": "^17.2.0",
     "ejs": "~2.6.1",
