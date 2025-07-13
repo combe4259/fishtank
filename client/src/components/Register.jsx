@@ -3,6 +3,7 @@ import "./Register.css";
 
 export default function Register() {
     const [formData, setFormData] = useState({
+        username: '',
         email: '',
         password: ''
     });
@@ -19,7 +20,7 @@ export default function Register() {
 
     // 회원가입 처리
     const handleSubmit = async () => {
-        if (!formData.email || !formData.password) {
+        if (!formData.username || !formData.email || !formData.password) {
             setMessage('모든 필드를 입력해주세요.');
             return;
         }
@@ -27,7 +28,7 @@ export default function Register() {
         setMessage('');
 
         try {
-            const response = await fetch('http://localhost:3001/api/user/signup', {
+            const response = await fetch('http://localhost:3001/api/auth/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -39,7 +40,7 @@ export default function Register() {
 
             if (data.success) {
                 setMessage(data.message);
-                setFormData({ email: '', password: '' });
+                setFormData({ username: '', email: '', password: '' });
             } else {
                 setMessage(data.message);
             }
@@ -58,6 +59,20 @@ export default function Register() {
                     <div className="frame">
                         <div className="text-wrapper">🐠 Fishtank 회원가입</div>
 
+                        {/* 사용자명 입력 */}
+                        <div className="input-section">
+                            <div className="label">사용자명</div>
+                            <div className="input-wrapper">
+                                <input
+                                    type="text"
+                                    name="username"
+                                    value={formData.username}
+                                    onChange={handleChange}
+                                    placeholder="사용자명을 입력하세요"
+                                    className="input-field"
+                                />
+                            </div>
+                        </div>
 
                         {/* 이메일 입력 */}
                         <div className="input-section">
@@ -89,6 +104,7 @@ export default function Register() {
                             </div>
                         </div>
 
+
                         {/* 회원가입 버튼 */}
                         <div
                             className="submit-button"
@@ -102,22 +118,6 @@ export default function Register() {
                                 {loading ? '가입 중...' : '회원가입'}
                             </div>
                         </div>
-
-                        {/* 로그인 페이지로 이동 링크 */}
-                        <div style={{
-                            textAlign: 'center',
-                            marginTop: '15px'
-                        }}>
-                            <span style={{ color: '#666', fontSize: '14px' }}>
-                        이미 계정이 있으신가요?{' '}
-                            <span onClick={() => window.location.href = '/'}>
-                            로그인하기
-                            </span>
-                        </span>
-                        </div>
-
-
-
 
                          {/*메시지 표시 */}
                         {message && (

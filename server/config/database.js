@@ -2,7 +2,7 @@ const mysql = require('mysql2/promise');
 
 // MySQL 연결 설정
 const dbConfig = {
-    host: process.env.DB_HOST || 'localhost',
+    host: process.env.DB_HOST || '143.248.172.33',
     port: process.env.DB_PORT || 3306,
     user: process.env.DB_USER || 'fishtank',
     password: process.env.DB_PASSWORD || 'fishtank',
