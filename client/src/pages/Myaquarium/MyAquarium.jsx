@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Fish, Droplets, Sparkles, Github, CheckCircle, Calendar, Archive, Activity, Plus, Trash2, BarChart3 } from 'lucide-react';
 import Card from '../../components/common/Card/Card';
 import DashboardChart from '../../components/aquarium/DashboardChart/DashboardChart';
 import { styles } from './MyAquarium-styles';
+
+const user = JSON.parse(localStorage.getItem('user'));
+const userId = user?.id;
+
 
 const MyAquarium = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -13,33 +17,97 @@ const MyAquarium = () => {
     { id: 3, name: 'UI 디자인 수정', status: 'pending' }
   ]);
 
-  const addTodo = () => {
+  const addTodo = async () => {
     if (newTodo.trim()) {
+      const response = await fetch('http://localhost:3001/api/todos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: userId,                        // ⚠️ 나중에 로그인 유저 정보로 바꿔야 함
+          title: newTodo.trim(),            // 🟢 제목으로 사용
+          description: '',                  // ✏️ 일단 빈 문자열로 기본값
+          is_completed: false              // 기본은 미완료
+        })
+      });
+  
+      const newItem = await response.json();
+      console.log('🧾 newItem from server:', newItem);
       setTodos([...todos, {
-        id: Date.now(),
-        name: newTodo.trim(),
-        status: 'pending'
+        id: newItem.id,
+        name: newItem.title,
+        status: newItem.is_completed ? 'completed' : 'pending'
       }]);
+      await getTodos(userId);
       setNewTodo('');
     }
+
   };
 
-  const toggleTodo = (id) => {
+  const toggleTodo = async (id) => {
+    const targetTodo = todos.find(todo => todo.id === id);
+    const newStatus = !targetTodo.is_completed;
+  
+    const response = await fetch(`http://localhost:3001/api/todos/${id}/complete`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        is_completed: newStatus,
+        completed_at: newStatus ? new Date().toISOString() : null
+      })
+    });
+  
+    const updated = await response.json();
     setTodos(todos.map(todo =>
-        todo.id === id
-            ? { ...todo, status: todo.status === 'completed' ? 'pending' : 'completed' }
-            : todo
+      todo.id === id ? { ...todo, ...updated } : todo
     ));
+    await getTodos(userId);
   };
 
-  const deleteTodo = (id) => {
+
+
+  const deleteTodo = async (id) => {
+    try {
+      await fetch(`http://localhost:3001/api/todos/${id}`, {
+        method: 'DELETE'
+      });
+      // 삭제 후 다시 할 일 목록 불러오기 등
+    } catch (err) {
+      console.error('할 일 삭제 실패:', err);
+    }
     setTodos(todos.filter(todo => todo.id !== id));
+    await getTodos(userId);
   };
+
+  const getTodos = async (userId) => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/todos/${userId}`);
+      const data = await response.json();
+
+      const formattedTodos = data.map(todo => ({
+        id: todo.id,
+        name: todo.title,
+        status: todo.is_completed ? 'completed' : 'pending'
+      }));
+
+      setTodos(formattedTodos);
+      await getTodos(userId);
+    } catch (error) {
+      console.error('할 일 조회 실패:', error);
+    }
+  }
+
+  useEffect(() => {
+    if (userId) {
+      getTodos(userId);
+    }
+  }, [userId]);
 
   const myFishes = [
     { id: 1, name: '코딩이', species: 'JavaScript 문어', level: 5 },
     { id: 2, name: '파이썬이', species: 'Python 뱀물고기', level: 3 },
   ];
+
+
 
   // 대시보드 탭 데이터
   const dashboardTabs = [
@@ -149,60 +217,6 @@ const MyAquarium = () => {
                   </div>
                 </div>
 
-                {/* 투두리스트 카드 */}
-                <div style={styles.metricCard}>
-                  <div style={styles.metricHeader}>
-                    <CheckCircle style={{ width: '20px', height: '20px', color: '#ffffff' }} />
-                    <span style={styles.metricTitle}>투두리스트</span>
-                    <span style={styles.progressBadge}>{completionPercentage}% 완료</span>
-                  </div>
-                  <div style={styles.todoProgress}>
-                    <div style={styles.todoCircle}>
-                      <svg style={styles.progressSvg} viewBox="0 0 100 100">
-                        <circle
-                            cx="50"
-                            cy="50"
-                            r="40"
-                            fill="none"
-                            stroke="rgba(255,255,255,0.2)"
-                            strokeWidth="8"
-                        />
-                        <circle
-                            cx="50"
-                            cy="50"
-                            r="40"
-                            fill="none"
-                            stroke="#10b981"
-                            strokeWidth="8"
-                            strokeDasharray={`${2 * Math.PI * 40}`}
-                            strokeDashoffset={`${2 * Math.PI * 40 * (1 - completionPercentage / 100)}`}
-                            strokeLinecap="round"
-                            transform="rotate(-90 50 50)"
-                        />
-                      </svg>
-                      <div style={styles.todoCount}>
-                        <span style={styles.todoCompleted}>{completedCount}</span>
-                        <span style={styles.todoTotal}>/{todos.length}</span>
-                      </div>
-                    </div>
-                    <div style={styles.recentTodos}>
-                      {todos.slice(0, 3).map((todo) => (
-                          <div key={todo.id} style={styles.recentTodoItem}>
-                            <CheckCircle
-                                style={{
-                                  width: '14px',
-                                  height: '14px',
-                                  color: todo.status === 'completed' ? '#10b981' : 'rgba(255,255,255,0.4)'
-                                }}
-                            />
-                            <span style={todo.status === 'completed' ? styles.completedTodoText : styles.pendingTodoText}>
-                          {todo.name}
-                        </span>
-                          </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
 
                 {/* 컴퓨터 사용량 카드 */}
                 <div style={styles.metricCard}>
@@ -298,7 +312,7 @@ const MyAquarium = () => {
                     style={styles.todoInput}
                 />
                 <button onClick={addTodo} style={styles.addTodoButton}>
-                  <Plus style={{ width: '16px', height: '16px' }} />
+                  <Plus style={{ width: '25px', height: '25px' }} />
                 </button>
               </div>
 
