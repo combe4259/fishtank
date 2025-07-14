@@ -12,7 +12,6 @@ var indexRouter = require('./routes/index');
 const authRoutes = require('./routes/user');
 const githubRoutes = require('./routes/github');
 const shopRoutes = require('./routes/shop')
-const achievementsRoutes = require('./routes/achievements')
 var app = express();
 
 // view engine setup
