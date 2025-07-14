@@ -190,7 +190,7 @@ const MyAquarium = () => {
   const completionPercentage = Math.round((completedCount / todos.length) * 100) || 0;
 
   const renderTabContent = () => {
-    const currentTab = dashboardTabs.find(tab => tab.id === activeTab);
+    //const currentTab = dashboardTabs.find(tab => tab.id === activeTab);
 
     switch (activeTab) {
       case 'dashboard': {
