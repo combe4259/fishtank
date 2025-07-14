@@ -44,25 +44,24 @@ router.post('/', async (req, res) => {
 });
 
 // ✅ 2. 할 일 완료 상태 토글
-function formatDateForMySQL(date) {
-    return date.toISOString().slice(0, 19).replace('T', ' ');
-  }
 
 router.put('/:id/complete', async (req, res) => {
   try {
     const { id } = req.params;
     const { is_completed } = req.body;
     let completed_at = req.body.completed_at ?? null;
-    
     if (is_completed) {
-        completed_at = formatDateForMySQL(new Date());
-      }
-
+      completed_at = new Date(); // 완료 상태일 때 현재 시간으로 설정
+    } else {
+      completed_at = null; // 미완료 상태일 때는 null로 설정
+    }
     await pool.execute(
       `UPDATE todos
-       SET is_completed = ?, completed_at = ?, updated_at = NOW()
+       SET is_completed = ?, 
+       completed_at = NOW(),      -- 🟢
+       updated_at = NOW()
        WHERE id = ?`,
-      [is_completed, completed_at, id]
+      [is_completed, id]
     );
 
     const [updated] = await pool.execute('SELECT * FROM todos WHERE id = ?', [id]);

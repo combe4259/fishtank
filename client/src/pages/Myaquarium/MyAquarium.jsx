@@ -190,7 +190,6 @@ const MyAquarium = () => {
       }));
 
       setTodos(formattedTodos);
-      await getTodos(userId);
     } catch (error) {
       console.error('할 일 조회 실패:', error);
     }
