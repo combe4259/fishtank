@@ -350,4 +350,177 @@ router.patch('/:id/toggle-aquarium', authenticateToken, async (req, res) => {
     }
 });
 
+// 구매 가능한 장식품 목록 조회
+router.get('/decorations/list', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const [userInfo] = await pool.query('SELECT level FROM users WHERE id = ?', [userId]);
+        if (!userInfo.length) {
+            return res.status(404).json({ success: false, message: '사용자를 찾을 수 없습니다.' });
+        }
+        const userLevel = userInfo[0].level;
+        const [decorationTypes] = await pool.query(
+            `
+                SELECT
+                    dt.id,
+                    dt.name,
+                    dt.price,
+                    dt.image_url,
+                    dt.unlock_level,
+                    dt.description,
+                    CASE WHEN dt.unlock_level <= ? THEN true ELSE false END as is_unlocked,
+                    CASE WHEN ud.id IS NOT NULL THEN true ELSE false END as is_owned
+                FROM decoration_types dt
+                LEFT JOIN user_decorations ud ON dt.id = ud.decoration_type_id AND ud.user_id = ?
+                WHERE dt.unlock_condition = 1
+                ORDER BY dt.price ASC
+            `,
+            [userLevel, userId]
+        );
+        res.json({ success: true, decorationTypes });
+    } catch (error) {
+        console.error('장식품 목록 조회 에러:', error);
+        res.status(500).json({ success: false, message: '장식품 목록을 불러오는데 실패했습니다.' });
+    }
+});
+
+
+router.post('/decorations/buy', authenticateToken, async (req, res) => {
+    const connection = await pool.getConnection();
+    try {
+        const userId = req.user.userId;
+        const { decorationTypeId } = req.body;
+        if (!decorationTypeId) {
+            return res.status(400).json({ success: false, message: '구매할 장식품을 선택해주세요.' });
+        }
+        await connection.beginTransaction();
+        const [userInfo] = await connection.query('SELECT fish_coins, level FROM users WHERE id = ? FOR UPDATE', [userId]);
+        if (!userInfo.length) {
+            await connection.rollback();
+            return res.status(404).json({ success: false, message: '사용자를 찾을 수 없습니다.' });
+        }
+        const userCoins = userInfo[0].fish_coins;
+        const userLevel = userInfo[0].level;
+        const [decorationType] = await connection.query('SELECT * FROM decoration_types WHERE id = ?', [decorationTypeId]);
+        if (!decorationType.length) {
+            await connection.rollback();
+            return res.status(404).json({ success: false, message: '해당 장식품을 찾을 수 없습니다.' });
+        }
+        const decoration = decorationType[0];
+        const [existingDecoration] = await connection.query(
+            'SELECT id FROM user_decorations WHERE user_id = ? AND decoration_type_id = ?',
+            [userId, decorationTypeId]
+        );
+        if (existingDecoration.length > 0) {
+            await connection.rollback();
+            return res.status(400).json({ success: false, message: '이미 보유하고 있는 장식품입니다.' });
+        }
+        if (decoration.unlock_level > userLevel) {
+            await connection.rollback();
+            return res.status(400).json({ success: false, message: `레벨 ${decoration.unlock_level} 이상이 되어야 구매할 수 있습니다.` });
+        }
+        if (userCoins < decoration.price) {
+            await connection.rollback();
+            return res.status(400).json({ success: false, message: '코인이 부족합니다.' });
+        }
+        await connection.query('UPDATE users SET fish_coins = fish_coins - ? WHERE id = ?', [decoration.price, userId]);
+        const [result] = await connection.query(
+            'INSERT INTO user_decorations (user_id, decoration_type_id, is_placed) VALUES (?, ?, 0)',
+            [userId, decorationTypeId]
+        );
+        await connection.commit();
+        res.json({
+            success: true,
+            message: `${decoration.name}을(를) 구매했습니다!`,
+            purchasedDecoration: { id: result.insertId, name: decoration.name, image_url: decoration.image_url },
+            remainingCoins: userCoins - decoration.price
+        });
+    } catch (error) {
+        await connection.rollback();
+        console.error('장식품 구매 에러:', error);
+        res.status(500).json({ success: false, message: '장식품 구매 중 오류가 발생했습니다.' });
+    } finally {
+        connection.release();
+    }
+});
+
+// 보유 장식품 목록 조회
+router.get('/my-decorations', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const [myDecorations] = await pool.query(
+            `
+                SELECT
+                    ud.id,
+                    ud.position_x,
+                    ud.position_y,
+                    ud.acquired_at,
+                    ud.is_placed,
+                    dt.name,
+                    dt.image_url,
+                    dt.description
+                FROM user_decorations ud
+                JOIN decoration_types dt ON ud.decoration_type_id = dt.id
+                WHERE ud.user_id = ?
+                ORDER BY ud.acquired_at DESC
+            `,
+            [userId]
+        );
+        res.json({ success: true, decorations: myDecorations });
+    } catch (error) {
+        console.error('보유 장식품 조회 에러:', error);
+        res.status(500).json({ success: false, message: '보유 장식품을 불러오는데 실패했습니다.' });
+    }
+});
+// 장식품을 어항에 배치/제거
+router.patch('/decorations/:id/toggle-aquarium', authenticateToken, async (req, res) => {
+    const connection = await pool.getConnection();
+    try {
+        const userId = req.user.userId;
+        const decorationId = req.params.id;
+
+        await connection.beginTransaction();
+
+        // 장식품 소유권 확인
+        const [decoration] = await connection.query(
+            'SELECT is_placed FROM user_decorations WHERE id = ? AND user_id = ?',
+            [decorationId, userId]
+        );
+
+        if (!decoration.length) {
+            await connection.rollback();
+            return res.status(404).json({
+                success: false,
+                message: '장식품을 찾을 수 없습니다.'
+            });
+        }
+
+        const currentStatus = decoration[0].is_placed;
+        const newStatus = currentStatus ? 0 : 1;
+
+        // 상태 업데이트
+        await connection.query(
+            'UPDATE user_decorations SET is_placed = ? WHERE id = ?',
+            [newStatus, decorationId]
+        );
+
+        await connection.commit();
+
+        res.json({
+            success: true,
+            message: newStatus ? '어항에 배치되었습니다.' : '어항에서 제거되었습니다.',
+            is_placed: newStatus
+        });
+    } catch (error) {
+        await connection.rollback();
+        console.error('장식품 배치 상태 변경 에러:', error);
+        res.status(500).json({
+            success: false,
+            message: '장식품 배치 상태 변경 중 오류가 발생했습니다.'
+        });
+    } finally {
+        connection.release();
+    }
+});
+
 module.exports = router;
