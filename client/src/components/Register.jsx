@@ -30,7 +30,7 @@ export default function Register() {
             const response = await fetch('http://localhost:3001/api/user/signup', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Con.tent-Type': 'application/json',
                 },
                 body: JSON.stringify(formData)
             });
@@ -39,7 +39,7 @@ export default function Register() {
 
             if (data.success) {
                 setMessage(data.message);
-                setFormData({email: '', password: '' });
+                setFormData({ email: '', password: '' });
             } else {
                 setMessage(data.message);
             }
@@ -57,7 +57,6 @@ export default function Register() {
                 <div className="overlap">
                     <div className="frame">
                         <div className="text-wrapper">🐠 Fishtank 회원가입</div>
-
 
 
                         {/* 이메일 입력 */}
@@ -90,7 +89,6 @@ export default function Register() {
                             </div>
                         </div>
 
-
                         {/* 회원가입 버튼 */}
                         <div
                             className="submit-button"
@@ -112,11 +110,14 @@ export default function Register() {
                         }}>
                             <span style={{ color: '#666', fontSize: '14px' }}>
                         이미 계정이 있으신가요?{' '}
-                                <span onClick={() => window.location.href = '/'}>
+                            <span onClick={() => window.location.href = '/'}>
                             로그인하기
                             </span>
                         </span>
                         </div>
+
+
+
 
                          {/*메시지 표시 */}
                         {message && (
