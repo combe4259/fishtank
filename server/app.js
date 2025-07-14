@@ -12,6 +12,7 @@ var indexRouter = require('./routes/index');
 const authRoutes = require('./routes/user');
 const githubRoutes = require('./routes/github');
 const shopRoutes = require('./routes/shop')
+const achievementsRoutes = require('./routes/achievements')
 var app = express();
 
 // view engine setup
@@ -36,8 +37,7 @@ app.use('/', indexRouter);
 app.use('/api/user', authRoutes);
 app.use('/api/github', githubRoutes);
 app.use('/api/shop',shopRoutes)
-
-
+app.use('/api/achievements',achievementsRoutes)
 
 
 // catch 404 and forward to error handler

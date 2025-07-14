@@ -1,6 +1,9 @@
 const express = require('express');
 const { Octokit } = require('octokit');
 const { pool } = require('../config/database');
+const achievements = require('./achievements');
+const checkAchievements = achievements.checkAchievements;
+
 const router = express.Router();
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
@@ -343,27 +346,36 @@ router.get('/stats', authenticateToken, async (req, res) => {
         const { github_token, github_username } = users[0];
         const octokit = new Octokit({ auth: github_token });
 
+        // 오늘 날짜 (KST 기준)
         const today = new Date();
-        const kstOffset = 9 * 60 * 60 * 1000; // UTC+9 오프셋
-        const kstToday = new Date(today.getTime() + kstOffset);
-        const todayStart = new Date(kstToday.getFullYear(), kstToday.getMonth(), kstToday.getDate());
-        const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000 - 1);
+        const koreanToday = new Date(today.getTime() + (9 * 60 * 60 * 1000));
+        const todayStart = new Date(koreanToday.getFullYear(), koreanToday.getMonth(), koreanToday.getDate());
 
-        console.log('오늘 날짜 (KST):', todayStart.toISOString(), 'to', todayEnd.toISOString());
+        // 사용자 기본 정보 가져오기
+        const { data: userInfo } = await octokit.rest.users.getByUsername({
+            username: github_username
+        });
 
-        const { todayCommits, totalCommitsToday } = await getTodayCommits(octokit, github_username, todayStart, todayEnd);
-
-        let openIssues = 0;
-        let openPrs = 0;
-
+        // 모든 레포지토리 가져오기
         const { data: repos } = await octokit.rest.repos.listForUser({
             username: github_username,
             type: 'owner',
-            per_page: 10
+            per_page: 100
         });
 
+        let openIssues = 0;
+        let openPrs = 0;
+        let totalCommitsToday = 0;
+        let todayCommits = [];
+        let totalStars = 0; // 총 스타 수 계산
+
+        // 각 레포지토리에서 통계 수집
         for (const repo of repos) {
             try {
+                // 총 스타 수 누적
+                totalStars += repo.stargazers_count || 0;
+
+                // 오픈 이슈 수
                 const { data: issues } = await octokit.rest.issues.listForRepo({
                     owner: github_username,
                     repo: repo.name,
@@ -372,6 +384,7 @@ router.get('/stats', authenticateToken, async (req, res) => {
                 });
                 openIssues += issues.length;
 
+                // 오픈 PR 수
                 const { data: pulls } = await octokit.rest.pulls.list({
                     owner: github_username,
                     repo: repo.name,
@@ -379,39 +392,90 @@ router.get('/stats', authenticateToken, async (req, res) => {
                     per_page: 100
                 });
                 openPrs += pulls.length;
+
+                // 오늘 커밋
+                const { data: commits } = await octokit.rest.repos.listCommits({
+                    owner: github_username,
+                    repo: repo.name,
+                    author: github_username,
+                    since: todayStart.toISOString(),
+                    until: new Date(todayStart.getTime() + 24 * 60 * 60 * 1000 - 1).toISOString(),
+                    per_page: 100
+                });
+
+                const todayRepoCommits = commits.filter(commit => {
+                    const commitDate = new Date(commit.commit.author.date);
+                    const commitKoreanDate = new Date(commitDate.getTime() + (9 * 60 * 60 * 1000));
+                    return commitKoreanDate.toDateString() === todayStart.toDateString();
+                });
+
+                todayCommits.push(...todayRepoCommits.map(commit => ({
+                    sha: commit.sha.substring(0, 7),
+                    message: commit.commit.message.split('\n')[0],
+                    repository: repo.name,
+                    time: new Date(commit.commit.author.date).toLocaleTimeString('ko-KR', {
+                        timeZone: 'Asia/Seoul',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }),
+                    url: commit.html_url,
+                    date: commit.commit.author.date
+                })));
+
+                totalCommitsToday += todayRepoCommits.length;
+
             } catch (repoError) {
-                console.error(`레포 ${repo.name} 데이터 조회 실패:`, repoError.message);
+                console.log(`레포 ${repo.name}에서 데이터를 가져올 수 없습니다:`, repoError.message);
                 continue;
             }
         }
 
-        const dateFormatter = new Intl.DateTimeFormat('ko-KR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            timeZone: 'Asia/Seoul'
+        // 시간순 정렬
+        todayCommits.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // 업적 체크 시작
+        console.log('GitHub 통계 기반 업적 체크 시작...');
+
+        // Git플루언서 - GitHub 팔로워 1000명 달성
+        await checkAchievements(userId, 'github_followers', {
+            followers: userInfo.followers || 0
         });
-        const formattedDate = dateFormatter.format(todayStart);
+
+        // 첫 커밋 체크
+        const totalCommits = repos.reduce((sum, repo) => sum + (repo.size || 0), 0);
+        if (totalCommits > 0 || totalCommitsToday > 0) {
+            await checkAchievements(userId, 'github_first_commit', {
+                totalCommits: Math.max(totalCommits, totalCommitsToday)
+            });
+        }
+
+        // 별 따러가자 - 레포지토리 첫 스타 받기
+        await checkAchievements(userId, 'github_first_star', {
+            totalStars: totalStars
+        });
+
+        console.log(`✅ 업적 체크 완료 - 팔로워: ${userInfo.followers}, 총스타: ${totalStars}, 커밋여부: ${totalCommits > 0}`);
 
         res.json({
             success: true,
             data: {
                 totalCommitsToday,
                 commits: todayCommits.slice(0, 10),
-                date: formattedDate,
+                date: todayStart.toLocaleDateString('ko-KR'),
                 issues: openIssues,
-                prs: openPrs,
-                username: github_username
+                prs: `${openPrs}/total`, // 단순화
+                username: github_username,
+                // 업적 체크용 추가 정보
+                achievements_data: {
+                    followers: userInfo.followers,
+                    totalStars: totalStars,
+                    hasCommits: totalCommits > 0 || totalCommitsToday > 0
+                }
             }
         });
+
     } catch (error) {
         console.error('GitHub 통계 조회 에러:', error);
-        if (error.status === 403) {
-            return res.status(403).json({
-                success: false,
-                message: 'GitHub API 제한을 초과했습니다. 나중에 다시 시도해 주세요.'
-            });
-        }
         res.status(500).json({
             success: false,
             message: 'GitHub 통계 정보를 가져올 수 없습니다.'

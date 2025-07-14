@@ -1,6 +1,9 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const {pool, createConnection} = require('../config/database')
+const achievements = require('./achievements');
+const checkAchievements = achievements.checkAchievements;
+
 const router = express.Router();
 
 // JWT 검증 미들웨어
@@ -112,6 +115,13 @@ router.post('/login', async (req, res) => {
             { expiresIn: '7d' }
         );
 
+        try {
+            await checkAchievements(users[0].id, 'login_time_special');
+            console.log(`로그인 시간 업적 체크 완료 - 사용자 ${users[0].id}`);
+        } catch (achievementError) {
+            console.error('로그인 업적 체크 에러:', achievementError);
+        }
+
         res.json({
             success: true,
             message: '로그인 성공!',
@@ -146,7 +156,7 @@ router.get('/oauth/github', (req, res) => {
     res.redirect(githubAuthURL);
 });
 
-// GitHub OAuth 콜백 - 수정된 버전
+// GitHub OAuth 콜백
 router.get('/oauth/github/callback', async (req, res) => {
     const { code, state } = req.query;
 
@@ -270,6 +280,13 @@ router.get('/oauth/github/callback', async (req, res) => {
             };
         }
 
+        try {
+            await checkAchievements(user.id, 'login_time_special');
+            console.log(`⏰ GitHub 로그인 시간 업적 체크 완료 - 사용자 ${user.id}`);
+        } catch (achievementError) {
+            console.error('GitHub 로그인 업적 체크 에러:', achievementError);
+        }
+
         const token = jwt.sign(
             {
                 userId: user.id,
@@ -291,10 +308,16 @@ router.get('/oauth/github/callback', async (req, res) => {
     }
 });
 
-// 사용자 프로필 조회 API - 수정된 버전
+// 사용자 프로필 조회 API
 router.get('/profile', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.userId;
+
+        try {
+            await checkAchievements(userId, 'login_time_special');
+        } catch (achievementError) {
+            console.error('프로필 조회시 업적 체크 에러:', achievementError);
+        }
 
         const [users] = await pool.execute(
             `SELECT id, email, username, github_username, github_id, profile_image_url, 

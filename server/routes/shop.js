@@ -384,7 +384,7 @@ router.get('/decorations/list', authenticateToken, async (req, res) => {
     }
 });
 
-// 장식품 구매
+
 router.post('/decorations/buy', authenticateToken, async (req, res) => {
     const connection = await pool.getConnection();
     try {
