@@ -1,11 +1,4 @@
 export const styles = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '24px',
-    padding: '20px',
-    minHeight: 'calc(100vh - 110px)'
-  },
   mainGrid: {
     display: 'grid',
     gridTemplateColumns: '300px 1fr 300px',
@@ -77,7 +70,7 @@ export const styles = {
     gap: '20px'
   },
   aquariumContainer: {
-    height: '400px', // 높이를 줄여서 대시보드 공간 확보
+    height: '500px', // 높이를 줄여서 대시보드 공간 확보
     background: 'linear-gradient(180deg, #7dd3fc 0%, #0ea5e9 50%, #0284c7 100%)',
     borderRadius: '32px',
     position: 'relative',
@@ -754,18 +747,138 @@ export const styles = {
     fontWeight: '600',
     color: '#1a1a1a',
     textAlign: 'right'
+  },
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '24px',
+    padding: '20px',
+    minHeight: 'calc(100vh - 110px)'
+  },
+
+  // 로딩 화면 스타일 추가
+  loadingContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh',
+    fontSize: '18px'
+  },
+
+  // 보상 메시지 스타일 추가
+  rewardMessage: {
+    padding: '10px',
+    marginBottom: '20px',
+    color: 'white',
+    borderRadius: '8px',
+    fontSize: '14px',
+    textAlign: 'center'
+  },
+  rewardMessageSuccess: {
+    backgroundColor: '#10b981'
+  },
+  rewardMessageAlready: {
+    backgroundColor: '#f59e0b'
+  },
+
+  // 레벨 정보 스타일 추가
+  levelInfo: {
+    fontSize: '12px',
+    color: '#d1d5db',
+    marginTop: '16px',
+    textAlign: 'center'
+  },
+
+  // 보상 섹션 스타일 추가
+  rewardSection: {
+    marginBottom: '20px',
+    padding: '12px',
+    background: 'linear-gradient(135deg, #4b5563 0%, #374151 100%)',
+    borderRadius: '12px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+    color: '#f0f0f0',
+    fontSize: '14px'
+  },
+
+  // 물고기/장식품 버튼 스타일
+  fishToggleButton: {
+    padding: '5px 10px',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '12px',
+    transition: 'all 0.3s'
+  },
+  fishToggleButtonAdd: {
+    backgroundColor: '#3B82F6'
+  },
+  fishToggleButtonRemove: {
+    backgroundColor: '#ef4444'
+  },
+  decorationToggleButtonAdd: {
+    backgroundColor: '#8B5CF6'
+  },
+  decorationToggleButtonRemove: {
+    backgroundColor: '#ef4444'
+  },
+
+  // 빈 상태 메시지 스타일
+  emptyMessage: {
+    textAlign: 'center',
+    padding: '20px',
+    color: '#9CA3AF',
+    fontSize: '14px'
+  },
+
+  // 어항 빈 상태 메시지
+  aquariumEmptyMessage: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    textAlign: 'center',
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: '16px',
+    zIndex: 20
+  },
+  aquariumEmptyIcon: {
+    fontSize: '48px',
+    marginBottom: '10px'
+  },
+
+  // 장식품 컨테이너 스타일
+  decorationContainer: {
+    position: 'absolute',
+    zIndex: 5
+  },
+  decorationWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    filter: 'drop-shadow(0 0 8px rgba(0,0,0,0.3))'
+  },
+  decorationImage: {
+    width: '28px',
+    height: '28px'
+  },
+  decorationName: {
+    fontSize: '10px',
+    color: 'rgba(255, 255, 255, 0.8)',
+    marginTop: '2px',
+    textShadow: '0 0 4px rgba(0,0,0,0.8)'
   }
 };
 
 // CSS 애니메이션 추가
 const styleSheet = document.createElement("style");
 styleSheet.textContent = `
-  @keyframes swim {
-    0%, 100% { transform: translateX(0) translateY(0); }
-    25% { transform: translateX(100px) translateY(-20px); }
-    50% { transform: translateX(150px) translateY(20px); }
-    75% { transform: translateX(50px) translateY(-10px); }
-  }
+@keyframes swim {
+  0%, 100% { transform: translateX(0) translateY(0) scaleX(1); }
+  25% { transform: translateX(120px) translateY(-30px) scaleX(-1); }
+  50% { transform: translateX(200px) translateY(30px) scaleX(1); }
+  75% { transform: translateX(80px) translateY(-15px) scaleX(-1); }
+}
   
   @keyframes float {
     0%, 100% { transform: translateY(0); opacity: 0.7; }

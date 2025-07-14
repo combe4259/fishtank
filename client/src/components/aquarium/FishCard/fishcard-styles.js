@@ -13,7 +13,17 @@ export const styles = {
     flexDirection: 'column',
     gap: '12px'
   },
-
+  fish: {
+        position: 'absolute',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        animation: 'swim 8s ease-in-out infinite',
+        cursor: 'pointer',
+        transition: 'transform 0.3s',
+        zIndex: 10, // 🔍 z-index 추가
+        border: '2px solid red' // 임시 디버깅용
+      },
   // 희귀도 뱃지
   rarityBadge: {
     position: 'absolute',
