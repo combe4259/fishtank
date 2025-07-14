@@ -12,6 +12,10 @@ import {
 import Card from "../../components/common/Card/Card";
 import { styles } from "./friendsAquarium-styles";
 
+const user = JSON.parse(localStorage.getItem('user'));
+const userId = user?.id;
+
+
 /**
  * FriendsAquarium – 친구 어항 보기 페이지
  * --------------------------------------------------
@@ -106,9 +110,50 @@ const FriendsAquarium = () => {
     alert(`${friend.name}의 어항을 방문합니다!`);
   };
 
-  const sendFriendRequest = (user) => {
-    // TODO: POST /api/friends/request { userId: user.id }
-    alert(`${user.name}에게 친구 신청을 보냈어요! 📨`);
+  const sendFriendRequest = async (user) => {
+    if (!user) return;
+
+    try {
+      // ① 현재 로그인한 사용자
+      const requesterId = userId;      // e.g. JWT decode
+      if (!requesterId) throw new Error("로그인 정보를 찾을 수 없습니다.");
+
+      // ② POST /api/friendships  (body: requester·addressee)
+      const res = await fetch("http://localhost:3001/api/friendships", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requesterId,
+          addresseeId: user.id,        // ← 친구가 될 상대
+        }),
+      });
+
+      if (!res.ok) {
+        const { message } = await res.json();
+        throw new Error(message || "친구 신청 실패");
+      }
+
+      alert(`${user.name}에게 친구 신청을 보냈어요! 📨`);
+      // ★ 필요하면 local state 에 pending 친구 목록 추가하기
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "에러가 발생했습니다 😢");
+    }
+  };
+
+
+  const [isHovered, setIsHovered] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
+
+  const handleClick = () => {
+    // Handle message sending functionality
+    console.log("Send message clicked");
+  };
+
+  const [message, setMessage] = useState("");
+
+  const handleInputChange = (e) => {
+    setMessage(e.target.value);
   };
 
   /* ------------------------------------------------------------------
@@ -285,10 +330,10 @@ const FriendsAquarium = () => {
               >
                 🐠
               </div>
-              <h3 style={{ fontSize: 20, fontWeight: "600" }}>{selectedFriend.name}</h3>
-              <p style={{ fontSize: 14, color: "#6B7280" }}>Lv.{selectedFriend.level}</p>
+              <h3 style={{ fontSize: 20, fontWeight: "600", marginBottom: 2 }}>{selectedFriend.name}</h3>
+              <p style={{ fontSize: 14, color: "#6B7280", marginTop: -10 }}>Lv.{selectedFriend.level}</p>
               {/* 레벨 프로그레스 바 */}
-              <div style={{ width: "100%", marginTop: 4 }}>
+              <div style={{ width: "100%"}}>
                 <div style={{ height: 8, background: "#E5E7EB", borderRadius: 8, overflow: "hidden" }}>
                   <div
                     style={{
@@ -303,7 +348,7 @@ const FriendsAquarium = () => {
                 </span>
               </div>
               {/* 좋아요 */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", marginTop: -15  }}>
                 <button onClick={() => {alert("조아요"), setLiked(!liked)}} 
                   style={{ background: "transparent", border: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
                   <Heart 
@@ -313,6 +358,46 @@ const FriendsAquarium = () => {
                    fill= {liked? "#ef4444" : "none"} 
                    />
                   <span style={{ fontWeight: 600, marginLeft: 4 }}>{selectedFriend.likes}</span>
+                </button>
+              </div>
+
+              {/* 쪽지보내기 */}
+              <div className="relative w-[363px] h-[190px] bg-[#ffffff80] rounded-[20px] overflow-hidden">
+                <label htmlFor="message-input" className="sr-only">
+                ? `${selectedFriend.name} 님께 하고 싶은 말을 적어 보세요!
+                </label>
+                <textarea
+                  id="message-input"
+                  value={message}
+                  onChange={handleInputChange}
+                  placeholder={`${selectedFriend.name} 님께 하고 싶은 말을 적어 보세요!`}
+                  className="absolute w-[265px] top-[11px] left-[17px] [font-family:'눈누_기초고딕_Regular-Regular',Helvetica] font-normal text-[#707070] text-base text-center tracking-[0] leading-[normal] resize-none h-[168px] placeholder:text-[#707070] focus:outline-none"
+                  aria-label={`${selectedFriend.name}님에게 보낼 메시지를 입력하세요`}
+                />
+              </div>
+              <div className="w-[415px] h-[265px] bg-[#ffffff80] rounded-[20px] overflow-hidden">
+                <button
+                  className={`relative w-[203px] h-[33px] top-[218px] left-[107px] bg-[#c2f0f7d2] rounded-[20px] overflow-hidden shadow-[inset_0px_-4px_4px_#00000026] transition-all duration-150 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 ${
+                    isPressed ? "transform scale-95" : ""
+                  } ${isHovered ? "bg-[#b8edf5d2]" : ""}`}
+                  onClick={handleClick}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                  onMouseDown={() => setIsPressed(true)}
+                  onMouseUp={() => setIsPressed(false)}
+                  aria-label="쪽지 보내기"
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      handleClick();
+                    }
+                  }}
+                >
+                  <span className="absolute w-[104px] top-[5px] left-[50px] [font-family:'눈누_기초고딕_Regular-Regular',Helvetica] font-normal text-black text-[15px] text-center tracking-[0] leading-[normal] pointer-events-none">
+                    쪽지 보내기 ✉
+                  </span>
                 </button>
               </div>
             </div>
