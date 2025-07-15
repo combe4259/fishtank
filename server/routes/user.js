@@ -296,7 +296,12 @@
             const successMessage = isNewConnection ? 'github_connected' : 'github_auth';
             console.log('✅ GitHub 로그인 성공, 리다이렉트:', `${process.env.FRONTEND_URL}/aquarium?${successMessage}=success&token=${token}`);
 
-            res.redirect(`${process.env.FRONTEND_URL}/aquarium?${successMessage}=success&token=${token}`);
+            //FIXME
+            // res.redirect(`${process.env.FRONTEND_URL}/aquarium?${successMessage}=success&token=${token}`);
+            const redirectUrl = `${process.env.FRONTEND_URL}/?${successMessage}=success&token=${token}`;
+
+            console.log('✅ GitHub 로그인 성공, 리다이렉트:', redirectUrl);
+            res.redirect(redirectUrl);
 
         } catch (error) {
             console.error('GitHub OAuth 에러:', error);
