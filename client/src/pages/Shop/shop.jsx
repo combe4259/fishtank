@@ -23,53 +23,53 @@ const Shop = ({ user }) => {
 
   // 컴포넌트 마운트 시 사용자 코인 정보 초기화
   useEffect(() => {
-    initializeUserCoins();
+    fetchUserCoins(); // 사용자 코인 정보 가져오기
     fetchFishList();
     fetchDecorationList();
   }, [user]);
 
   // 사용자 코인 정보 초기화 함수
-  const initializeUserCoins = () => {
-    console.log('사용자 정보 확인:', user);
+  // const initializeUserCoins = () => {
+  //   console.log('사용자 정보 확인:', user);
 
-    // 여러 경로에서 코인 정보 찾기
-    let coins = 0;
+  //   // 여러 경로에서 코인 정보 찾기
+  //   let coins = 0;
 
-    if (user?.gameStats?.fishCoins) {
-      coins = user.gameStats.fishCoins;
-    } else if (user?.fish_coins) {
-      coins = user.fish_coins;
-    } else if (user?.coins) {
-      coins = user.coins;
-    } else {
-      // localStorage에서 사용자 정보 다시 확인
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        try {
-          const parsedUser = JSON.parse(storedUser);
-          console.log('저장된 사용자 정보:', parsedUser);
+  //   if (user?.gameStats?.fishCoins) {
+  //     coins = user.gameStats.fishCoins;
+  //   } else if (user?.fish_coins) {
+  //     coins = user.fish_coins;
+  //   } else if (user?.coins) {
+  //     coins = user.coins;
+  //   } else {
+  //     // localStorage에서 사용자 정보 다시 확인
+  //     const storedUser = localStorage.getItem('user');
+  //     if (storedUser) {
+  //       try {
+  //         const parsedUser = JSON.parse(storedUser);
+  //         console.log('저장된 사용자 정보:', parsedUser);
 
-          if (parsedUser?.gameStats?.fishCoins) {
-            coins = parsedUser.gameStats.fishCoins;
-          } else if (parsedUser?.fish_coins) {
-            coins = parsedUser.fish_coins;
-          } else if (parsedUser?.coins) {
-            coins = parsedUser.coins;
-          }
-        } catch (error) {
-          console.error('사용자 정보 파싱 오류:', error);
-        }
-      }
+  //         if (parsedUser?.gameStats?.fishCoins) {
+  //           coins = parsedUser.gameStats.fishCoins;
+  //         } else if (parsedUser?.fish_coins) {
+  //           coins = parsedUser.fish_coins;
+  //         } else if (parsedUser?.coins) {
+  //           coins = parsedUser.coins;
+  //         }
+  //       } catch (error) {
+  //         console.error('사용자 정보 파싱 오류:', error);
+  //       }
+  //     }
 
-      // 여전히 코인 정보가 없으면 API에서 다시 가져오기
-      if (coins === 0) {
-        fetchUserCoins();
-      }
-    }
+  //     // 여전히 코인 정보가 없으면 API에서 다시 가져오기
+  //     if (coins === 0) {
+  //       fetchUserCoins();
+  //     }
+  //   }
 
-    console.log('초기화된 코인:', coins);
-    setUserCoins(coins);
-  };
+  //   console.log('초기화된 코인:', coins);
+  //   setUserCoins(coins);
+  // };
 
   // API에서 사용자 코인 정보 가져오기
   const fetchUserCoins = async () => {

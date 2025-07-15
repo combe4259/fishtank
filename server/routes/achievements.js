@@ -27,8 +27,76 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+
+const { Octokit } = require("octokit");
+
+/**
+ * 사용자의 최근 n일간 커밋 여부를 확인하는 함수
+ * @param {string} githubToken - GitHub personal access token
+ * @param {string} username - GitHub 사용자 이름
+ * @param {number} n - 연속 커밋 확인할 일 수
+ * @returns {Promise<boolean>} - true: n일 연속 커밋 존재, false: 하루라도 빠짐
+ */
+async function checkConsecutiveCommits(githubToken, username, n) {
+  const octokit = new Octokit({ auth: githubToken });
+  const today = new Date();
+
+  for (let i = 0; i < n; i++) {
+    const day = new Date(today);
+    day.setDate(today.getDate() - i);
+
+    const since = new Date(day.setHours(0, 0, 0, 0)).toISOString();
+    const until = new Date(day.setHours(23, 59, 59, 999)).toISOString();
+
+    let commitsFound = false;
+
+    const { data: repos } = await octokit.rest.repos.listForUser({
+      username,
+      type: 'owner',
+      per_page: 100,
+    });
+
+    for (const repo of repos) {
+      try {
+        const { data: commits } = await octokit.rest.repos.listCommits({
+          owner: username,
+          repo: repo.name,
+          author: username,
+          since,
+          until,
+          per_page: 10,
+        });
+
+        if (commits.length > 0) {
+          commitsFound = true;
+          break;
+        }
+      } catch (err) {
+        console.error(`❌ ${repo.name} 커밋 조회 실패:`, err.message);
+      }
+    }
+
+    if (!commitsFound) return false; // 하루라도 빠졌으면 false 즉시 반환
+  }
+
+  return true; // 모든 날에 커밋이 있음
+}
+
+module.exports = checkConsecutiveCommits;
+
+
 // 업적 체크 함수
 const checkAchievements = async (userId, triggerType, data = {}) => {
+    // 1. authenticateToken이 JWT를 통해 사용자 ID 추출
+    req.user = { user_id: userId };
+
+    // 2. DB에서 userId로 GitHub 토큰을 조회
+    const [rows] = await pool.execute(
+    'SELECT github_token, github_username FROM users WHERE id = ?',
+    [req.user.user_id]
+    );
+    const githubToken = rows[0].github_token;
+    const username = rows[0].github_username;
     try {
         console.log(` 업적 체크 시작: ${triggerType} for user ${userId}`);
 
@@ -86,24 +154,104 @@ const checkAchievements = async (userId, triggerType, data = {}) => {
                         console.log(`⏰ 시간여행자 달성! (04:04)`);
                     }
                     break;
+                    case 'github_commit_streak':
+                        const streakTarget = achievement.target_value;
+                    
+                        const streakValid = await checkConsecutiveCommits(githubToken, username, streakTarget);
+                        
+                        if (streakValid) {
+                            newProgress = streakTarget;
+                            isCompleted = true;
+                            shouldUpdate = true;
+                            console.log(`🔥 ${streakTarget}일 연속 커밋 달성!`);
+                        } else {
+                            // 현재 streak progress 기록용 (예: 3일 연속까지만 성공한 상태)
+                            const today = new Date();
+                            let actualStreak = 0;
+                    
+                            for (let i = 0; i < streakTarget; i++) {
+                                const day = new Date(today);
+                                day.setDate(today.getDate() - i);
+                                const since = new Date(day.setHours(0, 0, 0, 0)).toISOString();
+                                const until = new Date(day.setHours(23, 59, 59, 999)).toISOString();
+                    
+                                const { data: repos } = await octokit.rest.repos.listForUser({
+                                    username,
+                                    type: 'owner',
+                                    per_page: 100,
+                                });
+                    
+                                let found = false;
+                                for (const repo of repos) {
+                                    try {
+                                        const { data: commits } = await octokit.rest.repos.listCommits({
+                                            owner: username,
+                                            repo: repo.name,
+                                            author: username,
+                                            since,
+                                            until,
+                                            per_page: 1,
+                                        });
+                    
+                                        if (commits.length > 0) {
+                                            found = true;
+                                            break;
+                                        }
+                                    } catch (err) {
+                                        console.log(`❌ 커밋 조회 실패 (${repo.name})`, err.message);
+                                    }
+                                }
+                    
+                                if (found) {
+                                    actualStreak++;
+                                } else {
+                                    break; // 연속성 깨졌음
+                                }
+                            }
+                    
+                            newProgress = actualStreak;
+                            console.log(`📈 현재 커밋 스트릭 진행도: ${actualStreak}/${streakTarget}`);
+                            shouldUpdate = true;
+                        }
+                        break;
             }
 
             if (shouldUpdate) {
                 // user_achievements 테이블 업데이트 또는 삽입
-                if (achievement.current_progress !== null) {
-                    // 기존 레코드 업데이트
+                // if (achievement.current_progress !== null) {
+                //     // 기존 레코드 업데이트
+                //     await pool.execute(`
+                //         UPDATE user_achievements 
+                //         SET current_progress = ?, is_completed = ?, completed_at = ?, updated_at = NOW()
+                //         WHERE user_id = ? AND achievement_id = ?
+                //     `, [newProgress, isCompleted ? 1 : 0, isCompleted ? new Date() : null, userId, achievement.id]);
+                // } else {
+                //     // 새 레코드 삽입
+                //     await pool.execute(`
+                //         INSERT INTO user_achievements (user_id, achievement_id, current_progress, is_completed, completed_at)
+                //         VALUES (?, ?, ?, ?, ?)
+                //     `, [userId, achievement.id, newProgress, isCompleted ? 1 : 0, isCompleted ? new Date() : null]);
+                // }
+
+                const [rows] = await pool.execute(
+                    `SELECT * FROM user_achievements WHERE user_id = ? AND achievement_id = ?`,
+                    [userId, achievement.id]
+                  );
+                  
+                  if (rows.length > 0) {
+                    // 이미 있으면 UPDATE
                     await pool.execute(`
-                        UPDATE user_achievements 
-                        SET current_progress = ?, is_completed = ?, completed_at = ?, updated_at = NOW()
-                        WHERE user_id = ? AND achievement_id = ?
+                      UPDATE user_achievements 
+                      SET current_progress = ?, is_completed = ?, completed_at = ?, updated_at = NOW()
+                      WHERE user_id = ? AND achievement_id = ?
                     `, [newProgress, isCompleted ? 1 : 0, isCompleted ? new Date() : null, userId, achievement.id]);
-                } else {
-                    // 새 레코드 삽입
+                  } else {
+                    // 없으면 INSERT
                     await pool.execute(`
-                        INSERT INTO user_achievements (user_id, achievement_id, current_progress, is_completed, completed_at)
-                        VALUES (?, ?, ?, ?, ?)
+                      INSERT INTO user_achievements (user_id, achievement_id, current_progress, is_completed, completed_at)
+                      VALUES (?, ?, ?, ?, ?)
                     `, [userId, achievement.id, newProgress, isCompleted ? 1 : 0, isCompleted ? new Date() : null]);
-                }
+                  }
 
                 // 업적 완료시 로그
                 if (isCompleted && !achievement.is_completed) {

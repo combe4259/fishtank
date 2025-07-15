@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Fish, Github, CheckCircle, Activity, Plus, Trash2, BarChart, Palette } from 'lucide-react';
 import Card from '../../components/common/Card/Card.jsx';
-import { styles } from './MyAquarium-styles.js';
+import { styles } from './myAquarium-styles.js';
+import { deleteNotification, fetchNotifications } from '../Profile/Notificaitons.jsx';
+
+import {
+  acceptFriendRequest,
+  rejectFriendRequest,
+  fetchFriendRequests,
+} from "../FriendsAquarium/FriendsUtil.jsx";
+
+const user = JSON.parse(localStorage.getItem('user'));
+const userId = user?.id;
+
 
 const MyAquarium = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -18,6 +29,63 @@ const MyAquarium = () => {
   ]);
   const [myFishes, setMyFishes] = useState([]);
   const [myDecorations, setMyDecorations] = useState([]);
+  const [friendRequests, setFriendRequests] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+
+  // 알림 조회
+  const loadNotifications = async () => {
+    try {
+      const data = await fetchNotifications(userId);
+      setNotifications(data);
+    } catch (err) {
+      console.error('알림 조회 실패:', err);
+    }
+  };
+
+  // 알림 삭제
+  const handleDeleteNotification = async (id) => {
+    try {
+      await deleteNotification(id);
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+    } catch (err) {
+      console.error('알림 삭제 실패:', err);
+    }
+  };
+
+  useEffect(() => {
+    // 친구 요청 및 알림 불러오기
+    refreshFriendRequests();
+    loadNotifications();
+    // 기타 초기 데이터 로드
+  }, []);
+
+
+// ✅ 받은 친구 요청 리스트를 다시 가져오는 함수
+const refreshFriendRequests = async () => {
+  try {
+    const data = await fetchFriendRequests(userId);
+    setFriendRequests(data);
+  } catch (err) {
+    console.error('친구 요청 갱신 실패:', err);
+  }
+};
+
+// 수락/거절 핸들러에서 호출 예시
+const handleAccept = async (reqId) => {
+  const result = await acceptFriendRequest(reqId);
+  if (result) {
+    // 갱신
+    await refreshFriendRequests();
+  }
+};
+
+const handleReject = async (reqId) => {
+  const result = await rejectFriendRequest(reqId);
+  if (result) {
+    // 갱신
+    await refreshFriendRequests();
+  }
+};
 
   // 물고기 위치 계산 함수
   const getFishPosition = (index) => {
@@ -151,6 +219,9 @@ const MyAquarium = () => {
     }
   };
 
+
+  
+
   // 보유한 물고기 목록 가져오기
   const fetchMyFishes = async () => {
     try {
@@ -263,28 +334,99 @@ const MyAquarium = () => {
     }
   };
 
-  const addTodo = () => {
+  const addTodo = async () => {
     if (newTodo.trim()) {
+      const response = await fetch('http://localhost:3001/api/todos/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: userId,                        // ⚠️ 나중에 로그인 유저 정보로 바꿔야 함
+          title: newTodo.trim(),            // 🟢 제목으로 사용
+          description: '',                  // ✏️ 일단 빈 문자열로 기본값
+          is_completed: false              // 기본은 미완료
+        })
+      });
+  
+      const newItem = await response.json();
+      console.log('🧾 newItem from server:', newItem);
       setTodos([...todos, {
-        id: Date.now(),
-        name: newTodo.trim(),
-        status: 'pending'
+        id: newItem.id,
+        name: newItem.title,
+        status: newItem.is_completed ? 'completed' : 'pending'
       }]);
+      await getTodos(userId);
+      // 1. DB 업데이트 성공 후, 최신 유저 정보 다시 요청
+      const res = await fetch(`/api/users/${userId}`);
+      const updatedUser = await res.json();
+
+      // 2. localStorage 갱신
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      // 3. useState로 관리하고 있다면 상태도 갱신
+
+      console.log("👤 최신 userProfile:", userProfile);
       setNewTodo('');
     }
+
   };
 
-  const toggleTodo = (id) => {
+  const toggleTodo = async (id) => {
+    const targetTodo = todos.find(todo => todo.id === id);
+    const newStatus = !targetTodo.is_completed;
+  
+    const response = await fetch(`http://localhost:3001/api/todos/${id}/complete`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        is_completed: newStatus,
+        completed_at: newStatus ? new Date().toISOString() : null
+      })
+    });
+  
+    const updated = await response.json();
     setTodos(todos.map(todo =>
-        todo.id === id
-            ? { ...todo, status: todo.status === 'completed' ? 'pending' : 'completed' }
-            : todo
+      todo.id === id ? { ...todo, ...updated } : todo
     ));
+    await fetchUserProfile();
+    await getTodos(userId);
   };
 
-  const deleteTodo = (id) => {
+
+
+  const deleteTodo = async (id) => {
+    try {
+      await fetch(`http://localhost:3001/api/todos/${id}`, {
+        method: 'DELETE'
+      });
+      // 삭제 후 다시 할 일 목록 불러오기 등
+    } catch (err) {
+      console.error('할 일 삭제 실패:', err);
+    }
     setTodos(todos.filter(todo => todo.id !== id));
+    await getTodos(userId);
   };
+
+  const getTodos = async (userId) => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/todos/${userId}`);
+      const data = await response.json();
+
+      const formattedTodos = data.map(todo => ({
+        id: todo.id,
+        name: todo.title,
+        status: todo.is_completed ? 'completed' : 'pending'
+      }));
+      setTodos(formattedTodos);
+    } catch (error) {
+      console.error('할 일 조회 실패:', error);
+    }
+  }
+
+  
+  useEffect(() => {
+    console.log('📌 userProfile updated:', userProfile);
+  }, [userProfile]);
+
 
   const dashboardTabs = [
     { id: 'dashboard', label: '대시보드', icon: BarChart, data: {} },
@@ -333,6 +475,7 @@ const MyAquarium = () => {
   const completionPercentage = Math.round((completedCount / todos.length) * 100) || 0;
 
   const renderTabContent = () => {
+
     switch (activeTab) {
       case 'dashboard': {
         return (
@@ -373,6 +516,7 @@ const MyAquarium = () => {
                                     🔥 오늘 {githubData?.totalCommitsToday || 0}개 커밋
                                 </span>
                   </div>
+                  
                   <div style={styles.githubStats}>
                     <div style={styles.statBox}>
                       <div style={styles.metricIcon}><Activity size={24} color="#3b82f6" /></div>
@@ -477,6 +621,21 @@ const MyAquarium = () => {
       }
 
       case 'github': {
+        const hasGithub =
+          userProfile?.githubStats && githubData?.totalCommitsToday !== undefined;
+
+        if (!hasGithub) {
+          return (
+            <div style={styles.tabContent}>
+              <div style={{ textAlign: 'center', marginTop: '100px', color: '#9CA3AF' }}>
+                <h2 style={{ fontSize: '20px', marginBottom: '12px' }}>🐙 GitHub 연동이 필요해요</h2>
+                <p style={{ fontSize: '14px' }}>
+                  이 탭을 사용하려면 GitHub 계정을 연동해야 합니다.
+                </p>
+              </div>
+            </div>
+          );
+        }
         return (
             <div style={styles.tabContent}>
               <div style={styles.streakSection}>
@@ -504,6 +663,7 @@ const MyAquarium = () => {
                   <div style={styles.metricIcon}><Github size={24} color="#10b981" /></div>
                   <div style={styles.statNumber}>{githubData?.totalCommitsToday || 0}</div>
                   <div style={styles.statLabel}>오늘 커밋</div>
+          
                 </div>
                 <div style={styles.statBox}>
                   <div style={styles.metricIcon}><Activity size={24} color="#3b82f6" /></div>
@@ -526,11 +686,6 @@ const MyAquarium = () => {
                         <span>
                             오늘의 활동 보상: {githubData?.coinsEarned || 0} 코인, {githubData?.experienceGained || 0} 경험치
                         </span>
-                {githubData?.alreadyRewarded && (
-                    <div style={{ fontSize: '12px', color: '#f59e0b', marginTop: '5px' }}>
-                      (이미 오늘 보상을 받았습니다)
-                    </div>
-                )}
               </div>
 
               <div style={styles.weeklyActivitySection}>
@@ -611,7 +766,7 @@ const MyAquarium = () => {
                     style={styles.todoInput}
                 />
                 <button onClick={addTodo} style={styles.addTodoButton}>
-                  <Plus style={{ width: '16px', height: '16px' }} />
+                  <Plus style={{ width: '25px', height: '25px' }} />
                 </button>
               </div>
               <div style={styles.todoList}>
@@ -647,9 +802,10 @@ const MyAquarium = () => {
   const aquariumFishes = myFishes.filter(fish => fish.is_in_aquarium);
   const aquariumDecorations = myDecorations.filter(decoration => decoration.is_placed);
 
-  console.log('🐠 전체 물고기:', myFishes);
-  console.log('🐠 어항에 있는 물고기:', aquariumFishes);
-  console.log('🎨 어항에 있는 장식품:', aquariumDecorations);
+  // console.log('🐠 전체 물고기:', myFishes);
+  // console.log('🐠 어항에 있는 물고기:', aquariumFishes);
+  // console.log('🎨 어항에 있는 장식품:', aquariumDecorations);
+
 
   return (
       <div style={styles.container}>
@@ -681,6 +837,45 @@ const MyAquarium = () => {
                 </div>
               </div>
             </Card>
+
+            {/* 받은 친구 요청 목록 */}
+            <Card style={styles.mainCard}>
+              <h4>받은 친구 신청</h4>
+              <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+                {friendRequests.map(r => (
+                  <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <span>요청 from {r.requester_id}</span>
+                    <div>
+                      <button onClick={() => handleAccept(r.id)}>수락</button>
+                      <button onClick={() => handleReject(r.id)} style={{ marginLeft: 8 }}>거절</button>
+                    </div>
+                  </div>
+                ))}
+                {friendRequests.length === 0 && <p>신청이 없습니다.</p>}
+              </div>
+            </Card>
+
+            <Card style={styles.mainCard}>
+            <h4>알림</h4>
+              <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+                {notifications.length > 0 ? (
+                  notifications.map((note) => (
+                    <div key={note.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0' }}>
+                      <div>
+                        <strong>{note.title}</strong><br />
+                        <span style={{ fontSize: 12, color: '#555' }}>{note.message}</span>
+                      </div>
+                      <button onClick={() => handleDeleteNotification(note.id)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                        <Trash2 size={16} color="#999" />
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <p>알림이 없습니다.</p>
+                )}
+              </div>
+            </Card>
+
           </div>
 
           {/* 메인 아쿠아리움 */}
