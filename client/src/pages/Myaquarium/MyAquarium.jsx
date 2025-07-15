@@ -64,6 +64,16 @@ const MyAquarium = () => {
 
   // 데이터 조회
   useEffect(() => {
+    // GitHub OAuth 토큰 처리
+    const urlParams = new URLSearchParams(window.location.search);
+    const session = urlParams.get('session');
+    const authSuccess = urlParams.get('auth_success');
+
+    if (session && authSuccess) {
+      localStorage.setItem('token', session);
+      window.history.replaceState({}, document.title, '/aquarium');
+    }
+
     fetchUserProfile();
     fetchAllData();
     fetchMyFishes();
