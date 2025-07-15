@@ -8,7 +8,6 @@ import Card from '../../components/common/Card/Card.jsx';
 import { styles } from './profile-styles';
 const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '');
 
-
 const Profile = () => {
   const [userProfile, setUserProfile] = useState(null);
   const [achievements, setAchievements] = useState([]); // 실제 업적 데이터

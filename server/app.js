@@ -40,7 +40,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors({
   origin: [
     'http://localhost:5173',
-    'https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app'
+    'https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app',
+    'https://fishtank-frontend.vercel.app',
   ],
   credentials: true
 }));

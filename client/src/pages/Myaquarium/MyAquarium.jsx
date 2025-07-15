@@ -11,7 +11,6 @@ import {
   fetchFriendRequests,
 } from "../FriendsAquarium/FriendsUtil.jsx";
 
-
 const user = JSON.parse(localStorage.getItem('user'));
 const userId = user?.id;
 
