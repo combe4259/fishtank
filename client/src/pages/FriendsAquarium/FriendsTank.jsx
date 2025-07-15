@@ -1,5 +1,5 @@
 import React from 'react';
-import { styles } from './MyAquarium-styles.js';
+import { styles } from '../Myaquarium/MyAquarium-styles.js';
 
 const FriendsTank = ({ fishes = [], decorations = [] }) => {
   // 어항에 실제 배치된 물고기·장식만 골라냄

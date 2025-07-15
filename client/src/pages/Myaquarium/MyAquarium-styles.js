@@ -14,13 +14,15 @@ export const styles = {
     gap: '20px'
   },
 
-  // 프로필 카드
+  // 프로필 카드 - 투명도 적용
   profileCard: {
-    background: 'rgba(255, 255, 255, 0.95)',
+    background: 'rgba(255, 255, 255, 0.2)', // 투명도 적용
+    backdropFilter: 'blur(15px)', // 블러 효과 추가
     borderRadius: '24px',
     padding: '24px',
     textAlign: 'center',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)'
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
+    border: '1px solid rgba(255, 255, 255, 0.3)' // 미묘한 테두리
   },
   profileAvatar: {
     width: '90px',
@@ -51,7 +53,7 @@ export const styles = {
     display: 'flex',
     justifyContent: 'space-around',
     paddingTop: '20px',
-    borderTop: '1px solid #e5e7eb'
+    borderTop: '1px solid rgba(229, 231, 235, 0.6)' // 테두리도 투명하게
   },
   statValue: {
     fontSize: '24px',
@@ -60,6 +62,15 @@ export const styles = {
     marginBottom: '4px'
   },
 
+  // 메인 카드들 - 투명도 적용
+  mainCard: {
+    background: 'rgba(255, 255, 255, 0.2)', // 투명도 적용
+    backdropFilter: 'blur(15px)', // 블러 효과 추가
+    borderRadius: '24px',
+    padding: '24px',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
+    border: '1px solid rgba(255, 255, 255, 0.3)' // 미묘한 테두리
+  },
 
   // 메인 아쿠아리움
   aquariumWrapper: {
@@ -70,7 +81,7 @@ export const styles = {
     gap: '20px'
   },
   aquariumContainer: {
-    height: '500px', // 높이를 줄여서 대시보드 공간 확보
+    height: '500px',
     background: 'linear-gradient(180deg, #7dd3fc 0%, #0ea5e9 50%, #0284c7 100%)',
     borderRadius: '32px',
     position: 'relative',
@@ -122,12 +133,14 @@ export const styles = {
   fishName: {
     marginTop: '8px',
     padding: '6px 14px',
-    background: 'rgba(255, 255, 255, 0.95)',
+    background: 'rgba(255, 255, 255, 0.05)', // 약간 투명하게
+    backdropFilter: 'blur(5px)', // 블러 효과
     borderRadius: '16px',
     fontSize: '13px',
     fontWeight: '600',
     color: '#1a1a1a',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    border: '1px solid rgba(255, 255, 255, 0.4)'
   },
   seaweed: {
     position: 'absolute',
@@ -151,28 +164,32 @@ export const styles = {
     width: '10px',
     height: '10px',
     borderRadius: '50%',
-    background: 'rgba(255, 255, 255, 0.7)',
+    background: 'rgba(255, 255, 255, 0.2)',
     animation: 'float 4s ease-in-out infinite',
     boxShadow: '0 0 10px rgba(255, 255, 255, 0.3)'
   },
 
-  // 대시보드 카드 (새로 추가)
+  // 대시보드 카드 - 투명도 적용
   dashboardCard: {
-    background: 'rgba(255, 255, 255, 0.95)',
+    background: 'rgba(255, 255, 255, 0.2)', // 투명도 적용
+    backdropFilter: 'blur(15px)', // 블러 효과 추가
     borderRadius: '24px',
     padding: '24px',
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
-    minHeight: '300px'
+    minHeight: '300px',
+    border: '1px solid rgba(255, 255, 255, 0.3)' // 미묘한 테두리
   },
 
-  // 탭 네비게이션
+  // 탭 네비게이션 - 투명도 적용
   tabNavigation: {
     display: 'flex',
-    background: '#f8fafc',
+    background: 'rgba(248, 250, 252, 0.2)', // 투명도 적용
+    backdropFilter: 'blur(10px)', // 블러 효과
     borderRadius: '16px',
     padding: '4px',
     marginBottom: '20px',
-    gap: '4px'
+    gap: '4px',
+    border: '1px solid rgba(255, 255, 255, 0.3)'
   },
   tabButton: {
     flex: 1,
@@ -192,9 +209,11 @@ export const styles = {
     whiteSpace: 'nowrap'
   },
   tabButtonActive: {
-    background: 'white',
+    background: 'rgba(255, 255, 255, 0.15)', // 활성 상태도 투명하게
+    backdropFilter: 'blur(10px)',
     color: '#1e293b',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    border: '1px solid rgba(255, 255, 255, 0.4)'
   },
 
   // 탭 컨텐츠
@@ -205,10 +224,12 @@ export const styles = {
   dashboardHeader: {
     marginBottom: '24px',
     textAlign: 'center',
-    background: 'linear-gradient(135deg, #1e293b 0%, #2d3748 100%)',
+    background: 'rgba(255, 255, 255, 0.0)', // 더 투명하게 변경
+    backdropFilter: 'blur(15px)',
     borderRadius: '16px',
     padding: '12px',
-    color: '#f0f0f0',
+    color: '#1e293b',
+    border: '1px solid rgba(255, 255, 255, 0.2)'
   },
   dashboardTitle: {
     fontSize: '24px',
@@ -225,12 +246,14 @@ export const styles = {
     gap: '16px',
   },
   metricCard: {
-    background: 'linear-gradient(135deg, #4b5563 0%, #374151 100%)',
+    background: 'rgba(255, 255, 255, 0.0)', // 더 투명하게 변경
+    backdropFilter: 'blur(15px)',
     borderRadius: '16px',
     padding: '20px',
     color: '#f0f0f0',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
     transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+    border: '1px solid rgba(255, 255, 255, 0.2)'
   },
   metricHeader: {
     display: 'flex',
@@ -248,24 +271,29 @@ export const styles = {
   },
   fireIcon: {
     fontSize: '12px',
-    background: 'rgba(16, 185, 129, 0.8)',
+    background: 'rgba(255, 255, 255, 0.0)', // 더 투명하게 변경
+    backdropFilter: 'blur(5px)',
     padding: '4px 8px',
     borderRadius: '12px',
+    border: '1px solid rgba(16, 185, 129, 0.3)'
   },
   progressBadge: {
     fontSize: '12px',
-    background: 'rgba(16, 185, 129, 0.8)',
+    background: 'rgba(255, 255, 255, 0.1)', // 더 투명하게 변경
+    backdropFilter: 'blur(5px)',
     padding: '4px 8px',
     borderRadius: '12px',
+    border: '1px solid rgba(16, 185, 129, 0.3)'
   },
   statBox: {
-    background: 'rgba(255, 255, 255, 0.1)',
+    background: 'rgba(255, 255, 255, 0.15)', // 더 투명하게 변경
+    backdropFilter: 'blur(10px)',
     borderRadius: '12px',
     padding: '12px',
     textAlign: 'center',
     margin: '8px 0',
     transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
   },
   metricIcon: {
     marginBottom: '8px',
@@ -299,11 +327,13 @@ export const styles = {
     gap: '4px',
   },
   commitBadge: {
-    background: 'rgba(0, 0, 0, 0.3)',
+    background: 'rgba(255, 255, 255, 0.0)', // 더 투명하게 변경
+    backdropFilter: 'blur(5px)',
     color: '#ffffff',
     padding: '2px 6px',
     borderRadius: '6px',
     fontSize: '10px',
+    border: '1px solid rgba(255, 255, 255, 0.1)'
   },
   todoProgress: {
     display: 'flex',
@@ -361,10 +391,12 @@ export const styles = {
     display: 'flex',
     alignItems: 'center',
     marginBottom: '20px',
-    background: 'linear-gradient(135deg, #4b5563 0%, #374151 100%)',
+    background: 'rgba(75, 85, 99, 0,2)', // 더 투명하게 변경 (0.8 → 0.4)
+    backdropFilter: 'blur(15px)',
     padding: '12px',
     borderRadius: '12px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+    border: '1px solid rgba(255, 255, 255, 0.2)'
   },
   streakIcon: {
     fontSize: '20px',
@@ -375,30 +407,35 @@ export const styles = {
     fontWeight: 'bold',
     color: '#f0f0f0',
   },
-  githubStats: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '16px',
-    marginBottom: '20px',
-    padding: '16px',
-    background: 'linear-gradient(135deg, #1e293b 0%, #2d3748 100%)',
-    borderRadius: '16px',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-  },
+  // githubStats: {
+  //   display: 'grid',
+  //   gridTemplateColumns: 'repeat(4, 1fr)',
+  //   gap: '16px',
+  //   marginBottom: '20px',
+  //   padding: '16px',
+  //   background: 'rgba(255, 255, 255, 0.0)', // 더 투명하게 변경
+  //   backdropFilter: 'blur(15px)',
+  //   borderRadius: '16px',
+  //   boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+  //   border: '1px solid rgba(255, 255, 255, 0.2)'
+  // },
   statItem: {
-    background: 'rgba(255, 255, 255, 0.1)',
+    background: 'rgba(255, 255, 255, 0.15)', // 더 투명하게 변경
+    backdropFilter: 'blur(10px)',
     borderRadius: '12px',
     padding: '12px',
     textAlign: 'center',
     transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
   },
   weeklyActivitySection: {
     marginTop: '20px',
-    background: 'linear-gradient(135deg, #4b5563 0%, #374151 100%)',
+    background: 'rgba(255, 255, 255, 0.0)', // 더 투명하게 변경
+    backdropFilter: 'blur(15px)',
     padding: '16px',
     borderRadius: '12px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+    border: '1px solid rgba(255, 255, 255, 0.2)'
   },
   weeklyActivityTitle: {
     fontSize: '16px',
@@ -426,10 +463,12 @@ export const styles = {
   },
   recentActivity: {
     marginTop: '20px',
-    background: 'linear-gradient(135deg, #4b5563 0%, #374151 100%)',
+    background: 'rgba(255, 255, 255, 0.0)', // 더 투명하게 변경
+    backdropFilter: 'blur(15px)',
     padding: '16px',
     borderRadius: '12px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+    border: '1px solid rgba(255, 255, 255, 0.2)'
   },
   activityTitle: {
     fontSize: '14px',
@@ -446,7 +485,8 @@ export const styles = {
     fontSize: '13px',
     color: '#d1d5db',
     padding: '8px 12px',
-    background: 'rgba(255, 255, 255, 0.1)',
+    background: 'rgba(255, 255, 255, 0.0)', // 더 투명하게 변경
+    backdropFilter: 'blur(5px)', // 블러 효과 추가
     borderRadius: '8px',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     transition: 'transform 0.3s ease',
@@ -456,10 +496,12 @@ export const styles = {
     alignItems: 'center',
     gap: '20px',
     marginBottom: '20px',
-    background: 'linear-gradient(135deg, #4b5563 0%, #374151 100%)',
+    background: 'rgba(255, 255, 255, 0.0)', // 더 투명하게 변경
+    backdropFilter: 'blur(15px)',
     padding: '16px',
     borderRadius: '12px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+    border: '1px solid rgba(255, 255, 255, 0.2)'
   },
   progressCircle: {
     width: '80px',
@@ -488,7 +530,7 @@ export const styles = {
   },
   progressBar: {
     height: '8px',
-    background: 'rgba(255, 255, 255, 0.2)',
+    background: 'rgba(255, 255, 255, 0.0)', // 더 투명하게 변경
     borderRadius: '4px',
     overflow: 'hidden',
   },
@@ -510,15 +552,17 @@ export const styles = {
     borderRadius: '12px',
     fontSize: '14px',
     outline: 'none',
-    background: 'rgba(255, 255, 255, 0.05)',
+    background: 'rgba(255, 255, 255, 0.1)', // 더 투명하게 변경
+    backdropFilter: 'blur(5px)',
     color: '#f0f0f0',
     transition: 'border-color 0.3s',
   },
   addTodoButton: {
     width: '44px',
     height: '44px',
-    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-    border: 'none',
+    background: 'rgba(255, 255, 255, 0.0)', // 더 투명하게 변경
+    backdropFilter: 'blur(10px)',
+    border: '1px solid rgba(59, 130, 246, 0.3)',
     borderRadius: '12px',
     color: '#ffffff',
     cursor: 'pointer',
@@ -537,7 +581,8 @@ export const styles = {
     alignItems: 'center',
     gap: '12px',
     padding: '12px',
-    background: 'rgba(255, 255, 255, 0.1)',
+    background: 'rgba(255, 255, 255, 0.0)', // 더 투명하게 변경
+    backdropFilter: 'blur(5px)', // 블러 효과 추가
     borderRadius: '8px',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     transition: 'all 0.3s',
@@ -567,88 +612,19 @@ export const styles = {
     transition: 'all 0.3s',
   },
 
-  // 컴퓨터 사용량 탭 스타일
-  usageOverview: {
-    marginBottom: '20px'
-  },
-  usageStats: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: '16px'
-  },
-  usageStatItem: {
-    background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
-    borderRadius: '12px',
-    padding: '16px',
-    textAlign: 'center',
-    border: '1px solid rgba(59, 130, 246, 0.1)'
-  },
-  usageLabel: {
-    fontSize: '12px',
-    color: '#64748b',
-    marginBottom: '8px'
-  },
-  usageValue: {
-    fontSize: '18px',
-    fontWeight: 'bold',
-    color: '#1e40af'
-  },
-  appUsageSection: {
-    background: '#f8fafc',
-    borderRadius: '12px',
-    padding: '16px'
-  },
-  appUsageTitle: {
-    fontSize: '14px',
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: '12px'
-  },
-  appUsageList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px'
-  },
-  appUsageItem: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '8px 12px',
-    background: 'white',
-    borderRadius: '8px',
-    border: '1px solid #e5e7eb'
-  },
-  appInfo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px'
-  },
-  appIcon: {
-    width: '16px',
-    height: '16px',
-    borderRadius: '4px'
-  },
-  appName: {
-    fontSize: '13px',
-    color: '#374151',
-    fontWeight: '500'
-  },
-  appTime: {
-    fontSize: '13px',
-    color: '#6b7280'
-  },
-
-  // 오른쪽 사이드바
+  // 오른쪽 사이드바 - 투명도 적용
   rightSidebar: {
     display: 'flex',
     flexDirection: 'column',
     gap: '20px'
   },
   fishListCard: {
-    background: 'rgba(255, 255, 255, 0.95)',
+    background: 'rgba(255, 255, 255, 0.4)', // 투명도 적용
+    backdropFilter: 'blur(15px)', // 블러 효과 추가
     borderRadius: '24px',
     padding: '24px',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)'
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
+    border: '1px solid rgba(255, 255, 255, 0.3)' // 미묘한 테두리
   },
   fishListTitle: {
     fontSize: '18px',
@@ -669,11 +645,12 @@ export const styles = {
     alignItems: 'center',
     gap: '14px',
     padding: '14px',
-    background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+    background: 'rgba(240, 249, 255, 0.1)', // 투명도 적용
+    backdropFilter: 'blur(10px)', // 블러 효과 추가
     borderRadius: '16px',
     transition: 'all 0.3s',
     cursor: 'pointer',
-    border: '1px solid rgba(59, 130, 246, 0.1)'
+    border: '1px solid rgba(59, 130, 246, 0.2)' // 테두리도 투명하게
   },
   fishItemIcon: {
     width: '44px',
@@ -699,55 +676,7 @@ export const styles = {
     color: '#6b7280'
   },
 
-  // 수족관 상태
-  aquariumStatus: {
-    background: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: '24px',
-    padding: '24px',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)'
-  },
-  statusTitle: {
-    fontSize: '18px',
-    fontWeight: 'bold',
-    marginBottom: '20px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    color: '#1a1a1a'
-  },
-  statusList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px'
-  },
-  statusItem: {
-    marginBottom: '4px'
-  },
-  statusLabel: {
-    fontSize: '13px',
-    color: '#6b7280',
-    marginBottom: '6px',
-    fontWeight: '500'
-  },
-  statusBar: {
-    height: '10px',
-    background: '#e5e7eb',
-    borderRadius: '10px',
-    overflow: 'hidden',
-    marginBottom: '4px'
-  },
-  statusFill: {
-    height: '100%',
-    background: 'linear-gradient(90deg, #3b82f6 0%, #2563eb 100%)',
-    borderRadius: '10px',
-    transition: 'width 0.5s ease-out'
-  },
-  statusValue: {
-    fontSize: '14px',
-    fontWeight: '600',
-    color: '#1a1a1a',
-    textAlign: 'right'
-  },
+  // 기타 스타일들
   container: {
     display: 'flex',
     flexDirection: 'column',
@@ -756,7 +685,7 @@ export const styles = {
     minHeight: 'calc(100vh - 110px)'
   },
 
-  // 로딩 화면 스타일 추가
+  // 로딩 화면 스타일
   loadingContainer: {
     display: 'flex',
     justifyContent: 'center',
@@ -765,23 +694,20 @@ export const styles = {
     fontSize: '18px'
   },
 
-  // 보상 메시지 스타일 추가
-  rewardMessage: {
-    padding: '10px',
-    marginBottom: '20px',
-    color: 'white',
+  // 보상 정보 스타일 - 투명도 적용
+  rewardInfo: {
+    background: 'rgba(255, 255, 255, 0.1)',
+    backdropFilter: 'blur(5px)',
+    padding: '8px 12px',
     borderRadius: '8px',
-    fontSize: '14px',
+    fontSize: '12px',
+    marginTop: '12px',
+    color: '#f0f0f0',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
     textAlign: 'center'
   },
-  rewardMessageSuccess: {
-    backgroundColor: '#10b981'
-  },
-  rewardMessageAlready: {
-    backgroundColor: '#f59e0b'
-  },
 
-  // 레벨 정보 스타일 추가
+  // 레벨 정보 스타일
   levelInfo: {
     fontSize: '12px',
     color: '#d1d5db',
@@ -789,38 +715,17 @@ export const styles = {
     textAlign: 'center'
   },
 
-  // 보상 섹션 스타일 추가
+  // 보상 섹션 스타일 - 투명도 적용
   rewardSection: {
     marginBottom: '20px',
     padding: '12px',
-    background: 'linear-gradient(135deg, #4b5563 0%, #374151 100%)',
+    background: 'rgba(75, 85, 99, 0.4)', // 더 투명하게 변경 (0.8 → 0.4)
+    backdropFilter: 'blur(15px)',
     borderRadius: '12px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
     color: '#f0f0f0',
-    fontSize: '14px'
-  },
-
-  // 물고기/장식품 버튼 스타일
-  fishToggleButton: {
-    padding: '5px 10px',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    fontSize: '12px',
-    transition: 'all 0.3s'
-  },
-  fishToggleButtonAdd: {
-    backgroundColor: '#3B82F6'
-  },
-  fishToggleButtonRemove: {
-    backgroundColor: '#ef4444'
-  },
-  decorationToggleButtonAdd: {
-    backgroundColor: '#8B5CF6'
-  },
-  decorationToggleButtonRemove: {
-    backgroundColor: '#ef4444'
+    fontSize: '14px',
+    border: '1px solid rgba(255, 255, 255, 0.2)'
   },
 
   // 빈 상태 메시지 스타일
@@ -895,45 +800,67 @@ styleSheet.textContent = `
     50% { opacity: 0.1; }
   }
   
-  /* 호버 효과 */
+  /* 호버 효과 - 투명도 스타일에 맞게 조정 */
   .fishListItem:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(59, 130, 246, 0.15);
+    background: rgba(240, 249, 255, 0.6) !important; /* 호버 시 약간 더 불투명하게 */
   }
   
   .fish:hover .fishIcon {
     transform: scale(1.1);
   }
   
-  /* 탭 버튼 호버 효과 */
+  /* 탭 버튼 호버 효과 - 투명도 스타일 적용 */
   .tabButton:hover:not(.tabButtonActive) {
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.5) !important;
+    backdropFilter: blur(8px) !important;
     color: #374151;
   }
   
-  /* 투두 관련 호버 효과 */
+  /* 투두 관련 호버 효과 - 투명도 스타일 적용 */
   .todoInput:focus {
     border-color: #3b82f6;
+    background: rgba(255, 255, 255, 0.15) !important;
   }
   
   .addTodoButton:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    background: rgba(59, 130, 246, 0.9) !important;
   }
   
   .todoItem:hover {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(203, 213, 225, 0.4);
   }
   
   .deleteTodoButton:hover {
-    background: #fee2e2;
+    background: rgba(254, 226, 226, 0.8);
     color: #dc2626;
   }
   
   .todoCheckbox:hover {
-    background: #f3f4f6;
-    border-radius: 4px;
+    background: rgba(243, 244, 246, 0.6);
+    borderRadius: 4px;
+  }
+  
+  /* 메트릭 카드 호버 효과 */
+  .metricCard:hover {
+    transform: translateY(-2px);
+    background: rgba(75, 85, 99, 0.9) !important;
+  }
+  
+  /* 스탯 박스 호버 효과 */
+  .statBox:hover {
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.15) !important;
+  }
+  
+  /* 커밋 아이템 호버 효과 */
+  .commitItem:hover {
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.15) !important;
   }
 `;
 
