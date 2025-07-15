@@ -50,7 +50,8 @@ export default function Login() {
         setMessage('');
 
         try {
-            const response = await fetch('http://localhost:3001/api/user/login', {
+            //FIXME
+            const response = await fetch('https://fishtank-production.up.railway.app/api/user/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
