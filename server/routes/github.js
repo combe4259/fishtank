@@ -94,7 +94,7 @@ async function getTodayCommits(octokit, username, todayStart, todayEnd) {
     };
 }
 
-// 공통 함수: 코인 계산 및 지급
+// 공통 함수
 async function awardCoins(connection, userId, totalCommits, openIssues, mergedPrs) {
     const commitCoins = totalCommits * 10;
     const issueCoins = openIssues * 20;
