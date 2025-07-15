@@ -1,8 +1,8 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const {pool, createConnection} = require('../config/database')
-const achievements = require('./achievements');
-const checkAchievements = achievements.checkAchievements;
+// const achievements = require('./achievements');
+// const checkAchievements = achievements.checkAchievements;
 
 const router = express.Router();
 
