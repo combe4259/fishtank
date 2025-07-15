@@ -11,6 +11,9 @@ const {testConnection} = require('./config/database')
 var indexRouter = require('./routes/index');
 const authRoutes = require('./routes/user');
 const todoRoutes = require('./routes/todo');
+const githubRoutes = require('./routes/github');
+const shopRoutes = require('./routes/shop')
+const achievementsRoutes = require('./routes/achievements');
 var app = express();
 
 // view engine setup
@@ -34,7 +37,9 @@ app.use(cors({
 app.use('/', indexRouter);
 app.use('/api/user', authRoutes);
 app.use('/api/todos', todoRoutes);
-
+app.use('/api/github', githubRoutes);
+app.use('/api/shop',shopRoutes)
+app.use('/api/achievements',achievementsRoutes)
 
 
 

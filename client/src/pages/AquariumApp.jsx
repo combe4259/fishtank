@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Navbar from '../components/common/Navbar/Navbar.jsx'
-import MyAquarium from './Myaquarium/MyAquarium.jsx';
+import MyAquarium from './Myaquarium/MyAquarium.jsx'
 import Shop from './Shop/shop.jsx';
 import FriendsAquarium from './FriendsAquarium/FriendsAquarium.jsx';
 import Profile from './Profile/Profile.jsx';

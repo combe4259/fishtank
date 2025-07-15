@@ -1,11 +1,4 @@
 export const styles = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '24px',
-    padding: '20px',
-    minHeight: 'calc(100vh - 110px)'
-  },
   mainGrid: {
     display: 'grid',
     gridTemplateColumns: '300px 1fr 300px',
@@ -60,9 +53,6 @@ export const styles = {
     paddingTop: '20px',
     borderTop: '1px solid #e5e7eb'
   },
-  statItem: {
-    textAlign: 'center'
-  },
   statValue: {
     fontSize: '24px',
     fontWeight: 'bold',
@@ -80,7 +70,7 @@ export const styles = {
     gap: '20px'
   },
   aquariumContainer: {
-    height: '400px', // 높이를 줄여서 대시보드 공간 확보
+    height: '500px', // 높이를 줄여서 대시보드 공간 확보
     background: 'linear-gradient(180deg, #7dd3fc 0%, #0ea5e9 50%, #0284c7 100%)',
     borderRadius: '32px',
     position: 'relative',
@@ -209,230 +199,267 @@ export const styles = {
 
   // 탭 컨텐츠
   tabContent: {
-    minHeight: '200px'
+    minHeight: '200px',
+    padding: '16px',
   },
-
-  // 대시보드 전체 스타일
   dashboardHeader: {
     marginBottom: '24px',
-    textAlign: 'center'
+    textAlign: 'center',
+    background: 'linear-gradient(135deg, #1e293b 0%, #2d3748 100%)',
+    borderRadius: '16px',
+    padding: '12px',
+    color: '#f0f0f0',
   },
   dashboardTitle: {
     fontSize: '24px',
     fontWeight: 'bold',
-    color: '#1a1a1a',
-    marginBottom: '8px'
+    marginBottom: '8px',
   },
   dateInfo: {
     fontSize: '14px',
-    color: '#6b7280'
+    color: '#d1d5db',
   },
   metricsGrid: {
-    display: 'flex',
-    flexDirection: 'column',
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
     gap: '16px',
   },
-
   metricCard: {
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    borderRadius: '20px',
+    background: 'linear-gradient(135deg, #4b5563 0%, #374151 100%)',
+    borderRadius: '16px',
     padding: '20px',
-    color: 'white',
-    boxShadow: '0 8px 24px rgba(102, 126, 234, 0.3)'
+    color: '#f0f0f0',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
   },
   metricHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: '16px'
+    marginBottom: '16px',
   },
   metricTitle: {
     fontSize: '16px',
     fontWeight: '600',
     flex: 1,
-    marginLeft: '8px'
+    marginLeft: '8px',
+    color: '#f0f0f0',
+    textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)',
   },
   fireIcon: {
     fontSize: '12px',
-    background: 'rgba(255, 255, 255, 0.2)',
+    background: 'rgba(16, 185, 129, 0.8)',
     padding: '4px 8px',
-    borderRadius: '12px'
+    borderRadius: '12px',
   },
   progressBadge: {
     fontSize: '12px',
     background: 'rgba(16, 185, 129, 0.8)',
     padding: '4px 8px',
-    borderRadius: '12px'
+    borderRadius: '12px',
   },
-  metricStats: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: '12px',
-    marginBottom: '16px'
+  statBox: {
+    background: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: '12px',
+    padding: '12px',
+    textAlign: 'center',
+    margin: '8px 0',
+    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
   },
-  metricStat: {
-    textAlign: 'center'
+  metricIcon: {
+    marginBottom: '8px',
+    display: 'flex',
+    justifyContent: 'center',
   },
-  metricNumber: {
-    fontSize: '20px',
+  statNumber: {
+    fontSize: '24px',
     fontWeight: 'bold',
-    marginBottom: '4px'
+    color: '#f0f0f0',
+    marginBottom: '4px',
+    transition: 'color 0.3s ease',
   },
-  metricLabel: {
-    fontSize: '11px',
-    opacity: 0.8
+  statLabel: {
+    fontSize: '12px',
+    color: '#d1d5db',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    fontWeight: '600',
   },
   metricFooter: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     fontSize: '12px',
-    opacity: 0.9
+    opacity: 0.9,
+    marginTop: '16px',
   },
   commitBadges: {
     display: 'flex',
-    gap: '4px'
+    gap: '4px',
   },
   commitBadge: {
-    background: 'rgba(255, 255, 255, 0.2)',
+    background: 'rgba(0, 0, 0, 0.3)',
+    color: '#ffffff',
     padding: '2px 6px',
     borderRadius: '6px',
-    fontSize: '10px'
+    fontSize: '10px',
   },
-
-  // 투두 진행률 스타일
   todoProgress: {
     display: 'flex',
     alignItems: 'center',
-    gap: '16px'
+    gap: '16px',
   },
   todoCircle: {
     position: 'relative',
     width: '80px',
-    height: '80px'
+    height: '80px',
   },
   progressSvg: {
     width: '100%',
     height: '100%',
-    transform: 'rotate(0deg)'
+    transform: 'rotate(0deg)',
   },
   todoCount: {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    textAlign: 'center'
+    textAlign: 'center',
+    color: '#f0f0f0',
   },
   todoCompleted: {
     fontSize: '24px',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   todoTotal: {
     fontSize: '16px',
-    opacity: 0.7
+    color: '#e0e0e0',
   },
   recentTodos: {
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px'
+    gap: '8px',
   },
   recentTodoItem: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    fontSize: '12px'
+    fontSize: '12px',
   },
   completedTodoText: {
     textDecoration: 'line-through',
-    opacity: 0.6
+    opacity: 0.6,
+    color: '#d1d5db',
   },
   pendingTodoText: {
-    opacity: 0.9
+    opacity: 0.9,
+    color: '#f0f0f0',
   },
-
-  // 사용량 스타일
-  usageMainStat: {
-    textAlign: 'center'
-  },
-  usageTime: {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    marginBottom: '4px'
-  },
-
-  usageApps: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px'
-  },
-  usageApp: {
+  streakSection: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
-    fontSize: '12px'
+    marginBottom: '20px',
+    background: 'linear-gradient(135deg, #4b5563 0%, #374151 100%)',
+    padding: '12px',
+    borderRadius: '12px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
   },
-  appDot: {
-    width: '8px',
-    height: '8px',
-    borderRadius: '50%'
+  streakIcon: {
+    fontSize: '20px',
+    marginRight: '5px',
   },
-
-  // GitHub 탭 스타일
+  streakText: {
+    fontSize: '16px',
+    fontWeight: 'bold',
+    color: '#f0f0f0',
+  },
   githubStats: {
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
     gap: '16px',
-    marginBottom: '20px'
-  },
-  statBox: {
-    background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
-    borderRadius: '12px',
+    marginBottom: '20px',
     padding: '16px',
+    background: 'linear-gradient(135deg, #1e293b 0%, #2d3748 100%)',
+    borderRadius: '16px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+  },
+  statItem: {
+    background: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: '12px',
+    padding: '12px',
     textAlign: 'center',
-    border: '1px solid rgba(59, 130, 246, 0.1)'
+    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
   },
-  statNumber: {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    color: '#1e40af',
-    marginBottom: '4px'
+  weeklyActivitySection: {
+    marginTop: '20px',
+    background: 'linear-gradient(135deg, #4b5563 0%, #374151 100%)',
+    padding: '16px',
+    borderRadius: '12px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
   },
-  statLabel: {
+  weeklyActivityTitle: {
+    fontSize: '16px',
+    color: '#f0f0f0',
+    marginBottom: '10px',
+  },
+  weeklyActivityGraph: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  barContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  bar: {
+    width: '10px',
+    borderRadius: '5px',
+    transition: 'height 0.3s ease',
+  },
+  barLabel: {
     fontSize: '12px',
-    color: '#64748b'
+    color: '#d1d5db',
+    marginTop: '5px',
   },
   recentActivity: {
-    background: '#f8fafc',
+    marginTop: '20px',
+    background: 'linear-gradient(135deg, #4b5563 0%, #374151 100%)',
+    padding: '16px',
     borderRadius: '12px',
-    padding: '16px'
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
   },
   activityTitle: {
     fontSize: '14px',
     fontWeight: '600',
-    color: '#374151',
-    marginBottom: '12px'
+    color: '#f0f0f0',
+    marginBottom: '12px',
   },
   commitList: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px'
+    gap: '8px',
   },
   commitItem: {
     fontSize: '13px',
-    color: '#6b7280',
+    color: '#d1d5db',
     padding: '8px 12px',
-    background: 'white',
+    background: 'rgba(255, 255, 255, 0.1)',
     borderRadius: '8px',
-    border: '1px solid #e5e7eb'
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    transition: 'transform 0.3s ease',
   },
-
-  // 투두리스트 탭 스타일
   progressSection: {
     display: 'flex',
     alignItems: 'center',
     gap: '20px',
-    marginBottom: '20px'
+    marginBottom: '20px',
+    background: 'linear-gradient(135deg, #4b5563 0%, #374151 100%)',
+    padding: '16px',
+    borderRadius: '12px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
   },
   progressCircle: {
     width: '80px',
@@ -442,48 +469,50 @@ export const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    color: 'white',
+    color: '#f0f0f0',
     fontWeight: 'bold',
-    fontSize: '20px'
+    fontSize: '20px',
   },
   progressText: {
     fontSize: '20px',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   progressInfo: {
-    flex: 1
+    flex: 1,
   },
   completedTasks: {
     fontSize: '16px',
-    color: '#374151',
+    color: '#f0f0f0',
     fontWeight: '500',
-    marginBottom: '8px'
+    marginBottom: '8px',
   },
   progressBar: {
     height: '8px',
-    background: '#e5e7eb',
+    background: 'rgba(255, 255, 255, 0.2)',
     borderRadius: '4px',
-    overflow: 'hidden'
+    overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
     background: 'linear-gradient(90deg, #10b981 0%, #059669 100%)',
     borderRadius: '4px',
-    transition: 'width 0.5s ease-out'
+    transition: 'width 0.5s ease-out',
   },
   addTodoSection: {
     display: 'flex',
     gap: '8px',
-    marginBottom: '20px'
+    marginBottom: '20px',
   },
   todoInput: {
     flex: 1,
     padding: '12px 16px',
-    border: '2px solid #e5e7eb',
+    border: '2px solid rgba(255, 255, 255, 0.1)',
     borderRadius: '12px',
     fontSize: '14px',
     outline: 'none',
-    transition: 'border-color 0.3s'
+    background: 'rgba(255, 255, 255, 0.05)',
+    color: '#f0f0f0',
+    transition: 'border-color 0.3s',
   },
   addTodoButton: {
     width: '44px',
@@ -491,42 +520,42 @@ export const styles = {
     background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
     border: 'none',
     borderRadius: '12px',
-    color: 'white',
+    color: '#ffffff',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    transition: 'all 0.3s'
+    transition: 'all 0.3s',
   },
   todoList: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px'
+    gap: '8px',
   },
   todoItem: {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
     padding: '12px',
-    background: '#f8fafc',
+    background: 'rgba(255, 255, 255, 0.1)',
     borderRadius: '8px',
-    border: '1px solid #e5e7eb',
-    transition: 'all 0.3s'
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    transition: 'all 0.3s',
   },
   todoCheckbox: {
     background: 'none',
     border: 'none',
     cursor: 'pointer',
-    padding: '2px'
+    padding: '2px',
   },
   completedTodo: {
     textDecoration: 'line-through',
-    color: '#9ca3af',
-    flex: 1
+    color: '#d1d5db',
+    flex: 1,
   },
   pendingTodo: {
-    color: '#374151',
-    flex: 1
+    color: '#f0f0f0',
+    flex: 1,
   },
   deleteTodoButton: {
     background: 'none',
@@ -535,7 +564,7 @@ export const styles = {
     cursor: 'pointer',
     padding: '4px',
     borderRadius: '4px',
-    transition: 'all 0.3s'
+    transition: 'all 0.3s',
   },
 
   // 컴퓨터 사용량 탭 스타일
@@ -718,18 +747,138 @@ export const styles = {
     fontWeight: '600',
     color: '#1a1a1a',
     textAlign: 'right'
+  },
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '24px',
+    padding: '20px',
+    minHeight: 'calc(100vh - 110px)'
+  },
+
+  // 로딩 화면 스타일 추가
+  loadingContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh',
+    fontSize: '18px'
+  },
+
+  // 보상 메시지 스타일 추가
+  rewardMessage: {
+    padding: '10px',
+    marginBottom: '20px',
+    color: 'white',
+    borderRadius: '8px',
+    fontSize: '14px',
+    textAlign: 'center'
+  },
+  rewardMessageSuccess: {
+    backgroundColor: '#10b981'
+  },
+  rewardMessageAlready: {
+    backgroundColor: '#f59e0b'
+  },
+
+  // 레벨 정보 스타일 추가
+  levelInfo: {
+    fontSize: '12px',
+    color: '#d1d5db',
+    marginTop: '16px',
+    textAlign: 'center'
+  },
+
+  // 보상 섹션 스타일 추가
+  rewardSection: {
+    marginBottom: '20px',
+    padding: '12px',
+    background: 'linear-gradient(135deg, #4b5563 0%, #374151 100%)',
+    borderRadius: '12px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+    color: '#f0f0f0',
+    fontSize: '14px'
+  },
+
+  // 물고기/장식품 버튼 스타일
+  fishToggleButton: {
+    padding: '5px 10px',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '12px',
+    transition: 'all 0.3s'
+  },
+  fishToggleButtonAdd: {
+    backgroundColor: '#3B82F6'
+  },
+  fishToggleButtonRemove: {
+    backgroundColor: '#ef4444'
+  },
+  decorationToggleButtonAdd: {
+    backgroundColor: '#8B5CF6'
+  },
+  decorationToggleButtonRemove: {
+    backgroundColor: '#ef4444'
+  },
+
+  // 빈 상태 메시지 스타일
+  emptyMessage: {
+    textAlign: 'center',
+    padding: '20px',
+    color: '#9CA3AF',
+    fontSize: '14px'
+  },
+
+  // 어항 빈 상태 메시지
+  aquariumEmptyMessage: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    textAlign: 'center',
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: '16px',
+    zIndex: 20
+  },
+  aquariumEmptyIcon: {
+    fontSize: '48px',
+    marginBottom: '10px'
+  },
+
+  // 장식품 컨테이너 스타일
+  decorationContainer: {
+    position: 'absolute',
+    zIndex: 5
+  },
+  decorationWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    filter: 'drop-shadow(0 0 8px rgba(0,0,0,0.3))'
+  },
+  decorationImage: {
+    width: '28px',
+    height: '28px'
+  },
+  decorationName: {
+    fontSize: '10px',
+    color: 'rgba(255, 255, 255, 0.8)',
+    marginTop: '2px',
+    textShadow: '0 0 4px rgba(0,0,0,0.8)'
   }
 };
 
 // CSS 애니메이션 추가
 const styleSheet = document.createElement("style");
 styleSheet.textContent = `
-  @keyframes swim {
-    0%, 100% { transform: translateX(0) translateY(0); }
-    25% { transform: translateX(100px) translateY(-20px); }
-    50% { transform: translateX(150px) translateY(20px); }
-    75% { transform: translateX(50px) translateY(-10px); }
-  }
+@keyframes swim {
+  0%, 100% { transform: translateX(0) translateY(0) scaleX(1); }
+  25% { transform: translateX(120px) translateY(-30px) scaleX(-1); }
+  50% { transform: translateX(200px) translateY(30px) scaleX(1); }
+  75% { transform: translateX(80px) translateY(-15px) scaleX(-1); }
+}
   
   @keyframes float {
     0%, 100% { transform: translateY(0); opacity: 0.7; }
@@ -787,4 +936,5 @@ styleSheet.textContent = `
     border-radius: 4px;
   }
 `;
+
 document.head.appendChild(styleSheet);
