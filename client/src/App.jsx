@@ -1,3 +1,4 @@
+
 import React from 'react';
 import './App.css'
 import Register from './components/Register.jsx'
@@ -12,7 +13,6 @@ function App() {
             <Router>
                 <Routes>
                     <Route path="/" element={<Login/>} />
-                    <Route path="/login" element={<Login/>} />
                     <Route path="/user/signup" element={<Register />} />
 
                     <Route

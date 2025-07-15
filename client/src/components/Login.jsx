@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Login.css";
-const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '');
+import "./Register.css"; // register랑 같은 css
+
 export default function Login() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
@@ -21,14 +21,18 @@ export default function Login() {
 
     // GitHub 로그인 처리
     const handleGitHubLogin = () => {
-        // GitHub OAuth 직접 연결
-        const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID || 'your_github_client_id';
+        const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
+
         if (!clientId) {
             console.error('GitHub Client ID가 설정되지 않았습니다.');
-            setMessage('GitHub 로그인 설정이 올바르지 않습니다.');
+            setMessage('❌ GitHub 로그인 설정이 올바르지 않습니다.');
             return;
         }
-        const redirectUri = encodeURIComponent(`${API_BASE_URL}/api/user/oauth/github/callback`);
+
+        console.log('🔗 GitHub 로그인 시작, Client ID:', clientId);
+
+        // 🔥 수정: 하드코딩된 localhost URL 사용
+        const redirectUri = encodeURIComponent('http://localhost:3001/api/user/oauth/github/callback');
         const scope = encodeURIComponent('user:email repo');
 
         const githubAuthUrl = `https://github.com/login/oauth/authorize?` +
@@ -36,6 +40,9 @@ export default function Login() {
             `redirect_uri=${redirectUri}&` +
             `scope=${scope}`;
 
+        console.log('🌐 GitHub OAuth URL:', githubAuthUrl);
+
+        // GitHub 페이지로 이동
         window.location.href = githubAuthUrl;
     };
 
@@ -50,8 +57,7 @@ export default function Login() {
         setMessage('');
 
         try {
-            //FIXME
-            const response = await fetch(`${API_BASE_URL}/api/user/login`, {
+            const response = await fetch('http://localhost:3001/api/user/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

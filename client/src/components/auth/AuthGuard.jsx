@@ -1,112 +1,126 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '');
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const AuthGuard = ({ children }) => {
     const location = useLocation();
+    const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [authMessage, setAuthMessage] = useState('');
 
     useEffect(() => {
-        console.log('🚀 AuthGuard 시작');
-        console.log('📍 현재 위치:', location.pathname);
-        console.log('🔗 쿼리 스트링:', location.search);
         handleAuthentication();
     }, [location]);
 
     const handleAuthentication = async () => {
         try {
-            console.log('🔍 인증 처리 시작...');
-
-            // GitHub OAuth 콜백 처리
             const urlParams = new URLSearchParams(location.search);
-
-            // 모든 파라미터 로깅
-            console.log('📋 모든 URL 파라미터:');
-            for (const [key, value] of urlParams.entries()) {
-                console.log(`  ${key}: ${value}`);
-            }
-
-            // 파라미터 추출
+            const token = urlParams.get('token'); // 🔥 서버에서 보내는 token 파라미터
             const githubAuth = urlParams.get('github_auth');
             const githubConnected = urlParams.get('github_connected');
-            const token = urlParams.get('token');
             const errorCode = urlParams.get('error');
 
-            console.log('🎯 추출된 파라미터:', {
-                githubAuth,
-                githubConnected,
-                token: token ? `있음 (길이: ${token.length}, 시작: ${token.substring(0, 20)}...)` : '없음',
-                errorCode,
-                API_BASE_URL
+            console.log('🔍 AuthGuard URL 파라미터:', {
+                token: token ? '토큰 있음' : '토큰 없음',
+                github_auth: githubAuth,
+                github_connected: githubConnected,
+                error: errorCode
             });
 
             // 에러 처리
             if (errorCode) {
-                console.log('❌ 에러 코드 감지:', errorCode);
                 const errorMessages = {
-                    'token_failed': 'GitHub 인증에 실패했습니다. 다시 시도해주세요.',
-                    'auth_failed': '인증 처리 중 오류가 발생했습니다.',
-                    'github_auth_failed': 'GitHub 로그인에 실패했습니다.',
-                    'user_not_found': '사용자를 찾을 수 없습니다.'
+                    'token_failed': '❌ GitHub 토큰 받기에 실패했습니다.',
+                    'user_not_found': '❌ 연동할 사용자를 찾을 수 없습니다.',
+                    'github_auth_failed': '❌ GitHub 인증에 실패했습니다.',
+                    'no_code': '❌ GitHub 인증 코드가 없습니다.'
                 };
 
-                setAuthMessage(errorMessages[errorCode] || '로그인 중 오류가 발생했습니다.');
-                setLoading(false);
+                setAuthMessage(errorMessages[errorCode] || '❌ 로그인 중 오류가 발생했습니다.');
 
                 setTimeout(() => {
-                    console.log('🔄 에러로 인한 리다이렉트...');
-                    window.location.href = '/';
+                    navigate('/', { replace: true });
                 }, 3000);
-                return;
-            }
-
-            // GitHub 로그인 성공 처리
-            if ((githubAuth === 'success' || githubConnected === 'success') && token) {
-                console.log('✅ GitHub 로그인 성공 감지!');
-                console.log('💾 토큰 저장 중...');
-
-                localStorage.setItem('token', token);
-                setAuthMessage('GitHub 로그인 성공! 아쿠아리움을 준비하고 있습니다...');
-
-                console.log('🧹 URL 파라미터 정리 중...');
-                window.history.replaceState({}, document.title, '/aquarium');
-
-                console.log('👤 사용자 프로필 조회 시작...');
-                await fetchUserProfile(token);
-                return;
-            }
-
-            // 기존 토큰 확인
-            const existingToken = localStorage.getItem('token');
-            console.log('🔍 기존 토큰 확인:', existingToken ? '있음' : '없음');
-
-            if (existingToken) {
-                console.log('🔄 기존 토큰으로 인증 시도...');
-                await fetchUserProfile(existingToken);
-            } else {
-                console.log('❌ 토큰이 없어서 로그인 페이지로 이동');
                 setLoading(false);
-                window.location.href = '/';
                 return;
+            }
+
+            // GitHub OAuth 성공 처리
+            if (token && (githubAuth === 'success' || githubConnected === 'success')) {
+                console.log('🎫 GitHub OAuth 토큰 처리 시작');
+
+                try {
+                    // 토큰을 로컬 스토리지에 저장
+                    localStorage.setItem('token', token);
+
+                    // JWT 토큰 디코딩하여 기본 사용자 정보 추출
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    console.log('🔓 토큰 디코딩 결과:', payload);
+
+                    const basicUserData = {
+                        id: payload.userId,
+                        githubId: payload.githubId,
+                        username: payload.username,
+                        loginType: payload.loginType
+                    };
+
+                    localStorage.setItem('user', JSON.stringify(basicUserData));
+
+                    // 성공 메시지 표시
+                    if (githubAuth === 'success') {
+                        setAuthMessage('✅ GitHub 로그인에 성공했습니다!');
+                    } else if (githubConnected === 'success') {
+                        setAuthMessage('✅ GitHub 계정이 연동되었습니다!');
+                    }
+
+                    // URL 파라미터 정리 (토큰 노출 방지)
+                    navigate('/aquarium', { replace: true });
+
+                    // 상세한 사용자 정보 가져오기
+                    await fetchUserProfile(token);
+
+                    // 메시지 제거
+                    setTimeout(() => {
+                        setAuthMessage('');
+                    }, 2000);
+
+                } catch (error) {
+                    console.error('토큰 처리 에러:', error);
+                    setAuthMessage('❌ 로그인 정보 처리 중 오류가 발생했습니다.');
+                    setTimeout(() => {
+                        navigate('/', { replace: true });
+                    }, 3000);
+                    setLoading(false);
+                    return;
+                }
+            } else {
+                // 기존 토큰 확인
+                const existingToken = localStorage.getItem('token');
+                if (existingToken) {
+                    console.log('💾 기존 토큰으로 프로필 조회');
+                    await fetchUserProfile(existingToken);
+                } else {
+                    // 인증되지 않은 사용자 - 로그인 페이지로
+                    console.log('❌ 토큰 없음, 로그인 페이지로 이동');
+                    navigate('/', { replace: true });
+                    setLoading(false);
+                    return;
+                }
             }
         } catch (error) {
-            console.error('💥 인증 처리 중 오류:', error);
-            setAuthMessage('인증 처리 중 오류가 발생했습니다.');
-            setLoading(false);
+            console.error('인증 처리 중 오류:', error);
+            setAuthMessage('❌ 인증 처리 중 오류가 발생했습니다.');
             setTimeout(() => {
-                window.location.href = '/';
+                navigate('/', { replace: true });
             }, 3000);
+            setLoading(false);
         }
     };
 
     const fetchUserProfile = async (token) => {
         try {
-            console.log('👤 사용자 프로필 조회 시작...');
-            console.log('🌐 API URL:', `${API_BASE_URL}/api/user/profile`);
-
-            const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
+            console.log('👤 사용자 프로필 조회 시작');
+            const response = await fetch('http://localhost:3001/api/user/profile', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -114,49 +128,26 @@ const AuthGuard = ({ children }) => {
                 }
             });
 
-            console.log('📡 프로필 API 응답:', {
-                status: response.status,
-                statusText: response.statusText,
-                ok: response.ok
-            });
-
             if (response.ok) {
                 const userData = await response.json();
-                console.log('✅ 사용자 정보 조회 성공:', userData);
-
-                // gameStats 호환성 처리
-                const processedUser = {
-                    ...userData.user,
-                    gameStats: {
-                        fishCoins: userData.user.fish_coins || 0,
-                        level: userData.user.level || 1,
-                        experiencePoints: userData.user.experience_points || 0
-                    }
-                };
-
-                console.log('🔄 처리된 사용자 정보:', processedUser);
-
-                setUser(processedUser);
-                localStorage.setItem('user', JSON.stringify(processedUser));
+                console.log('✅ 사용자 프로필 조회 성공:', userData.user);
+                setUser(userData.user);
+                localStorage.setItem('user', JSON.stringify(userData.user));
                 setAuthMessage('');
-                console.log('✅ 인증 완료!');
             } else if (response.status === 401 || response.status === 403) {
-                console.log('❌ 토큰이 유효하지 않음 (401/403)');
+                // 토큰 만료 또는 무효화 처리
+                console.log('❌ 토큰 만료 또는 무효');
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
-                setLoading(false);
-                window.location.href = '/';
-                return;
+                navigate('/', { replace: true });
             } else {
-                const errorText = await response.text();
-                console.error('❌ API 에러 응답:', errorText);
-                throw new Error(`HTTP ${response.status}: ${errorText}`);
+                throw new Error('사용자 정보를 가져올 수 없습니다');
             }
         } catch (error) {
-            console.error('💥 사용자 정보 조회 실패:', error);
-            setAuthMessage(`사용자 정보를 불러오는 중 오류가 발생했습니다: ${error.message}`);
+            console.error('사용자 정보 조회 실패:', error);
+            setAuthMessage('❌ 사용자 정보를 불러오는 중 오류가 발생했습니다.');
             setTimeout(() => {
-                window.location.href = '/';
+                navigate('/', { replace: true });
             }, 3000);
         } finally {
             setLoading(false);
@@ -182,47 +173,27 @@ const AuthGuard = ({ children }) => {
                     padding: '40px',
                     textAlign: 'center',
                     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-                    maxWidth: '400px',
-                    width: '90%'
+                    maxWidth: '400px'
                 }}>
                     <div style={{ fontSize: '48px', marginBottom: '20px' }}>🐠</div>
                     <div style={{ fontSize: '24px', marginBottom: '20px', fontWeight: 'bold' }}>
                         Fishtank
                     </div>
-                    {loading && (
-                        <div style={{ color: '#6b7280', marginBottom: '10px' }}>
-                            아쿠아리움을 준비하는 중...
-                        </div>
+
+                    {loading && !authMessage && (
+                        <div style={{ color: '#6b7280' }}>아쿠아리움을 준비하는 중...</div>
                     )}
+
                     {authMessage && (
                         <div style={{
                             padding: '15px',
-                            backgroundColor: authMessage.includes('성공') ? '#d4edda' : '#f8d7da',
-                            color: authMessage.includes('성공') ? '#155724' : '#721c24',
-                            borderRadius: '8px',
+                            backgroundColor: authMessage.includes('✅') ? '#d4edda' : '#f8d7da',
+                            color: authMessage.includes('✅') ? '#155724' : '#721c24',
+                            borderRadius: '10px',
                             margin: '10px 0',
-                            fontSize: '14px',
-                            lineHeight: '1.4'
+                            fontSize: '14px'
                         }}>
                             {authMessage}
-                        </div>
-                    )}
-
-                    {/* 디버깅용 정보 표시 */}
-                    {process.env.NODE_ENV === 'development' && (
-                        <div style={{
-                            marginTop: '20px',
-                            padding: '10px',
-                            backgroundColor: '#f8f9fa',
-                            borderRadius: '5px',
-                            fontSize: '12px',
-                            color: '#666',
-                            textAlign: 'left'
-                        }}>
-                            <strong>디버그 정보:</strong><br/>
-                            경로: {location.pathname}<br/>
-                            쿼리: {location.search}<br/>
-                            API: {API_BASE_URL}
                         </div>
                     )}
                 </div>
@@ -230,23 +201,6 @@ const AuthGuard = ({ children }) => {
         );
     }
 
-    // 사용자가 로드되지 않았으면 로딩 표시
-    if (!user) {
-        console.log('⚠️ 사용자 정보가 없음, 로딩 표시');
-        return (
-            <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100vh',
-                fontSize: '18px'
-            }}>
-                사용자 정보를 불러오는 중...
-            </div>
-        );
-    }
-
-    console.log('🎉 AuthGuard 완료, 사용자 정보 전달:', user);
     // 인증이 완료되면 children에 사용자 정보를 props로 전달
     return React.cloneElement(children, { user });
 };
