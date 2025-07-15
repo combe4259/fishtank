@@ -1,4 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom'; // 추가
 import { Fish, Github, CheckCircle, Activity, Plus, Trash2, BarChart, Palette } from 'lucide-react';
 import Card from '../../components/common/Card/Card.jsx';
 import { styles } from './myAquarium-styles.js';
@@ -11,11 +13,15 @@ import {
   fetchFriendRequests,
 } from "../FriendsAquarium/FriendsUtil.jsx";
 
-const user = JSON.parse(localStorage.getItem('user'));
-const userId = user?.id;
-
+// 사용자 정보를 동적으로 가져오도록 수정
+const getUser = () => {
+  const userStr = localStorage.getItem('user');
+  return userStr ? JSON.parse(userStr) : null;
+};
 
 const MyAquarium = () => {
+  const location = useLocation(); // 추가
+  const navigate = useNavigate(); // 추가
   const [activeTab, setActiveTab] = useState('dashboard');
   const [newTodo, setNewTodo] = useState('');
   const [userProfile, setUserProfile] = useState(null);
@@ -23,6 +29,7 @@ const MyAquarium = () => {
   const [githubData, setGithubData] = useState(null);
   const [weeklyStats, setWeeklyStats] = useState({ weeklyStats: [], totalWeekCommits: 0, streak: 0 });
   const [githubStats, setGithubStats] = useState({ issues: 0, prs: '0/0' });
+  const [message, setMessage] = useState(''); // 추가: 메시지 상태
   const [todos, setTodos] = useState([
     { id: 1, name: 'React 컴포넌트 개발', status: 'completed' },
     { id: 2, name: 'API 연동 작업', status: 'completed' },
@@ -33,20 +40,88 @@ const MyAquarium = () => {
   const [friendRequests, setFriendRequests] = useState([]);
   const [notifications, setNotifications] = useState([]);
 
-  // 데이터 조회
+  // GitHub OAuth 토큰 처리 로직 추가
   useEffect(() => {
-    fetchUserProfile();
-    fetchAllData();
-    fetchMyFishes();
-    fetchMyDecorations();
-  }, []);
+    const urlParams = new URLSearchParams(location.search);
+    const token = urlParams.get('token');
+    const githubAuth = urlParams.get('github_auth');
+    const githubConnected = urlParams.get('github_connected');
+    const error = urlParams.get('error');
 
+    if (error) {
+      // 에러 처리
+      switch (error) {
+        case 'token_failed':
+          setMessage('❌ GitHub 토큰 받기에 실패했습니다.');
+          break;
+        case 'user_not_found':
+          setMessage('❌ 연동할 사용자를 찾을 수 없습니다.');
+          break;
+        case 'github_auth_failed':
+          setMessage('❌ GitHub 인증에 실패했습니다.');
+          break;
+        default:
+          setMessage('❌ 로그인 중 오류가 발생했습니다.');
+      }
 
+      // URL 파라미터 정리
+      navigate('/aquarium', { replace: true });
+      return;
+    }
+
+    if (token) {
+      try {
+        console.log('🎫 토큰 처리 시작:', token.substring(0, 50) + '...');
+
+        // 토큰을 로컬 스토리지에 저장
+        localStorage.setItem('token', token);
+
+        // 토큰에서 사용자 정보 추출 (JWT 디코딩)
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log('🔓 토큰 디코딩 결과:', payload);
+
+        // 사용자 정보 저장
+        const userData = {
+          id: payload.userId,
+          githubId: payload.githubId,
+          username: payload.username,
+          loginType: payload.loginType
+        };
+        localStorage.setItem('user', JSON.stringify(userData));
+
+        // 성공 메시지 표시
+        if (githubAuth === 'success') {
+          setMessage('✅ GitHub 로그인에 성공했습니다!');
+        } else if (githubConnected === 'success') {
+          setMessage('✅ GitHub 계정이 연동되었습니다!');
+        }
+
+        // URL 파라미터 정리 (토큰 노출 방지)
+        navigate('/aquarium', { replace: true });
+
+        // 사용자 프로필 정보 가져오기
+        setTimeout(() => {
+          fetchUserProfile();
+          setMessage(''); // 메시지 제거
+        }, 2000);
+
+      } catch (error) {
+        console.error('토큰 처리 에러:', error);
+        setMessage('❌ 로그인 정보 처리 중 오류가 발생했습니다.');
+        setTimeout(() => {
+          navigate('/login', { replace: true });
+        }, 2000);
+      }
+    }
+  }, [location.search, navigate]);
 
   // 알림 조회
   const loadNotifications = async () => {
     try {
-      const data = await fetchNotifications(userId);
+      const user = getUser();
+      if (!user?.id) return;
+
+      const data = await fetchNotifications(user.id);
       setNotifications(data);
     } catch (err) {
       console.error('알림 조회 실패:', err);
@@ -64,39 +139,49 @@ const MyAquarium = () => {
   };
 
   useEffect(() => {
-    // 친구 요청 및 알림 불러오기
-    refreshFriendRequests();
-    loadNotifications();
-    // 기타 초기 데이터 로드
+    // 토큰 처리가 완료된 후에만 데이터 로드
+    const token = localStorage.getItem('token');
+    if (token) {
+      // 친구 요청 및 알림 불러오기
+      refreshFriendRequests();
+      loadNotifications();
+      // 기타 초기 데이터 로드
+      fetchUserProfile();
+      fetchAllData();
+      fetchMyFishes();
+      fetchMyDecorations();
+    }
   }, []);
 
+  // ✅ 받은 친구 요청 리스트를 다시 가져오는 함수
+  const refreshFriendRequests = async () => {
+    try {
+      const user = getUser();
+      if (!user?.id) return;
 
-// ✅ 받은 친구 요청 리스트를 다시 가져오는 함수
-const refreshFriendRequests = async () => {
-  try {
-    const data = await fetchFriendRequests(userId);
-    setFriendRequests(data);
-  } catch (err) {
-    console.error('친구 요청 갱신 실패:', err);
-  }
-};
+      const data = await fetchFriendRequests(user.id);
+      setFriendRequests(data);
+    } catch (err) {
+      console.error('친구 요청 갱신 실패:', err);
+    }
+  };
 
-// 수락/거절 핸들러에서 호출 예시
-const handleAccept = async (reqId) => {
-  const result = await acceptFriendRequest(reqId);
-  if (result) {
-    // 갱신
-    await refreshFriendRequests();
-  }
-};
+  // 수락/거절 핸들러에서 호출 예시
+  const handleAccept = async (reqId) => {
+    const result = await acceptFriendRequest(reqId);
+    if (result) {
+      // 갱신
+      await refreshFriendRequests();
+    }
+  };
 
-const handleReject = async (reqId) => {
-  const result = await rejectFriendRequest(reqId);
-  if (result) {
-    // 갱신
-    await refreshFriendRequests();
-  }
-};
+  const handleReject = async (reqId) => {
+    const result = await rejectFriendRequest(reqId);
+    if (result) {
+      // 갱신
+      await refreshFriendRequests();
+    }
+  };
 
   // 물고기 위치 계산 함수
   const getFishPosition = (index) => {
@@ -135,17 +220,17 @@ const handleReject = async (reqId) => {
     };
   };
 
-
-
   // 사용자 프로필 API 호출
   const fetchUserProfile = async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
         console.error('토큰이 없습니다.');
+        setLoading(false);
         return;
       }
 
+      console.log('👤 프로필 조회 시작');
       const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
         method: 'GET',
         headers: {
@@ -155,9 +240,13 @@ const handleReject = async (reqId) => {
       });
 
       const data = await response.json();
+      console.log('👤 프로필 응답:', data);
 
       if (data.success) {
         setUserProfile(data.user);
+
+        // 로컬 스토리지의 사용자 정보도 업데이트
+        localStorage.setItem('user', JSON.stringify(data.user));
       } else {
         console.error('프로필 조회 실패:', data.message);
       }
@@ -338,17 +427,23 @@ const handleReject = async (reqId) => {
 
   const addTodo = async () => {
     if (newTodo.trim()) {
-      const response = await fetch(`${API_BASE_URL}1/api/todos`, {
+      const user = getUser();
+      if (!user?.id) {
+        alert('사용자 정보를 찾을 수 없습니다.');
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/todos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_id: userId,                        // ⚠️ 나중에 로그인 유저 정보로 바꿔야 함
-          title: newTodo.trim(),            // 🟢 제목으로 사용
-          description: '',                  // ✏️ 일단 빈 문자열로 기본값
-          is_completed: false              // 기본은 미완료
+          user_id: user.id,
+          title: newTodo.trim(),
+          description: '',
+          is_completed: false
         })
       });
-  
+
       const newItem = await response.json();
       console.log('🧾 newItem from server:', newItem);
       setTodos([...todos, {
@@ -356,16 +451,15 @@ const handleReject = async (reqId) => {
         name: newItem.title,
         status: newItem.is_completed ? 'completed' : 'pending'
       }]);
-      await getTodos(userId);
+      await getTodos(user.id);
       setNewTodo('');
     }
-
   };
 
   const toggleTodo = async (id) => {
     const targetTodo = todos.find(todo => todo.id === id);
     const newStatus = !targetTodo.is_completed;
-  
+
     const response = await fetch(`${API_BASE_URL}/api/todos/${id}/complete`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -374,27 +468,32 @@ const handleReject = async (reqId) => {
         completed_at: newStatus ? new Date().toISOString() : null
       })
     });
-  
+
     const updated = await response.json();
     setTodos(todos.map(todo =>
-      todo.id === id ? { ...todo, ...updated } : todo
+        todo.id === id ? { ...todo, ...updated } : todo
     ));
-    await getTodos(userId);
+
+    const user = getUser();
+    if (user?.id) {
+      await getTodos(user.id);
+    }
   };
-
-
 
   const deleteTodo = async (id) => {
     try {
       await fetch(`${API_BASE_URL}/api/todos/${id}`, {
         method: 'DELETE'
       });
-      // 삭제 후 다시 할 일 목록 불러오기 등
     } catch (err) {
       console.error('할 일 삭제 실패:', err);
     }
     setTodos(todos.filter(todo => todo.id !== id));
-    await getTodos(userId);
+
+    const user = getUser();
+    if (user?.id) {
+      await getTodos(user.id);
+    }
   };
 
   const getTodos = async (userId) => {
@@ -409,17 +508,17 @@ const handleReject = async (reqId) => {
       }));
 
       setTodos(formattedTodos);
-      await getTodos(userId);
     } catch (error) {
       console.error('할 일 조회 실패:', error);
     }
   }
 
   useEffect(() => {
-    if (userId) {
-      getTodos(userId);
+    const user = getUser();
+    if (user?.id) {
+      getTodos(user.id);
     }
-  }, [userId]);
+  }, []);
 
   const dashboardTabs = [
     { id: 'dashboard', label: '대시보드', icon: BarChart, data: {} },
@@ -468,189 +567,12 @@ const handleReject = async (reqId) => {
   const completionPercentage = Math.round((completedCount / todos.length) * 100) || 0;
 
   const renderTabContent = () => {
-
     switch (activeTab) {
       case 'dashboard': {
         return (
             <div style={styles.tabContent}>
               <div style={styles.dashboardHeader}>
                 <h3 style={styles.dashboardTitle}>오늘의 활동</h3>
-                <div style={styles.dateInfo}>
-                  {new Date().toLocaleDateString('ko-KR', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    weekday: 'long'
-                  })}
-                </div>
-              </div>
-
-              {/* 보상 상태 표시 */}
-              {githubData?.rewardMessage && (
-                  <div style={{
-                    padding: '10px',
-                    marginBottom: '20px',
-                    backgroundColor: githubData.alreadyRewarded ? '#f59e0b' : '#10b981',
-                    color: 'white',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    textAlign: 'center'
-                  }}>
-                    {githubData.rewardMessage}
-                  </div>
-              )}
-
-              <div style={styles.metricsGrid}>
-                <div style={styles.metricCard}>
-                  <div style={styles.metricHeader}>
-                    <Github style={{ width: '20px', height: '20px', color: '#10b981' }} />
-                    <span style={styles.metricTitle}>GitHub 활동</span>
-                    <span style={styles.fireIcon}>
-                                    🔥 오늘 {githubData?.totalCommitsToday || 0}개 커밋
-                                </span>
-                  </div>
-                  <div style={styles.githubStats}>
-                    <div style={styles.statBox}>
-                      <div style={styles.metricIcon}><Activity size={24} color="#3b82f6" /></div>
-                      <div style={styles.statNumber}>{userProfile?.githubStats?.publicRepos || 0}</div>
-                      <div style={styles.statLabel}>공개 레포지토리</div>
-                    </div>
-                    <div style={styles.statBox}>
-                      <div style={styles.metricIcon}><CheckCircle size={24} color="#f59e0b" /></div>
-                      <div style={styles.statNumber}>{userProfile?.githubStats?.followers || 0}</div>
-                      <div style={styles.statLabel}>팔로워</div>
-                    </div>
-                    <div style={styles.statBox}>
-                      <div style={styles.metricIcon}><Github size={24} color="#8b5cf6" /></div>
-                      <div style={styles.statNumber}>{userProfile?.githubStats?.following || 0}</div>
-                      <div style={styles.statLabel}>팔로잉</div>
-                    </div>
-                  </div>
-                  <div style={styles.metricFooter}>
-                    <span>최근 커밋</span>
-                    <div style={styles.commitBadges}>
-                      {githubData?.commits?.slice(0, 3).map((commit, index) => (
-                          <span key={index} style={styles.commitBadge}>{commit.time}</span>
-                      )) || [
-                        <span key="default" style={styles.commitBadge}>없음</span>
-                      ]}
-                    </div>
-                  </div>
-                  <div style={styles.rewardInfo}>
-                                <span>
-                                    오늘의 보상: {githubData?.coinsEarned || 0} 코인, {githubData?.experienceGained || 0} 경험치
-                                </span>
-                    {githubData?.alreadyRewarded && (
-                        <div style={{ fontSize: '12px', color: '#f59e0b', marginTop: '5px' }}>
-                          (이미 오늘 보상을 받았습니다)
-                        </div>
-                    )}
-                  </div>
-                </div>
-
-                <div style={styles.metricCard}>
-                  <div style={styles.metricHeader}>
-                    <CheckCircle style={{ width: '20px', height: '20px', color: '#10b981' }} />
-                    <span style={styles.metricTitle}>투두리스트</span>
-                    <span style={styles.progressBadge}>{completionPercentage}% 완료</span>
-                  </div>
-                  <div style={styles.todoProgress}>
-                    <div style={styles.todoCircle}>
-                      <svg style={styles.progressSvg} viewBox="0 0 100 100">
-                        <circle
-                            cx="50"
-                            cy="50"
-                            r="40"
-                            fill="none"
-                            stroke="rgba(255, 255, 255, 0.2)"
-                            strokeWidth="8"
-                        />
-                        <circle
-                            cx="50"
-                            cy="50"
-                            r="40"
-                            fill="none"
-                            stroke="#10b981"
-                            strokeWidth="8"
-                            strokeDasharray={`${2 * Math.PI * 40}`}
-                            strokeDashoffset={`${2 * Math.PI * 40 * (1 - completionPercentage / 100)}`}
-                            strokeLinecap="round"
-                            transform="rotate(-90 50 50)"
-                        />
-                      </svg>
-                      <div style={styles.todoCount}>
-                        <span style={styles.todoCompleted}>{completedCount}</span>
-                        <span style={styles.todoTotal}>/{todos.length}</span>
-                      </div>
-                    </div>
-                    <div style={styles.recentTodos}>
-                      {todos.slice(0, 3).map((todo) => (
-                          <div key={todo.id} style={styles.recentTodoItem}>
-                            <CheckCircle
-                                style={{
-                                  width: '14px',
-                                  height: '14px',
-                                  color: todo.status === 'completed' ? '#10b981' : 'rgba(255, 255, 255, 0.4)',
-                                }}
-                            />
-                            <span style={todo.status === 'completed' ? styles.completedTodoText : styles.pendingTodoText}>
-                                                {todo.name}
-                                            </span>
-                          </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div style={styles.levelInfo}>
-                                <span>
-                                    레벨: {githubData?.currentLevel || userProfile?.level || 1}
-                                  (경험치: {githubData?.currentExperience || userProfile?.experience_points || 0}/100)
-                                </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-        );
-      }
-
-      case 'github': {
-        return (
-            <div style={styles.tabContent}>
-              <div style={styles.streakSection}>
-                <span style={styles.streakIcon}>🔥</span>
-                <span style={styles.streakText}>{weeklyStats.streak}일 연속</span>
-              </div>
-
-              {/* 보상 상태 표시 */}
-              {githubData?.rewardMessage && (
-                  <div style={{
-                    padding: '10px',
-                    marginBottom: '20px',
-                    backgroundColor: githubData.alreadyRewarded ? '#f59e0b' : '#10b981',
-                    color: 'white',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    textAlign: 'center'
-                  }}>
-                    {githubData.rewardMessage}
-                  </div>
-              )}
-
-              <div style={styles.githubStats}>
-                <div style={styles.statItem}>
-                  <div style={styles.metricIcon}><Github size={24} color="#10b981" /></div>
-                  <div style={styles.statNumber}>{githubData?.totalCommitsToday || 0}</div>
-                  <div style={styles.statLabel}>오늘 커밋</div>
-                </div>
-                <div style={styles.statBox}>
-                  <div style={styles.metricIcon}><Activity size={24} color="#3b82f6" /></div>
-                  <div style={styles.statNumber}>{userProfile?.githubStats?.publicRepos || 0}</div>
-                  <div style={styles.statLabel}>총 레포지토리</div>
-                </div>
-                <div style={styles.statBox}>
-                  <div style={styles.metricIcon}><CheckCircle size={24} color="#f59e0b" /></div>
-                  <div style={styles.statNumber}>{githubStats.issues}</div>
-                  <div style={styles.statLabel}>오픈 이슈</div>
-                </div>
                 <div style={styles.statBox}>
                   <div style={styles.metricIcon}><Github size={24} color="#8b5cf6" /></div>
                   <div style={styles.statNumber}>{githubStats.prs}</div>
@@ -789,6 +711,25 @@ const handleReject = async (reqId) => {
 
   return (
       <div style={styles.container}>
+        {/* 메시지 표시 */}
+        {message && (
+            <div style={{
+              position: 'fixed',
+              top: '20px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              padding: '12px 24px',
+              backgroundColor: message.includes('✅') ? '#10b981' : '#ef4444',
+              color: 'white',
+              borderRadius: '8px',
+              fontSize: '14px',
+              zIndex: 1000,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+            }}>
+              {message}
+            </div>
+        )}
+
         <div style={styles.mainGrid}>
           {/* 왼쪽 사이드바 */}
           <div style={styles.leftSidebar}>
@@ -823,35 +764,35 @@ const handleReject = async (reqId) => {
               <h4>받은 친구 신청</h4>
               <div style={{ maxHeight: 200, overflowY: 'auto' }}>
                 {friendRequests.map(r => (
-                  <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <span>요청 from {r.requester_id}</span>
-                    <div>
-                      <button onClick={() => handleAccept(r.id)}>수락</button>
-                      <button onClick={() => handleReject(r.id)} style={{ marginLeft: 8 }}>거절</button>
+                    <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <span>요청 from {r.requester_id}</span>
+                      <div>
+                        <button onClick={() => handleAccept(r.id)}>수락</button>
+                        <button onClick={() => handleReject(r.id)} style={{ marginLeft: 8 }}>거절</button>
+                      </div>
                     </div>
-                  </div>
                 ))}
                 {friendRequests.length === 0 && <p>신청이 없습니다.</p>}
               </div>
             </Card>
 
             <Card style={styles.mainCard}>
-            <h4>알림</h4>
+              <h4>알림</h4>
               <div style={{ maxHeight: 200, overflowY: 'auto' }}>
                 {notifications.length > 0 ? (
-                  notifications.map((note) => (
-                    <div key={note.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0' }}>
-                      <div>
-                        <strong>{note.title}</strong><br />
-                        <span style={{ fontSize: 12, color: '#555' }}>{note.message}</span>
-                      </div>
-                      <button onClick={() => handleDeleteNotification(note.id)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                        <Trash2 size={16} color="#999" />
-                      </button>
-                    </div>
-                  ))
+                    notifications.map((note) => (
+                        <div key={note.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0' }}>
+                          <div>
+                            <strong>{note.title}</strong><br />
+                            <span style={{ fontSize: 12, color: '#555' }}>{note.message}</span>
+                          </div>
+                          <button onClick={() => handleDeleteNotification(note.id)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                            <Trash2 size={16} color="#999" />
+                          </button>
+                        </div>
+                    ))
                 ) : (
-                  <p>알림이 없습니다.</p>
+                    <p>알림이 없습니다.</p>
                 )}
               </div>
             </Card>
