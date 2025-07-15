@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Register.css"; // register랑 같은 css
+const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
 export default function Login() {
     const navigate = useNavigate();
@@ -32,7 +33,7 @@ export default function Login() {
         console.log('🔗 GitHub 로그인 시작, Client ID:', clientId);
 
         // 🔥 수정: 하드코딩된 localhost URL 사용
-        const redirectUri = encodeURIComponent('http://localhost:3001/api/user/oauth/github/callback');
+        const redirectUri = encodeURIComponent(`${API_URL}/api/user/oauth/github/callback`);
         const scope = encodeURIComponent('user:email repo');
 
         const githubAuthUrl = `https://github.com/login/oauth/authorize?` +
@@ -57,7 +58,7 @@ export default function Login() {
         setMessage('');
 
         try {
-            const response = await fetch('http://localhost:3001/api/user/login', {
+            const response = await fetch(`${API_URL}/api/user/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

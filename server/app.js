@@ -33,6 +33,7 @@ app.use(cors({
     'http://localhost:5173',
     'http://localhost:3001',
     'https://fishtank-frontend.vercel.app',
+    'https://fishtank-production.up.railway.app'
   ],
   credentials: true,
 }));
