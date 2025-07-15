@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-const API_BASE_URL = import.meta.env.VITE_API_URL
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '');
 const AuthGuard = ({ children }) => {
     const location = useLocation();
     const [user, setUser] = useState(null);
@@ -64,7 +64,7 @@ const AuthGuard = ({ children }) => {
 
     const fetchUserProfile = async (token) => {
         try {
-            const response = await fetch(`${API_BASE_URL}api/user/profile`, {
+            const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
