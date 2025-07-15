@@ -4,7 +4,6 @@ import Card from '../../components/common/Card/Card.jsx';
 import { styles } from './myAquarium-styles.js';
 import { deleteNotification, fetchNotifications } from '../Profile/Notificaitons.jsx';
 
-
 import {
   acceptFriendRequest,
   rejectFriendRequest,
@@ -13,6 +12,7 @@ import {
 
 const user = JSON.parse(localStorage.getItem('user'));
 const userId = user?.id;
+const token = localStorage.getItem('token'); // 여기서 가져옴
 
 
 const MyAquarium = () => {
@@ -219,6 +219,26 @@ const handleReject = async (reqId) => {
       console.error('GitHub 데이터 조회 에러:', error);
     }
   };
+
+  // 보상 받기 핸들러
+  const handleReward = async () => {
+    const res = await fetch('http://localhost:3001/api/github/commits/reward', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+  
+    const data = await res.json();
+    if (data.success) {
+      alert(`코인 ${data.coinsEarned}개 획득! 🎉`);
+      await fetchUserProfile(); // 상태 갱신
+    } else {
+      alert(data.message);
+    }
+  };
+  
 
   // 보유한 물고기 목록 가져오기
   const fetchMyFishes = async () => {
@@ -514,6 +534,7 @@ const handleReject = async (reqId) => {
                                     🔥 오늘 {githubData?.totalCommitsToday || 0}개 커밋
                                 </span>
                   </div>
+                  
                   <div style={styles.githubStats}>
                     <div style={styles.statBox}>
                       <div style={styles.metricIcon}><Activity size={24} color="#3b82f6" /></div>
@@ -618,6 +639,21 @@ const handleReject = async (reqId) => {
       }
 
       case 'github': {
+        const hasGithub =
+          userProfile?.githubStats && githubData?.totalCommitsToday !== undefined;
+
+        if (!hasGithub) {
+          return (
+            <div style={styles.tabContent}>
+              <div style={{ textAlign: 'center', marginTop: '100px', color: '#9CA3AF' }}>
+                <h2 style={{ fontSize: '20px', marginBottom: '12px' }}>🐙 GitHub 연동이 필요해요</h2>
+                <p style={{ fontSize: '14px' }}>
+                  이 탭을 사용하려면 GitHub 계정을 연동해야 합니다.
+                </p>
+              </div>
+            </div>
+          );
+        }
         return (
             <div style={styles.tabContent}>
               <div style={styles.streakSection}>
@@ -645,6 +681,7 @@ const handleReject = async (reqId) => {
                   <div style={styles.metricIcon}><Github size={24} color="#10b981" /></div>
                   <div style={styles.statNumber}>{githubData?.totalCommitsToday || 0}</div>
                   <div style={styles.statLabel}>오늘 커밋</div>
+          
                 </div>
                 <div style={styles.statBox}>
                   <div style={styles.metricIcon}><Activity size={24} color="#3b82f6" /></div>

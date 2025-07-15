@@ -80,7 +80,7 @@ router.put('/:id/complete', async (req, res) => {
       await pool.execute(
         `UPDATE users
          SET fish_coins = fish_coins + 10,
-         experience_points = experience_points + 5
+         experience_points = experience_points + 3
          WHERE id = ?`,
         [userId]
       );

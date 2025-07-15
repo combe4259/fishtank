@@ -95,11 +95,9 @@ async function getTodayCommits(octokit, username, todayStart, todayEnd) {
 }
 
 // 공통 함수: 코인 계산 및 지급
-async function awardCoins(connection, userId, totalCommits, openIssues, mergedPrs) {
-    const commitCoins = totalCommits * 10;
-    const issueCoins = openIssues * 20;
-    const prCoins = mergedPrs * 30;
-    const totalCoins = commitCoins + issueCoins + prCoins;
+async function awardCoins(connection, userId, totalCommits) {
+    const commitCoins = totalCommits * 15;
+    const totalCoins = commitCoins; // 현재는 커밋만 고려, 이슈와 PR은 0으로 설정
 
     if (totalCoins > 0) {
         await connection.execute(
@@ -167,7 +165,13 @@ router.get('/commits/today', authenticateToken, async (req, res) => {
         const { github_token, github_username } = users[0];
         const octokit = new Octokit({ auth: github_token });
 
-        // 날짜 로직 제거: 모든 커밋을 조회
+        // ✅ 오늘 날짜 범위 (KST 기준)
+        const now = new Date();
+        const KST_OFFSET = 9 * 60 * 60 * 1000;
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const todayStartKST = new Date(todayStart.getTime() - todayStart.getTimezoneOffset() * 60000 + KST_OFFSET);
+        const todayEndKST = new Date(todayStartKST.getTime() + 24 * 60 * 60 * 1000 - 1);
+
         const todayCommits = [];
         let totalCommitsToday = 0;
 
@@ -183,7 +187,9 @@ router.get('/commits/today', authenticateToken, async (req, res) => {
                     owner: github_username,
                     repo: repo.name,
                     author: github_username,
-                    per_page: 100 // 날짜 필터(since, until) 제거
+                    since: todayStartKST.toISOString(),
+                    until: todayEndKST.toISOString(),
+                    per_page: 100
                 });
 
                 totalCommitsToday += commits.length;
@@ -203,22 +209,12 @@ router.get('/commits/today', authenticateToken, async (req, res) => {
             }
         }
 
-        // 보상 로직도 날짜 기반이 아니므로 단순화 (필요 시 제거 가능)
-        await connection.beginTransaction();
-        const coinResult = await awardCoins(connection, userId, totalCommitsToday, 0, 0);
-        const expResult = await updateExperienceAndLevel(connection, userId, totalCommitsToday * 10);
-        await connection.commit();
-
         res.json({
             success: true,
             data: {
                 totalCommitsToday,
                 commits: todayCommits.slice(0, 10),
-                username: github_username,
-                coinsEarned: coinResult.totalCoins,
-                experienceGained: totalCommitsToday * 10,
-                currentLevel: expResult.level,
-                currentExperience: expResult.experience_points
+                username: github_username
             }
         });
     } catch (error) {
@@ -232,6 +228,8 @@ router.get('/commits/today', authenticateToken, async (req, res) => {
         connection.release();
     }
 });
+
+
 
 // GitHub 주간 통계 API
 router.get('/commits/week', authenticateToken, async (req, res) => {
