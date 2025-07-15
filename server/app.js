@@ -29,8 +29,15 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 //CORS 설정
+// app.use(cors({
+//   origin: 'http://localhost:5173',
+//   credentials: true
+// }));
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: [
+    'http://localhost:5173', // 로컬 개발용
+    'https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app' // Vercel 도메인
+  ],
   credentials: true
 }));
 
