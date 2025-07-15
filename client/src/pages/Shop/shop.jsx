@@ -3,6 +3,8 @@ import Card from '../../components/common/Card/Card';
 import FishCard from '../../components/aquarium/FishCard/FishCard';
 import { Gem, Filter, ShoppingBag, Lock, Check } from 'lucide-react';
 import { styles } from './shop-styles';
+const API_BASE_URL = import.meta.env.VITE_API_URL
+
 
 const Shop = ({ user }) => {
   const [activeTab, setActiveTab] = useState('fish');
@@ -29,7 +31,7 @@ const Shop = ({ user }) => {
   const fetchFishList = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/shop/fish/list', {
+      const response = await fetch(`${API_BASE_URL}api/shop/fish/list`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -50,7 +52,7 @@ const Shop = ({ user }) => {
   const fetchDecorationList = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/shop/decorations/list', {
+      const response = await fetch(`${API_BASE_URL}api/shop/decorations/list`, {
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
       });
       const data = await response.json();
@@ -85,7 +87,7 @@ const Shop = ({ user }) => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/shop/fish/buy', {
+      const response = await fetch(`${API_BASE_URL}api/shop/fish/buy`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -124,7 +126,7 @@ const Shop = ({ user }) => {
     if (!confirm) return;
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/shop/decorations/buy', {
+      const response = await fetch(`${API_BASE_URL}api/shop/decorations/buy`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ decorationTypeId: decoration.id })
