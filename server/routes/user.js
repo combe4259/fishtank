@@ -300,11 +300,12 @@ router.get('/oauth/github/callback', async (req, res) => {
 
         // 성공 메시지와 함께 리다이렉트
         const successMessage = isNewConnection ? 'github_connected' : 'auth_success';
-        res.redirect(`http://localhost:5173/aquarium?${successMessage}=true&session=${token}`);
+        // GitHub OAuth 콜백에서 수정
+        res.redirect(`https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app/aquarium?${successMessage}=true&session=${token}`);
 
     } catch (error) {
         console.error('GitHub OAuth 에러:', error);
-        res.redirect('http://localhost:5173/login?error=github_auth_failed');
+        res.redirect(`https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app/login?error=github_auth_failed`);
     }
 });
 
@@ -313,11 +314,11 @@ router.get('/profile', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.userId;
 
-        try {
-            await checkAchievements(userId, 'login_time_special');
-        } catch (achievementError) {
-            console.error('프로필 조회시 업적 체크 에러:', achievementError);
-        }
+        // try {
+        //     await checkAchievements(userId, 'login_time_special');
+        // } catch (achievementError) {
+        //     console.error('프로필 조회시 업적 체크 에러:', achievementError);
+        // }
 
         const [users] = await pool.execute(
             `SELECT id, email, username, github_username, github_id, profile_image_url, 
