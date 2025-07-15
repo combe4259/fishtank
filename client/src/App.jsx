@@ -23,7 +23,6 @@ function App() {
                             </AuthGuard>
                         }
                     />
-
                     {/* 잘못된 경로 처리 */}
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
