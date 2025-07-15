@@ -12,7 +12,6 @@ import {
 
 const user = JSON.parse(localStorage.getItem('user'));
 const userId = user?.id;
-const token = localStorage.getItem('token'); // 여기서 가져옴
 
 
 const MyAquarium = () => {
@@ -220,24 +219,7 @@ const handleReject = async (reqId) => {
     }
   };
 
-  // 보상 받기 핸들러
-  const handleReward = async () => {
-    const res = await fetch('http://localhost:3001/api/github/commits/reward', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-  
-    const data = await res.json();
-    if (data.success) {
-      alert(`코인 ${data.coinsEarned}개 획득! 🎉`);
-      await fetchUserProfile(); // 상태 갱신
-    } else {
-      alert(data.message);
-    }
-  };
+
   
 
   // 보유한 물고기 목록 가져오기
@@ -704,11 +686,6 @@ const handleReject = async (reqId) => {
                         <span>
                             오늘의 활동 보상: {githubData?.coinsEarned || 0} 코인, {githubData?.experienceGained || 0} 경험치
                         </span>
-                {githubData?.alreadyRewarded && (
-                    <div style={{ fontSize: '12px', color: '#f59e0b', marginTop: '5px' }}>
-                      (이미 오늘 보상을 받았습니다)
-                    </div>
-                )}
               </div>
 
               <div style={styles.weeklyActivitySection}>

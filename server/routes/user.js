@@ -1,9 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const {pool, createConnection} = require('../config/database')
-// const achievements = require('./achievements');
-// const checkAchievements = achievements.checkAchievements;
-
 const router = express.Router();
 
 // JWT 검증 미들웨어
@@ -115,13 +112,6 @@ router.post('/login', async (req, res) => {
             { expiresIn: '7d' }
         );
 
-        // try {
-        //     await checkAchievements(users[0].id, 'login_time_special');
-        //     console.log(`로그인 시간 업적 체크 완료 - 사용자 ${users[0].id}`);
-        // } catch (achievementError) {
-        //     console.error('로그인 업적 체크 에러:', achievementError);
-        // }
-
         res.json({
             success: true,
             message: '로그인 성공!',
@@ -147,20 +137,20 @@ router.post('/login', async (req, res) => {
 });
 
 // GitHub OAuth 시작
-router.get('/oauth/github', (req, res) => {
-    const githubAuthURL = `https://github.com/login/oauth/authorize?` +
-        `client_id=${process.env.GITHUB_CLIENT_ID}&` +
-        `redirect_uri=${process.env.GITHUB_CALLBACK_URL}&` +
-        `scope=user:email,repo`;
-
-    res.redirect(githubAuthURL);
-});
-
-// GitHub OAuth 콜백
 router.get('/oauth/github/callback', async (req, res) => {
     const { code, state } = req.query;
 
+    console.log('🔍 GitHub 콜백 시작:', {
+        code: code ? '코드 있음' : '코드 없음',
+        state
+    });
+
     try {
+        if (!code) {
+            console.error('❌ GitHub 코드가 없습니다');
+            return res.redirect(`http://localhost:5173/login?error=no_code`);
+        }
+
         // GitHub에서 액세스 토큰 받기
         const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
             method: 'POST',
@@ -176,10 +166,14 @@ router.get('/oauth/github/callback', async (req, res) => {
         });
 
         const tokenData = await tokenResponse.json();
+        console.log('📨 GitHub 토큰 응답:', {
+            success: !!tokenData.access_token,
+            error: tokenData.error
+        });
 
         if (!tokenData.access_token) {
-            console.error('GitHub 토큰 받기 실패');
-            return res.redirect('https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app/login?error=token_failed');
+            console.error('❌ GitHub 토큰 받기 실패:', tokenData);
+            return res.redirect(`http://localhost:5173/login?error=token_failed`);
         }
 
         const accessToken = tokenData.access_token;
@@ -187,15 +181,22 @@ router.get('/oauth/github/callback', async (req, res) => {
         // GitHub 사용자 정보 가져오기
         const userResponse = await fetch('https://api.github.com/user', {
             headers: {
-                'Authorization': `Bearer ${accessToken}`
+                'Authorization': `Bearer ${accessToken}`,
+                'User-Agent': 'Fishtank-App'
             }
         });
 
         if (!userResponse.ok) {
+            console.error('❌ GitHub 사용자 정보 가져오기 실패:', userResponse.status);
             throw new Error('GitHub 사용자 정보를 가져올 수 없습니다');
         }
 
         const githubUser = await userResponse.json();
+        console.log('✅ GitHub 사용자 정보:', {
+            id: githubUser.id,
+            login: githubUser.login,
+            email: githubUser.email
+        });
 
         // 기존 GitHub 사용자 확인
         let [existingGithubUsers] = await pool.execute(
@@ -208,6 +209,7 @@ router.get('/oauth/github/callback', async (req, res) => {
 
         if (existingGithubUsers.length > 0) {
             // 이미 GitHub 계정이 연동된 경우 - 기존 사용자 로그인
+            console.log('👤 기존 GitHub 사용자 로그인');
             user = existingGithubUsers[0];
 
             // GitHub 정보 업데이트
@@ -217,20 +219,21 @@ router.get('/oauth/github/callback', async (req, res) => {
             );
 
         } else if (state === 'connect') {
+            // 기존 이메일 사용자에게 GitHub 연동
+            console.log('🔗 기존 사용자에게 GitHub 연동 시도');
             let [existingEmailUsers] = await pool.execute(
                 'SELECT * FROM users WHERE email = ? AND github_id IS NULL',
                 [githubUser.email]
             );
 
             if (existingEmailUsers.length > 0) {
-                // 기존 이메일 사용자에게 GitHub 정보 추가
                 user = existingEmailUsers[0];
 
                 await pool.execute(
-                    `UPDATE users SET 
-                     github_id = ?, github_username = ?, github_token = ?,
-                     profile_image_url = ?, public_repos = ?, followers = ?, following = ?,
-                     updated_at = CURRENT_TIMESTAMP 
+                    `UPDATE users SET
+                                      github_id = ?, github_username = ?, github_token = ?,
+                                      profile_image_url = ?, public_repos = ?, followers = ?, following = ?,
+                                      updated_at = CURRENT_TIMESTAMP
                      WHERE id = ?`,
                     [
                         githubUser.id, githubUser.login, accessToken,
@@ -241,19 +244,21 @@ router.get('/oauth/github/callback', async (req, res) => {
                 );
 
                 isNewConnection = true;
+                console.log('✅ GitHub 연동 완료');
 
             } else {
-                // 연동할 기존 사용자를 찾을 수 없는 경우
-                return res.redirect('https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app/login?error=user_not_found');
+                console.error('❌ 연동할 기존 사용자를 찾을 수 없음');
+                return res.redirect(`http://localhost:5173/login?error=user_not_found`);
             }
 
         } else {
             // 완전히 새로운 GitHub 사용자 생성
+            console.log('🆕 새로운 GitHub 사용자 생성');
             const [result] = await pool.execute(
-                `INSERT INTO users 
-                 (github_id, github_username, github_token, username, email, 
+                `INSERT INTO users
+                 (github_id, github_username, github_token, username, email,
                   profile_image_url, public_repos, followers, following,
-                  level, experience_points, fish_coins) 
+                  level, experience_points, fish_coins)
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                     githubUser.id,
@@ -276,49 +281,42 @@ router.get('/oauth/github/callback', async (req, res) => {
                 github_id: githubUser.id,
                 github_username: githubUser.login,
                 username: githubUser.login,
-                email: githubUser.email
+                email: githubUser.email,
+                level: 1,
+                experience_points: 0,
+                fish_coins: 100
             };
         }
 
-        // try {
-        //     await checkAchievements(user.id, 'login_time_special');
-        //     console.log(`⏰ GitHub 로그인 시간 업적 체크 완료 - 사용자 ${user.id}`);
-        // } catch (achievementError) {
-        //     console.error('GitHub 로그인 업적 체크 에러:', achievementError);
-        // }
-
+        // JWT 토큰 생성
         const token = jwt.sign(
             {
                 userId: user.id,
                 githubId: githubUser.id,
                 username: user.username || githubUser.login,
-                loginType: isNewConnection ? 'email' : 'github' // 연동인 경우 기존 로그인 타입 유지
+                loginType: isNewConnection ? 'email' : 'github'
             },
             process.env.JWT_SECRET,
             { expiresIn: '7d' }
         );
 
-        // 성공 메시지와 함께 리다이렉트
-        const successMessage = isNewConnection ? 'github_connected' : 'auth_success';
-        // GitHub OAuth 콜백에서 수정
-        res.redirect(`https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app/aquarium?${successMessage}=true&session=${token}`);
+        // 🔥 수정: /aquarium으로 직접 리다이렉트
+        const successMessage = isNewConnection ? 'github_connected' : 'github_auth';
+        const redirectUrl = `http://localhost:5173/aquarium?${successMessage}=success&token=${token}`;
+
+        console.log('✅ GitHub 로그인 성공, 아쿠아리움으로 리다이렉트:', redirectUrl);
+        res.redirect(redirectUrl);
 
     } catch (error) {
-        console.error('GitHub OAuth 에러:', error);
-        res.redirect(`https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app/login?error=github_auth_failed`);
+        console.error('💥 GitHub OAuth 에러:', error);
+        res.redirect(`http://localhost:5173/login?error=github_auth_failed`);
     }
 });
 
-// 사용자 프로필 조회 API
+// 사용자 프로필 조회 API - 수정된 버전
 router.get('/profile', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.userId;
-
-        // try {
-        //     await checkAchievements(userId, 'login_time_special');
-        // } catch (achievementError) {
-        //     console.error('프로필 조회시 업적 체크 에러:', achievementError);
-        // }
 
         const [users] = await pool.execute(
             `SELECT id, email, username, github_username, github_id, profile_image_url, 

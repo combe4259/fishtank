@@ -8,6 +8,8 @@ import Profile from './Profile/Profile.jsx';
 const AquariumApp = ({ user }) => {
     const [activeTab, setActiveTab] = useState('myAquarium');
 
+    console.log('🐠 AquariumApp 렌더링, 사용자:', user);
+
     // 각 탭에 따른 컴포넌트 렌더링
     const renderAquariumContent = () => {
         const commonProps = { user }; // 모든 컴포넌트에 사용자 정보 전달
@@ -28,9 +30,13 @@ const AquariumApp = ({ user }) => {
 
     // 로그아웃 처리
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/';
+        const confirmLogout = window.confirm('정말 로그아웃 하시겠습니까?');
+
+        if (confirmLogout) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/';
+        }
     };
 
     const styles = {
@@ -69,7 +75,8 @@ const AquariumApp = ({ user }) => {
             cursor: 'pointer',
             fontSize: '14px',
             fontWeight: '500',
-            zIndex: 20
+            zIndex: 20,
+            transition: 'background-color 0.2s'
         }
     };
 
@@ -77,7 +84,12 @@ const AquariumApp = ({ user }) => {
         <div style={styles.container}>
             <div style={styles.backgroundOverlay}></div>
 
-            <button onClick={handleLogout} style={styles.logoutButton}>
+            <button
+                onClick={handleLogout}
+                style={styles.logoutButton}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#c82333'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#dc3545'}
+            >
                 로그아웃
             </button>
 
@@ -85,7 +97,7 @@ const AquariumApp = ({ user }) => {
                 <Navbar
                     activeTab={activeTab}
                     onTabChange={setActiveTab}
-                    userCoins={user?.gameStats?.fishCoins || 0}
+                    userCoins={user?.fish_coins || 0}
                 />
 
                 <main>
