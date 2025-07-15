@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Fish, Github, CheckCircle, Activity, Plus, Trash2, BarChart, Palette } from 'lucide-react';
 import Card from '../../components/common/Card/Card.jsx';
+import { styles } from './myAquarium-styles.js';
 
-import { styles } from './MyAquarium-styles';
 
 import {
   acceptFriendRequest,
@@ -395,12 +394,12 @@ const handleReject = async (reqId) => {
     }
   }, [userId]);
 
+
   // const myFishes = [
   //   { id: 1, name: '코딩이', species: 'JavaScript 문어', level: 5 },
   //   { id: 2, name: '파이썬이', species: 'Python 뱀물고기', level: 3 },
   // ];
 
-  // 대시보드 탭 데이터 (GitHub 실제 데이터 반영)
   const dashboardTabs = [
     { id: 'dashboard', label: '대시보드', icon: BarChart, data: {} },
     {
@@ -529,7 +528,9 @@ const handleReject = async (reqId) => {
                   </div>
                 </div>
 
+
                 {/* 투두리스트 카드 */}
+
                 <div style={styles.metricCard}>
                   <div style={styles.metricHeader}>
                     <CheckCircle style={{ width: '20px', height: '20px', color: '#10b981' }} />
