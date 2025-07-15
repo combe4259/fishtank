@@ -1,10 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
-import { Fish, Github, CheckCircle, Activity, Plus, Trash2, BarChart } from 'lucide-react';
+import { Fish, Github, CheckCircle, Activity, Plus, Trash2, BarChart, Palette } from 'lucide-react';
 import Card from '../../components/common/Card/Card.jsx';
 
-import DashboardChart from '../../components/aquarium/DashboardChart/DashboardChart';
 import { styles } from './MyAquarium-styles';
+
+import {
+  acceptFriendRequest,
+  rejectFriendRequest,
+  fetchFriendRequests,
+} from "../../pages/FriendsAquarium/FriendsNotifications.jsx";
 
 const user = JSON.parse(localStorage.getItem('user'));
 const userId = user?.id;
@@ -15,20 +20,91 @@ const MyAquarium = () => {
   const [newTodo, setNewTodo] = useState('');
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [githubData, setGithubData] = useState(null); // 오늘의 커밋 데이터
-  const [weeklyStats, setWeeklyStats] = useState({ weeklyStats: [], totalWeekCommits: 0, streak: 0 }); // 주간 통계 데이터
-  const [githubStats, setGithubStats] = useState({ issues: 0, prs: '0/0' }); // 이슈와 PR 통계
+  const [githubData, setGithubData] = useState(null);
+  const [weeklyStats, setWeeklyStats] = useState({ weeklyStats: [], totalWeekCommits: 0, streak: 0 });
+  const [githubStats, setGithubStats] = useState({ issues: 0, prs: '0/0' });
   const [todos, setTodos] = useState([
     { id: 1, name: 'React 컴포넌트 개발', status: 'completed' },
     { id: 2, name: 'API 연동 작업', status: 'completed' },
     { id: 3, name: 'UI 디자인 수정', status: 'pending' }
   ]);
+  const [myFishes, setMyFishes] = useState([]);
+  const [myDecorations, setMyDecorations] = useState([]);
 
+    const [friendRequests, setFriendRequests] = useState([]);
 
-  // 프로필 및 GitHub 데이터 조회
+    // FriendsAquarium 컴포넌트 내부
+
+// ✅ 받은 친구 요청 리스트를 다시 가져오는 함수
+const refreshFriendRequests = async () => {
+  try {
+    const data = await fetchFriendRequests(userId);
+    setFriendRequests(data);
+  } catch (err) {
+    console.error('친구 요청 갱신 실패:', err);
+  }
+};
+
+// 수락/거절 핸들러에서 호출 예시
+const handleAccept = async (reqId) => {
+  const result = await acceptFriendRequest(reqId);
+  if (result) {
+    // 갱신
+    await refreshFriendRequests();
+  }
+};
+
+const handleReject = async (reqId) => {
+  const result = await rejectFriendRequest(reqId);
+  if (result) {
+    // 갱신
+    await refreshFriendRequests();
+  }
+};
+
+  // 물고기 위치 계산 함수
+  const getFishPosition = (index) => {
+    const positions = [
+      { top: 20, left: 15 },
+      { top: 40, left: 45 },
+      { top: 25, left: 75 },
+      { top: 55, left: 25 },
+      { top: 35, left: 55 },
+      { top: 60, left: 10 },
+      { top: 15, left: 65 },
+      { top: 45, left: 35 },
+      { top: 30, left: 80 },
+      { top: 50, left: 60 }
+    ];
+
+    return positions[index] || {
+      top: 20 + (Math.random() * 40),
+      left: 10 + (Math.random() * 70)
+    };
+  };
+
+  // 장식품 위치 계산 함수
+  const getDecorationPosition = (index) => {
+    const positions = [
+      { top: 70, left: 20 },
+      { top: 75, left: 50 },
+      { top: 80, left: 15 },
+      { top: 65, left: 75 },
+      { top: 70, left: 40 }
+    ];
+
+    return positions[index] || {
+      top: 65 + (Math.random() * 15),
+      left: 15 + (Math.random() * 60)
+    };
+  };
+
+  // 데이터 조회
   useEffect(() => {
     fetchUserProfile();
     fetchAllData();
+    fetchMyFishes();
+    fetchMyDecorations();
   }, []);
 
   // 사용자 프로필 API 호출
@@ -62,7 +138,7 @@ const MyAquarium = () => {
     }
   };
 
-  // 모든 GitHub 데이터 가져오기
+  // GitHub 데이터 가져오기
   const fetchAllData = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -71,7 +147,7 @@ const MyAquarium = () => {
         return;
       }
 
-      // 오늘의 커밋 데이터 가져오기
+      // GitHub 데이터 호출
       const todayResponse = await fetch('http://localhost:3001/api/github/commits/today', {
         method: 'GET',
         headers: {
@@ -81,10 +157,13 @@ const MyAquarium = () => {
       });
       const todayData = await todayResponse.json();
       if (todayData.success) {
+        console.log("GitHub 데이터 성공:", todayData);
         setGithubData(todayData.data);
+
+        // GitHub 데이터 호출 후 사용자 프로필 다시 조회 (레벨, 경험치, 코인 업데이트)
+        await fetchUserProfile();
       }
 
-      // 주간 통계 데이터 가져오기
       const weeklyResponse = await fetch('http://localhost:3001/api/github/commits/week', {
         method: 'GET',
         headers: {
@@ -94,10 +173,10 @@ const MyAquarium = () => {
       });
       const weeklyData = await weeklyResponse.json();
       if (weeklyData.success) {
+        console.log("주간 데이터 성공");
         setWeeklyStats(weeklyData.data);
       }
 
-      // 이슈와 PR 통계 데이터 가져오기
       const statsResponse = await fetch('http://localhost:3001/api/github/stats', {
         method: 'GET',
         headers: {
@@ -107,12 +186,127 @@ const MyAquarium = () => {
       });
       const statsData = await statsResponse.json();
       if (statsData.success) {
+        console.log("통계 데이터 성공")
         setGithubStats(statsData.data);
       }
     } catch (error) {
       console.error('GitHub 데이터 조회 에러:', error);
     }
   };
+
+  // 보유한 물고기 목록 가져오기
+  const fetchMyFishes = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('토큰이 없습니다.');
+        return;
+      }
+
+      const response = await fetch('http://localhost:3001/api/shop/my-fish', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        console.log('🐠 물고기 데이터:', data.fish);
+        setMyFishes(data.fish);
+      } else {
+        console.error('물고기 목록 조회 실패:', data.message);
+      }
+    } catch (error) {
+      console.error('물고기 목록 조회 에러:', error);
+    }
+  };
+
+  // 보유한 장식품 목록 가져오기
+  const fetchMyDecorations = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('토큰이 없습니다.');
+        return;
+      }
+
+      const response = await fetch('http://localhost:3001/api/shop/my-decorations', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        console.log('🎨 장식품 데이터:', data.decorations);
+        setMyDecorations(data.decorations);
+      } else {
+        console.error('장식품 목록 조회 실패:', data.message);
+      }
+    } catch (error) {
+      console.error('장식품 목록 조회 에러:', error);
+    }
+  };
+
+  // 물고기를 어항에 추가/제거
+  const toggleFishInAquarium = async (fishId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:3001/api/shop/${fishId}/toggle-aquarium`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setMyFishes(myFishes.map(fish =>
+            fish.id === fishId ? { ...fish, is_in_aquarium: data.is_in_aquarium } : fish
+        ));
+        alert(data.message);
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('어항 상태 변경 에러:', error);
+      alert('어항 상태 변경 중 오류가 발생했습니다.');
+    }
+  };
+
+  // 장식품을 어항에 추가/제거
+  const toggleDecorationInAquarium = async (decorationId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:3001/api/shop/decorations/${decorationId}/toggle-aquarium`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setMyDecorations(myDecorations.map(decoration =>
+            decoration.id === decorationId ? { ...decoration, is_placed: data.is_placed } : decoration
+        ));
+        alert(data.message);
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('장식품 배치 상태 변경 에러:', error);
+      alert('장식품 배치 상태 변경 중 오류가 발생했습니다.');
+    }
+  };
+
+  
 
 
 
@@ -201,20 +395,14 @@ const MyAquarium = () => {
     }
   }, [userId]);
 
-  const myFishes = [
-    { id: 1, name: '코딩이', species: 'JavaScript 문어', level: 5 },
-    { id: 2, name: '파이썬이', species: 'Python 뱀물고기', level: 3 },
-  ];
-
+  // const myFishes = [
+  //   { id: 1, name: '코딩이', species: 'JavaScript 문어', level: 5 },
+  //   { id: 2, name: '파이썬이', species: 'Python 뱀물고기', level: 3 },
+  // ];
 
   // 대시보드 탭 데이터 (GitHub 실제 데이터 반영)
   const dashboardTabs = [
-    {
-      id: 'dashboard',
-      label: '대시보드',
-      icon: BarChart,
-      data: {}
-    },
+    { id: 'dashboard', label: '대시보드', icon: BarChart, data: {} },
     {
       id: 'github',
       label: 'GitHub',
@@ -224,8 +412,10 @@ const MyAquarium = () => {
         todayCommits: githubData?.totalCommitsToday || 0,
         recentCommits: githubData?.commits || [],
         streak: weeklyStats.streak,
-        issues: githubStats.issues, // 동적으로 가져옴
-        prs: githubStats.prs // 동적으로 가져옴
+        issues: githubStats.issues,
+        prs: githubStats.prs,
+        coinsEarned: githubData?.coinsEarned || 0,
+        experienceGained: githubData?.experienceGained || 0
       }
     },
     {
@@ -235,11 +425,7 @@ const MyAquarium = () => {
       data: {
         completed: 67,
         total: 100,
-        recent: [
-          { id: 1, name: 'React 컴포� component 개발', status: 'completed' },
-          { id: 2, name: 'API 연동 작업', status: 'completed' },
-          { id: 3, name: 'UI 디자인 수정', status: 'pending' }
-        ]
+        recent: todos.slice(0, 3)
       }
     }
   ];
@@ -262,13 +448,12 @@ const MyAquarium = () => {
   const completionPercentage = Math.round((completedCount / todos.length) * 100) || 0;
 
   const renderTabContent = () => {
-//  const currentTab = dashboardTabs.find(tab => tab.id === activeTab);
+    //const currentTab = dashboardTabs.find(tab => tab.id === activeTab);
 
     switch (activeTab) {
       case 'dashboard': {
         return (
             <div style={styles.tabContent}>
-              {/* 오늘의 활동 헤더 */}
               <div style={styles.dashboardHeader}>
                 <h3 style={styles.dashboardTitle}>오늘의 활동</h3>
                 <div style={styles.dateInfo}>
@@ -281,34 +466,49 @@ const MyAquarium = () => {
                 </div>
               </div>
 
-              {/* 주요 지표 카드 */}
+              {/* 보상 상태 표시 */}
+              {githubData?.rewardMessage && (
+                  <div style={{
+                    padding: '10px',
+                    marginBottom: '20px',
+                    backgroundColor: githubData.alreadyRewarded ? '#f59e0b' : '#10b981',
+                    color: 'white',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    textAlign: 'center'
+                  }}>
+                    {githubData.rewardMessage}
+                  </div>
+              )}
+
               <div style={styles.metricsGrid}>
-                {/* GitHub 카드 */}
                 <div style={styles.metricCard}>
                   <div style={styles.metricHeader}>
                     <Github style={{ width: '20px', height: '20px', color: '#10b981' }} />
                     <span style={styles.metricTitle}>GitHub 활동</span>
                     <span style={styles.fireIcon}>
-                    🔥 오늘 {githubData?.totalCommitsToday || 0}개 커밋
-                  </span>
+                                    🔥 오늘 {githubData?.totalCommitsToday || 0}개 커밋
+                                </span>
                   </div>
-                  <div style={styles.statBox}>
-                    <div style={styles.metricIcon}><Activity size={24} color="#3b82f6" /></div>
-                    <div style={styles.statNumber}>{userProfile?.githubStats?.publicRepos || 0}</div>
-                    <div style={styles.statLabel}>공개 레포지토리</div>
-                  </div>
-                  <div style={styles.statBox}>
-                    <div style={styles.metricIcon}><CheckCircle size={24} color="#f59e0b" /></div>
-                    <div style={styles.statNumber}>{userProfile?.githubStats?.followers || 0}</div>
-                    <div style={styles.statLabel}>팔로워</div>
-                  </div>
-                  <div style={styles.statBox}>
-                    <div style={styles.metricIcon}><Github size={24} color="#8b5cf6" /></div>
-                    <div style={styles.statNumber}>{userProfile?.githubStats?.following || 0}</div>
-                    <div style={styles.statLabel}>팔로잉</div>
+                  <div style={styles.githubStats}>
+                    <div style={styles.statBox}>
+                      <div style={styles.metricIcon}><Activity size={24} color="#3b82f6" /></div>
+                      <div style={styles.statNumber}>{userProfile?.githubStats?.publicRepos || 0}</div>
+                      <div style={styles.statLabel}>공개 레포지토리</div>
+                    </div>
+                    <div style={styles.statBox}>
+                      <div style={styles.metricIcon}><CheckCircle size={24} color="#f59e0b" /></div>
+                      <div style={styles.statNumber}>{userProfile?.githubStats?.followers || 0}</div>
+                      <div style={styles.statLabel}>팔로워</div>
+                    </div>
+                    <div style={styles.statBox}>
+                      <div style={styles.metricIcon}><Github size={24} color="#8b5cf6" /></div>
+                      <div style={styles.statNumber}>{userProfile?.githubStats?.following || 0}</div>
+                      <div style={styles.statLabel}>팔로잉</div>
+                    </div>
                   </div>
                   <div style={styles.metricFooter}>
-                    <span>오늘 커밋</span>
+                    <span>최근 커밋</span>
                     <div style={styles.commitBadges}>
                       {githubData?.commits?.slice(0, 3).map((commit, index) => (
                           <span key={index} style={styles.commitBadge}>{commit.time}</span>
@@ -317,7 +517,18 @@ const MyAquarium = () => {
                       ]}
                     </div>
                   </div>
+                  <div style={styles.rewardInfo}>
+                                <span>
+                                    오늘의 보상: {githubData?.coinsEarned || 0} 코인, {githubData?.experienceGained || 0} 경험치
+                                </span>
+                    {githubData?.alreadyRewarded && (
+                        <div style={{ fontSize: '12px', color: '#f59e0b', marginTop: '5px' }}>
+                          (이미 오늘 보상을 받았습니다)
+                        </div>
+                    )}
+                  </div>
                 </div>
+
                 {/* 투두리스트 카드 */}
                 <div style={styles.metricCard}>
                   <div style={styles.metricHeader}>
@@ -365,28 +576,48 @@ const MyAquarium = () => {
                                 }}
                             />
                             <span style={todo.status === 'completed' ? styles.completedTodoText : styles.pendingTodoText}>
-                          {todo.name}
-                        </span>
+                                                {todo.name}
+                                            </span>
                           </div>
                       ))}
 
                     </div>
+                  </div>
+                  <div style={styles.levelInfo}>
+                                <span>
+                                    레벨: {githubData?.currentLevel || userProfile?.level || 1}
+                                  (경험치: {githubData?.currentExperience || userProfile?.experience_points || 0}/100)
+                                </span>
                   </div>
                 </div>
               </div>
             </div>
         );
       }
+
       case 'github': {
         return (
             <div style={styles.tabContent}>
-              {/* 스트릭 표시 */}
               <div style={styles.streakSection}>
                 <span style={styles.streakIcon}>🔥</span>
                 <span style={styles.streakText}>{weeklyStats.streak}일 연속</span>
               </div>
 
-              {/* GitHub 통계 */}
+              {/* 보상 상태 표시 */}
+              {githubData?.rewardMessage && (
+                  <div style={{
+                    padding: '10px',
+                    marginBottom: '20px',
+                    backgroundColor: githubData.alreadyRewarded ? '#f59e0b' : '#10b981',
+                    color: 'white',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    textAlign: 'center'
+                  }}>
+                    {githubData.rewardMessage}
+                  </div>
+              )}
+
               <div style={styles.githubStats}>
                 <div style={styles.statItem}>
                   <div style={styles.metricIcon}><Github size={24} color="#10b981" /></div>
@@ -410,26 +641,38 @@ const MyAquarium = () => {
                 </div>
               </div>
 
-              {/* 주간 활동 그래프 */}
+              <div style={styles.rewardSection}>
+                        <span>
+                            오늘의 활동 보상: {githubData?.coinsEarned || 0} 코인, {githubData?.experienceGained || 0} 경험치
+                        </span>
+                {githubData?.alreadyRewarded && (
+                    <div style={{ fontSize: '12px', color: '#f59e0b', marginTop: '5px' }}>
+                      (이미 오늘 보상을 받았습니다)
+                    </div>
+                )}
+              </div>
+
               <div style={styles.weeklyActivitySection}>
-                <h4 style={styles.weeklyActivityTitle}>주간 활동 내역</h4>
+                <h4 style={styles.weeklyActivityTitle}>요일 활동 내역</h4>
                 <div style={styles.weeklyActivityGraph}>
                   {weeklyStats.weeklyStats.map((day, index) => (
                       <div key={index} style={styles.barContainer}>
                         <div
                             style={{
                               ...styles.bar,
-                              height: `${day.commits * 10}px`,
-                              backgroundColor: day.commits > 0 ? '#10b981' : '#e5e7eb',
+                              height: `${Math.max(day.commits * 10, 5)}px`, // 최소 높이 5px
+                              backgroundColor: day.commits > 0 ? '#10b981' : '#374151',
                             }}
                         />
                         <span style={styles.barLabel}>{day.date}</span>
+                        <span style={{...styles.barLabel, fontSize: '10px', color: '#9ca3af'}}>
+                                        {day.commits}
+                                    </span>
                       </div>
                   ))}
                 </div>
               </div>
 
-              {/* 최근 커밋 */}
               <div style={styles.recentActivity}>
                 <h4 style={styles.activityTitle}>
                   오늘의 커밋 ({githubData?.date || new Date().toLocaleDateString('ko-KR')})
@@ -438,22 +681,14 @@ const MyAquarium = () => {
                   {githubData?.commits?.length > 0 ? (
                       githubData.commits.map((commit, index) => (
                           <div key={index} style={styles.commitItem}>
-                            <div style={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                            }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                               <div>
-                                <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
-                                  {commit.message}
-                                </div>
+                                <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{commit.message}</div>
                                 <div style={{ fontSize: '12px', color: '#94a3b8' }}>
                                   {commit.repository} • {commit.sha}
                                 </div>
                               </div>
-                              <div style={{ fontSize: '12px', color: '#94a3b8' }}>
-                                {commit.time}
-                              </div>
+                              <div style={{ fontSize: '12px', color: '#94a3b8' }}>{commit.time}</div>
                             </div>
                           </div>
                       ))
@@ -467,6 +702,8 @@ const MyAquarium = () => {
             </div>
         );
       }
+
+        // todos 케이스는 동일하게 유지
       case 'todos': {
         return (
             <div style={styles.tabContent}>
@@ -479,15 +716,10 @@ const MyAquarium = () => {
                     완료: {completedCount}/{todos.length}
                   </div>
                   <div style={styles.progressBar}>
-                    <div style={{
-                      ...styles.progressFill,
-                      width: `${completionPercentage}%`,
-                    }}></div>
+                    <div style={{ ...styles.progressFill, width: `${completionPercentage}%` }}></div>
                   </div>
                 </div>
               </div>
-
-              {/* 할일 추가 */}
               <div style={styles.addTodoSection}>
                 <input
                     type="text"
@@ -501,14 +733,10 @@ const MyAquarium = () => {
                   <Plus style={{ width: '25px', height: '25px' }} />
                 </button>
               </div>
-
               <div style={styles.todoList}>
                 {todos.map((todo) => (
                     <div key={todo.id} style={styles.todoItem}>
-                      <button
-                          onClick={() => toggleTodo(todo.id)}
-                          style={styles.todoCheckbox}
-                      >
+                      <button onClick={() => toggleTodo(todo.id)} style={styles.todoCheckbox}>
                         <CheckCircle
                             style={{
                               width: '16px',
@@ -518,12 +746,9 @@ const MyAquarium = () => {
                         />
                       </button>
                       <span style={todo.status === 'completed' ? styles.completedTodo : styles.pendingTodo}>
-                    {todo.name}
-                  </span>
-                      <button
-                          onClick={() => deleteTodo(todo.id)}
-                          style={styles.deleteTodoButton}
-                      >
+                                    {todo.name}
+                                </span>
+                      <button onClick={() => deleteTodo(todo.id)} style={styles.deleteTodoButton}>
                         <Trash2 style={{ width: '14px', height: '14px' }} />
                       </button>
                     </div>
@@ -532,53 +757,63 @@ const MyAquarium = () => {
             </div>
         );
       }
+
       default:
         return null;
     }
   };
+
+  const aquariumFishes = myFishes.filter(fish => fish.is_in_aquarium);
+  const aquariumDecorations = myDecorations.filter(decoration => decoration.is_placed);
+
+  console.log('🐠 전체 물고기:', myFishes);
+  console.log('🐠 어항에 있는 물고기:', aquariumFishes);
+  console.log('🎨 어항에 있는 장식품:', aquariumDecorations);
 
   return (
       <div style={styles.container}>
         <div style={styles.mainGrid}>
           {/* 왼쪽 사이드바 */}
           <div style={styles.leftSidebar}>
-            {/* 프로필 카드 */}
             <Card style={styles.profileCard}>
               <div style={styles.profileAvatar}>
                 {userProfile?.profileImageUrl ? (
                     <img
                         src={userProfile.profileImageUrl}
                         alt="프로필"
-                        style={{
-                          width: '60px',
-                          height: '60px',
-                          borderRadius: '50%',
-                          objectFit: 'cover'
-                        }}
+                        style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }}
                     />
                 ) : (
                     <span style={styles.avatarEmoji}>🐠</span>
                 )}
               </div>
-              <h3 style={styles.profileName}>
-                {userProfile?.username || '사용자'}
-              </h3>
-              <p style={styles.profileLevel}>
-                Level {userProfile?.gameStats?.level || 1}
-              </p>
+              <h3 style={styles.profileName}>{userProfile?.username || '사용자'}</h3>
+              <p style={styles.profileLevel}>Level {userProfile?.level || 1} (경험치: {userProfile?.experience_points || 0}/100)</p>
               <div style={styles.profileStats}>
                 <div style={styles.statItem}>
-                  <div style={styles.statValue}>{userProfile?.gameStats?.fishCoins || 0}</div>
+                  <div style={styles.statValue}>{userProfile?.fish_coins || 0}</div>
                   <div style={styles.statLabel}>코인</div>
-                </div>
-                <div style={styles.statItem}>
-                  <div style={styles.statValue}>{userProfile?.gameStats?.experiencePoints || 0}</div>
-                  <div style={styles.statLabel}>경험치</div>
                 </div>
                 <div style={styles.statItem}>
                   <div style={styles.statValue}>{githubData?.totalCommitsToday || 0}</div>
                   <div style={styles.statLabel}>오늘 커밋</div>
                 </div>
+              </div>
+            </Card>
+            {/* 받은 친구 요청 목록 */}
+            <Card style={styles.mainCard}>
+              <h4>받은 친구 신청</h4>
+              <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+                {friendRequests.map(r => (
+                  <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <span>요청 from {r.requester_id}</span>
+                    <div>
+                      <button onClick={() => handleAccept(r.id)}>수락</button>
+                      <button onClick={() => handleReject(r.id)} style={{ marginLeft: 8 }}>거절</button>
+                    </div>
+                  </div>
+                ))}
+                {friendRequests.length === 0 && <p>신청이 없습니다.</p>}
               </div>
             </Card>
           </div>
@@ -588,30 +823,107 @@ const MyAquarium = () => {
             <div style={styles.aquariumContainer}>
               <div style={styles.aquariumOverlay}></div>
               <div style={styles.waterEffect}></div>
-
-              {/* 물고기들 */}
               <div style={styles.fishContainer}>
-                <div style={{ ...styles.fish, top: '30%', left: '20%' }}>
-                  <div style={styles.fishIcon}>
-                    <Fish style={{ width: '32px', height: '32px', color: 'white' }} />
-                  </div>
-                  <div style={styles.fishName}>코딩이</div>
-                </div>
+                {/* 물고기 렌더링 - 수정된 위치 계산 */}
+                {aquariumFishes.map((fish, index) => {
+                  const position = getFishPosition(index);
+                  return (
+                      <div key={fish.id} style={{
+                        ...styles.fish,
+                        top: `${position.top}%`,
+                        left: `${position.left}%`,
+                        zIndex: 10
+                      }}>
+                        <div style={styles.fishIcon}>
+                          {fish.image_url ? (
+                              <img
+                                  src={fish.image_url}
+                                  alt={fish.nickname || fish.original_name}
+                                  style={{ width: '32px', height: '32px' }}
+                                  onError={(e) => {
+                                    console.log('이미지 로드 실패:', fish.image_url);
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.display = 'block';
+                                  }}
+                              />
+                          ) : (
+                              <span style={{ fontSize: '32px' }}>🐠</span>
+                          )}
+                          <span style={{ fontSize: '32px', display: fish.image_url ? 'none' : 'block' }}>🐠</span>
+                        </div>
+                        <div style={styles.fishName}>
+                          {fish.nickname || fish.original_name}
+                        </div>
+                      </div>
+                  );
+                })}
 
-                <div style={{ ...styles.fish, top: '50%', left: '60%', animationDelay: '2s' }}>
-                  <div style={{ ...styles.fishIcon, background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' }}>
-                    <Fish style={{ width: '32px', height: '32px', color: 'white' }} />
-                  </div>
-                  <div style={styles.fishName}>파이썬이</div>
-                </div>
+                {/* 장식품 렌더링 - 수정된 위치 계산 */}
+                {aquariumDecorations.map((decoration, index) => {
+                  const position = getDecorationPosition(index);
+                  return (
+                      <div key={decoration.id} style={{
+                        position: 'absolute',
+                        top: `${position.top}%`,
+                        left: `${position.left}%`,
+                        zIndex: 5
+                      }}>
+                        <div style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          filter: 'drop-shadow(0 0 8px rgba(0,0,0,0.3))'
+                        }}>
+                          {decoration.image_url ? (
+                              <img
+                                  src={decoration.image_url}
+                                  alt={decoration.name}
+                                  style={{ width: '28px', height: '28px' }}
+                                  onError={(e) => {
+                                    console.log('장식품 이미지 로드 실패:', decoration.image_url);
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.display = 'block';
+                                  }}
+                              />
+                          ) : (
+                              <span style={{ fontSize: '28px' }}>🪸</span>
+                          )}
+                          <span style={{ fontSize: '28px', display: decoration.image_url ? 'none' : 'block' }}>🪸</span>
+                          <div style={{
+                            fontSize: '10px',
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            marginTop: '2px',
+                            textShadow: '0 0 4px rgba(0,0,0,0.8)'
+                          }}>
+                            {decoration.name}
+                          </div>
+                        </div>
+                      </div>
+                  );
+                })}
+
+                {/* 어항에 물고기가 없을 때 메시지 */}
+                {aquariumFishes.length === 0 && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      textAlign: 'center',
+                      color: 'rgba(255, 255, 255, 0.8)',
+                      fontSize: '16px',
+                      zIndex: 20
+                    }}>
+                      <div style={{ fontSize: '48px', marginBottom: '10px' }}>🐠</div>
+                      <div>물고기를 추가해보세요!</div>
+                    </div>
+                )}
               </div>
 
-              {/* 해초 */}
+              {/* 해초와 기포 */}
               <div style={{ ...styles.seaweed, left: '10%' }}></div>
               <div style={{ ...styles.seaweed, right: '15%', height: '80px' }}></div>
               <div style={{ ...styles.seaweed, left: '40%', height: '100px', opacity: 0.6 }}></div>
-
-              {/* 물방울 효과 */}
               <div style={styles.bubbles}>
                 <div style={{ ...styles.bubble, animationDelay: '0s' }}></div>
                 <div style={{ ...styles.bubble, animationDelay: '1s' }}></div>
@@ -619,7 +931,6 @@ const MyAquarium = () => {
               </div>
             </div>
 
-            {/* 하단 대시보드 */}
             <Card style={styles.dashboardCard}>
               <div style={styles.tabNavigation}>
                 {dashboardTabs.map((tab) => {
@@ -628,10 +939,7 @@ const MyAquarium = () => {
                       <button
                           key={tab.id}
                           onClick={() => setActiveTab(tab.id)}
-                          style={{
-                            ...styles.tabButton,
-                            ...(activeTab === tab.id ? styles.tabButtonActive : {})
-                          }}
+                          style={{ ...styles.tabButton, ...(activeTab === tab.id ? styles.tabButtonActive : {}) }}
                       >
                         {IconComponent && <IconComponent style={{ width: '18px', height: '18px' }} />}
                         <span>{tab.label}</span>
@@ -639,100 +947,132 @@ const MyAquarium = () => {
                   );
                 })}
               </div>
-
-              {/* 탭 컨텐츠 */}
               {renderTabContent()}
             </Card>
           </div>
 
           {/* 오른쪽 사이드바 */}
           <div style={styles.rightSidebar}>
-            {/* 나의 물고기 목록 */}
             <Card style={styles.fishListCard}>
               <h3 style={styles.fishListTitle}>
                 <Fish style={{ width: '20px', height: '20px', color: '#3B82F6' }} />
-                나의 물고기
+                나의 물고기 ({myFishes.length}마리)
               </h3>
               <div style={styles.fishList}>
                 {myFishes.map(fish => (
                     <div key={fish.id} style={styles.fishListItem}>
                       <div style={styles.fishItemIcon}>
-                        <Fish style={{ width: '24px', height: '24px', color: 'white' }} />
+                        {fish.image_url ? (
+                            <img
+                                src={fish.image_url}
+                                alt={fish.original_name}
+                                style={{ width: '24px', height: '24px' }}
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  e.target.nextSibling.style.display = 'block';
+                                }}
+                            />
+                        ) : (
+                            <span style={{ fontSize: '24px' }}>🐠</span>
+                        )}
+                        <span style={{ fontSize: '24px', display: fish.image_url ? 'none' : 'block' }}>🐠</span>
                       </div>
                       <div style={styles.fishItemInfo}>
-                        <div style={styles.fishItemName}>{fish.name}</div>
-                        <div style={styles.fishItemLevel}>Lv.{fish.level} • {fish.species}</div>
+                        <div style={styles.fishItemName}>{fish.nickname || fish.original_name}</div>
+                        <div style={styles.fishItemLevel}>{fish.species}</div>
                       </div>
+                      <button
+                          onClick={() => toggleFishInAquarium(fish.id)}
+                          style={{
+                            padding: '5px 10px',
+                            backgroundColor: fish.is_in_aquarium ? '#ef4444' : '#3B82F6',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '5px',
+                            cursor: 'pointer',
+                            fontSize: '12px'
+                          }}
+                      >
+                        {fish.is_in_aquarium ? '제거' : '추가'}
+                      </button>
                     </div>
                 ))}
-              </div>
-            </Card>
-
-            {/* GitHub 활동 요약 카드 */}
-            <Card style={{ marginTop: '20px', padding: '15px' }}>
-              <h3 style={{
-                color: '#ffffff',
-                marginBottom: '15px',
-                fontSize: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
-                <Github style={{ width: '18px', height: '18px', color: '#3B82F6' }} />
-                GitHub 요약
-              </h3>
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '10px'
-              }}>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  fontSize: '14px'
-                }}>
-                  <span style={{ color: '#94a3b8' }}>오늘 커밋</span>
-                  <span style={{ color: '#10b981', fontWeight: 'bold' }}>
-                  {githubData?.totalCommitsToday || 0}개
-                </span>
-                </div>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  fontSize: '14px'
-                }}>
-                  <span style={{ color: '#94a3b8' }}>총 레포</span>
-                  <span style={{ color: '#3B82F6', fontWeight: 'bold' }}>
-                  {userProfile?.githubStats?.publicRepos || 0}개
-                </span>
-                </div>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  fontSize: '14px'
-                }}>
-                  <span style={{ color: '#94a3b8' }}>팔로워</span>
-                  <span style={{ color: '#8B5CF6', fontWeight: 'bold' }}>
-                  {userProfile?.githubStats?.followers || 0}명
-                </span>
-                </div>
-                {githubData?.commits?.length > 0 && (
+                {myFishes.length === 0 && (
                     <div style={{
-                      marginTop: '10px',
-                      padding: '8px',
-                      background: 'rgba(16, 185, 129, 0.1)',
-                      borderRadius: '6px',
-                      fontSize: '12px',
-                      color: '#10b981'
+                      textAlign: 'center',
+                      padding: '20px',
+                      color: '#9CA3AF',
+                      fontSize: '14px'
                     }}>
-                      최근: {githubData.commits[0].message.substring(0, 30)}
-                      {githubData.commits[0].message.length > 30 ? '...' : ''}
+                      보유한 물고기가 없습니다.
+                      <br />
+                      상점에서 물고기를 구매해보세요! 🐠
                     </div>
                 )}
               </div>
             </Card>
 
-            <DashboardChart />
+            {/* 나의 장식품 섹션 */}
+            <Card style={styles.fishListCard}>
+              <h3 style={styles.fishListTitle}>
+                <Palette style={{ width: '20px', height: '20px', color: '#8B5CF6' }} />
+                나의 장식품 ({myDecorations.length}개)
+              </h3>
+              <div style={styles.fishList}>
+                {myDecorations.map(decoration => (
+                    <div key={decoration.id} style={styles.fishListItem}>
+                      <div style={styles.fishItemIcon}>
+                        {decoration.image_url ? (
+                            <img
+                                src={decoration.image_url}
+                                alt={decoration.name}
+                                style={{ width: '24px', height: '24px' }}
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  e.target.nextSibling.style.display = 'block';
+                                }}
+                            />
+                        ) : (
+                            <span style={{ fontSize: '24px' }}>🪸</span>
+                        )}
+                        <span style={{ fontSize: '24px', display: decoration.image_url ? 'none' : 'block' }}>🪸</span>
+                      </div>
+                      <div style={styles.fishItemInfo}>
+                        <div style={styles.fishItemName}>{decoration.name}</div>
+                        <div style={styles.fishItemLevel}>
+                          {new Date(decoration.acquired_at).toLocaleDateString('ko-KR')} 획득
+                        </div>
+                      </div>
+                      <button
+                          onClick={() => toggleDecorationInAquarium(decoration.id)}
+                          style={{
+                            padding: '5px 10px',
+                            backgroundColor: decoration.is_placed ? '#ef4444' : '#8B5CF6',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '5px',
+                            cursor: 'pointer',
+                            fontSize: '12px'
+                          }}
+                      >
+                        {decoration.is_placed ? '제거' : '배치'}
+                      </button>
+                    </div>
+                ))}
+                {myDecorations.length === 0 && (
+                    <div style={{
+                      textAlign: 'center',
+                      padding: '20px',
+                      color: '#9CA3AF',
+                      fontSize: '14px'
+                    }}>
+                      보유한 장식품이 없습니다.
+                      <br />
+                      상점에서 장식품을 구매해보세요! 🎨
+                    </div>
+                )}
+              </div>
+            </Card>
           </div>
         </div>
       </div>

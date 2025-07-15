@@ -48,6 +48,16 @@ const FriendsAquarium = () => {
       { id: 2, github_username: '1111'},
       { id: 3, github_username: '2222' }
   ]);
+  const [allFriendships, setAllFriendships] = useState([]);
+  const [comments, setComments] = useState([]);
+
+
+useEffect(() => {
+  fetch(`/api/friendships/all/${userId}`)  // 모든 관계(pending·accepted·rejected)를 가져오는 엔드포인트
+    .then(res => res.json())
+    .then(data => setAllFriendships(data))
+    .catch(console.error);
+}, [userId]);
 
   /* ------------------------------------------------------------------
    * MOCK DATA (🧪 샘플)
@@ -69,9 +79,19 @@ const FriendsAquarium = () => {
   }, [globalQuery, friends, allUsers]);
 
   const displayGlobal = useMemo(() => {
-    return filteredGlobal.filter(u => !!u.github_username);
-  }, [filteredGlobal]);
-
+    return filteredGlobal.filter(u => {
+      // ① GitHub 아이디가 있어야 하고
+      if (!u.github_username) return false;
+  
+      // ② allFriendships 에 requester_id 또는 addressee_id 로
+      //     나와 해당 유저(u.id) 간의 레코드가 있으면 제외
+      const hasRelation = allFriendships.some(f =>
+        (f.requester_id === userId && f.addressee_id === u.id) ||
+        (f.requester_id === u.id      && f.addressee_id === userId)
+      );
+      return !hasRelation;
+    });
+  }, [filteredGlobal, allFriendships, userId]);
   /* ------------------------------------------------------------------
    * 핸들러
    * ----------------------------------------------------------------*/
@@ -83,7 +103,7 @@ const FriendsAquarium = () => {
   // 1) 내 친구 목록 (status='accepted') 불러오기
   const fetchFriends = async () => {
     try {
-      const res = await fetch(`/api/friendships/${userId}`);
+      const res = await fetch(`http://localhost:3001/api/friendships/${userId}`);
       if (!res.ok) throw new Error('친구 목록 조회 실패');
       const data = await res.json();
       setFriends(data);
@@ -132,6 +152,54 @@ const FriendsAquarium = () => {
     }
   };
 
+
+  // ✅ 7) 어항 좋아요 함수
+  const likeAquarium = async (userId, aquariumId) => {
+    try {
+      const res = await fetch(`http://localhost:3001/api/friendships/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, aquarium_id: aquariumId }),
+      });
+      if (!res.ok) throw new Error('어항 좋아요 실패');
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  }
+
+  // ✅ 8) 어항에 댓글 작성 함수
+  const postAquariumComment = async (userId, aquariumId, content, parentCommentId = null) => {
+    try {
+      const res = await fetch(`http://localhost:3001/api/friendships/comment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, aquarium_id: aquariumId, content, parentCommentId }),
+      });
+      if (!res.ok) throw new Error('쪽지 작성 실패');
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  }
+
+  // ✅ 9) 어항 댓글 리스트 조회 함수
+  const fetchAquariumComments = async (aquariumId) => {
+    try {
+      const res = await fetch(`http://localhost:3001/api/friendships/comments/${aquariumId}`);
+      if (!res.ok) throw new Error('댓글 리스트 조회 실패');
+      const data = await res.json();
+      setComments(data);  // 댓글 상태 업데이트
+    } catch (err) {
+      console.error(err);
+      return [];
+    }
+  }
+
   // 컴포넌트 마운트 시 한 번만 실행
   useEffect(() => {
     if (!userId) return;           // userId 없으면 스킵
@@ -139,22 +207,33 @@ const FriendsAquarium = () => {
     fetchAllUsers();
   }, [userId]);
 
-
-
   
+
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
-
-  const sendMessage = () => {
-    // Handle message sending functionality
-    console.log("Send message clicked");
-  };
 
   const [message, setMessage] = useState("");
 
   const handleMessageChange = (e) => {
     setMessage(e.target.value);
   };
+
+ // 선택된 친구가 바뀔 때마다 댓글을 불러옵니다
+useEffect(() => {
+  if (!selectedFriend) return;           // 친구가 선택되지 않았으면 스킵
+  fetchAquariumComments(selectedFriend.id)
+    .then(data => setComments(data))
+    .catch(err => console.error('댓글 로드 실패', err));
+}, [selectedFriend]);
+
+// 댓글이 등록될 때(setComments로 배열이 바뀔 때)도 다시 불러옵니다
+useEffect(() => {
+  if (!selectedFriend) return;
+  fetchAquariumComments(selectedFriend.id)
+    .then(data => setComments(data))
+    .catch(err => console.error('댓글 재로드 실패', err));
+}, [comments.length]);
+
 
   /* ------------------------------------------------------------------
    * 렌더링
@@ -349,7 +428,7 @@ const FriendsAquarium = () => {
               </div>
               {/* 좋아요 */}
               <div style={{ display: "flex", alignItems: "center", marginTop: -15  }}>
-                <button onClick={() => {alert("조아요"), setLiked(!liked)}} 
+                <button onClick={() => {alert("조아요"), setLiked(!liked), likeAquarium(selectedFriend.id, selectedFriend.aquarium_id)}} 
                   style={{ background: "transparent", border: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
                   <Heart 
                    width = {16}
@@ -363,9 +442,6 @@ const FriendsAquarium = () => {
 
               {/* 쪽지보내기 */}
               <div className="relative w-[363px] h-[190px] bg-[#ffffff80] rounded-[20px] overflow-hidden">
-                <label htmlFor="message-input" className="sr-only">
-                ? `${selectedFriend.github_username} 님께 하고 싶은 말을 적어 보세요!
-                </label>
                 <textarea
                   id="message-input"
                   value={message}
@@ -380,18 +456,18 @@ const FriendsAquarium = () => {
                   className={`relative w-[203px] h-[33px] top-[218px] left-[107px] bg-[#c2f0f7d2] rounded-[20px] overflow-hidden shadow-[inset_0px_-4px_4px_#00000026] transition-all duration-150 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 ${
                     isPressed ? "transform scale-95" : ""
                   } ${isHovered ? "bg-[#b8edf5d2]" : ""}`}
-                  onClick={sendMessage}
-                  onMouseEnter={() => setIsHovered(true)}
-                  onMouseLeave={() => setIsHovered(false)}
-                  onMouseDown={() => setIsPressed(true)}
-                  onMouseUp={() => setIsPressed(false)}
+                  onClick={postAquariumComment(userId, selectedFriend.aquarium_id, message)}
+                  // onMouseEnter={() => setIsHovered(true)}
+                  // onMouseLeave={() => setIsHovered(false)}
+                  // onMouseDown={() => setIsPressed(true)}
+                  // onMouseUp={() => setIsPressed(false)}
                   aria-label="쪽지 보내기"
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
-                      sendMessage();
+                      postAquariumComment(userId, selectedFriend.aquarium_id, message);
                     }
                   }}
                 >
@@ -399,6 +475,16 @@ const FriendsAquarium = () => {
                     쪽지 보내기 ✉
                   </span>
                 </button>
+                <h4>댓글 ({comments.length})</h4>
+                <div style={{ maxHeight: 300, overflowY: 'auto', marginTop: 8 }}>
+                  {comments.map(c => (
+                    <div key={c.id} style={{ marginBottom: 12 }}>
+                      <strong>{c.author.github_username}</strong>
+                      <p style={{ margin: '4px 0' }}>{c.content}</p>
+                    </div>
+                  ))}
+                  {comments.length === 0 && <p style={{ color: '#6B7280' }}>아직 작성된 댓글이 없습니다.</p>}
+                </div>
               </div>
             </div>
           </Card>
@@ -411,3 +497,5 @@ const FriendsAquarium = () => {
 };
 
 export default FriendsAquarium;
+
+  

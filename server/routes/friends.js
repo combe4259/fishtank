@@ -237,6 +237,29 @@ router.get('/requests', async (req, res) => {
     }
   });
 
+  // ✅ 9. 어항 좋아요 수 조회
+  router.get('/:aquariumId/likes/count', async (req, res) => {
+    const { aquariumId } = req.params;
+  
+    try {
+      // aquarium_likes 테이블에서 aquarium_id에 해당하는 레코드 수를 센다
+      const { rows } = await db.query(
+        `SELECT COUNT(*) AS likecount
+           FROM aquarium_likes
+          WHERE aquarium_id = $1`,
+        [aquariumId]
+      );
+  
+      const count = parseInt(rows[0].likecount, 10);
+      res.json({ aquariumId, likeCount: count });
+    } catch (err) {
+      console.error('좋아요 수 조회 오류', err);
+      res.status(500).json({ error: '좋아요 수를 불러오는 중에 오류가 발생했습니다.' });
+    }
+  });
+
+
+
 
 
 module.exports = router;

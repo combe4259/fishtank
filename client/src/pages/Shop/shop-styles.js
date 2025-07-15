@@ -78,7 +78,9 @@ export const styles = {
   categoryButton: {
     padding: '10px 20px',
     borderRadius: '16px',
-    border: '2px solid #e5e7eb',
+    borderWidth: '2px', // 단축 속성을 분리
+    borderStyle: 'solid',
+    borderColor: '#e5e7eb',
     background: 'white',
     fontSize: '14px',
     fontWeight: '500',
@@ -89,6 +91,8 @@ export const styles = {
     gap: '6px'
   },
   categoryButtonActive: {
+    borderWidth: '2px', // 동일한 속성 유지
+    borderStyle: 'solid',
     borderColor: '#3b82f6',
     color: '#1e40af',
     background: '#eff6ff'
@@ -131,7 +135,9 @@ export const styles = {
   },
   sortSelect: {
     backgroundColor: '#f3f4f6',
-    border: '1px solid #e5e7eb',
+    borderWidth: '1px', // 단축 속성을 분리
+    borderStyle: 'solid',
+    borderColor: '#e5e7eb',
     borderRadius: '12px',
     padding: '10px 16px',
     fontSize: '14px',
@@ -159,7 +165,9 @@ export const styles = {
     background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
     borderRadius: '20px',
     padding: '24px',
-    border: '1px solid rgba(59, 130, 246, 0.1)'
+    borderWidth: '1px', // 단축 속성을 분리
+    borderStyle: 'solid',
+    borderColor: 'rgba(59, 130, 246, 0.1)'
   },
   infoTitle: {
     fontSize: '18px',
@@ -171,5 +179,39 @@ export const styles = {
     fontSize: '14px',
     color: '#64748b',
     lineHeight: '1.6'
+  },
+  ownedOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(34, 197, 94, 0.9)',
+    borderRadius: '20px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'white',
+    fontSize: '14px',
+    fontWeight: 'bold',
+    pointerEvents: 'none'
+  },
+  lockedOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(0, 0, 0, 0.8)',
+    borderRadius: '20px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'white',
+    fontSize: '14px',
+    fontWeight: 'bold',
+    pointerEvents: 'none'
   }
-}
+};
