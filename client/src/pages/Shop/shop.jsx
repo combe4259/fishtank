@@ -443,7 +443,7 @@ const Shop = ({ user }) => {
                   {fish.is_owned && (
                       <div style={styles.ownedOverlay}>
                         <Check style={{ width: '32px', height: '32px', color: 'white' }} />
-                        <span>보유중</span>
+                        {/*<span>보유중</span>*/}
                       </div>
                   )}
                   {!fish.is_unlocked && (

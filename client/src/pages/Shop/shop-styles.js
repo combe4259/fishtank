@@ -40,7 +40,7 @@ export const styles = {
     background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
     padding: '12px 24px',
     borderRadius: '24px',
-    boxShadow: '0 4px 16px rgba(251, 191, 36, 0.2)'
+    boxShadow: '0 4px 16px rgba(251, 191, 36, 0.1)'
   },
   coinAmount: {
     fontSize: '24px',
@@ -52,15 +52,17 @@ export const styles = {
     color: '#92400e'
   },
 
-  // 카테고리 바
+  // 카테고리 바 - 투명도 조정 및 텍스트 색상 개선
   categoryBar: {
-    background: 'rgba(255, 255, 255, 0.95)',
+    background: 'rgba(255, 255, 255, 0.4)', // 더 투명하게 변경 (0.95 → 0.7)
+    backdropFilter: 'blur(10px)', // 블러 효과 추가
     borderRadius: '20px',
     padding: '20px',
     display: 'flex',
     alignItems: 'center',
     gap: '24px',
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)'
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
+    border: '1px solid rgba(255, 255, 255, 0.3)' // 미묘한 테두리 추가
   },
   categoryLabel: {
     display: 'flex',
@@ -68,7 +70,7 @@ export const styles = {
     gap: '8px',
     fontSize: '16px',
     fontWeight: '600',
-    color: '#374151'
+    color: '#1f2937' // 더 진한 색상으로 변경하여 가독성 향상
   },
   categoryButtons: {
     display: 'flex',
@@ -78,12 +80,14 @@ export const styles = {
   categoryButton: {
     padding: '10px 20px',
     borderRadius: '16px',
-    borderWidth: '2px', // 단축 속성을 분리
+    borderWidth: '2px',
     borderStyle: 'solid',
-    borderColor: '#e5e7eb',
-    background: 'white',
+    borderColor: '#d1d5db', // 테두리 색상을 더 진하게
+    background: 'rgba(255, 255, 255, 0.4)', // 버튼 배경도 약간 투명하게
+    backdropFilter: 'blur(5px)', // 버튼에도 블러 효과
     fontSize: '14px',
     fontWeight: '500',
+    color: '#374151', // 텍스트 색상을 진하게 설정
     cursor: 'pointer',
     transition: 'all 0.3s',
     display: 'flex',
@@ -91,11 +95,11 @@ export const styles = {
     gap: '6px'
   },
   categoryButtonActive: {
-    borderWidth: '2px', // 동일한 속성 유지
+    borderWidth: '2px',
     borderStyle: 'solid',
     borderColor: '#3b82f6',
-    color: '#1e40af',
-    background: '#eff6ff'
+    color: '#1e40af', // 활성 상태 텍스트 색상
+    background: 'rgba(239, 246, 255, 0.7)' // 활성 상태 배경도 약간 투명하게
   },
   categoryDot: {
     width: '8px',
@@ -104,13 +108,15 @@ export const styles = {
     background: 'currentColor'
   },
 
-  // 상점 카드
+  // 상점 카드 - 투명도 조정
   shopCard: {
-    background: 'rgba(255, 255, 255, 0.95)',
+    background: 'rgba(255, 255, 255, 0.4)', // 더 투명하게 변경 (0.95 → 0.7)
+    backdropFilter: 'blur(15px)', // 블러 효과 추가
     borderRadius: '28px',
     padding: '32px',
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
-    minHeight: '500px'
+    minHeight: '500px',
+    border: '1px solid rgba(255, 255, 255, 0.3)' // 미묘한 테두리 추가
   },
   shopHeader: {
     display: 'flex',
@@ -118,7 +124,7 @@ export const styles = {
     justifyContent: 'space-between',
     marginBottom: '28px',
     paddingBottom: '20px',
-    borderBottom: '1px solid #e5e7eb'
+    borderBottom: '1px solid rgba(229, 231, 235, 0.8)' // 테두리도 약간 투명하게
   },
   shopTitle: {
     fontSize: '24px',
@@ -134,13 +140,16 @@ export const styles = {
     color: '#6b7280'
   },
   sortSelect: {
-    backgroundColor: '#f3f4f6',
-    borderWidth: '1px', // 단축 속성을 분리
+    backgroundColor: 'rgba(243, 244, 246, 0.4' +
+        ')', // 선택박스도 약간 투명하게
+    backdropFilter: 'blur(5px)',
+    borderWidth: '1px',
     borderStyle: 'solid',
     borderColor: '#e5e7eb',
     borderRadius: '12px',
     padding: '10px 16px',
     fontSize: '14px',
+    color: '#374151', // 텍스트 색상 명시
     cursor: 'pointer',
     transition: 'all 0.3s',
     outline: 'none'
@@ -154,7 +163,7 @@ export const styles = {
     padding: '4px'
   },
 
-  // 하단 정보
+  // 하단 정보 - 투명도 조정
   bottomInfo: {
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
@@ -162,12 +171,13 @@ export const styles = {
     marginTop: '20px'
   },
   infoCard: {
-    background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+    background: 'rgba(240, 249, 255, 0.2)', // 더 투명하게 변경
+    backdropFilter: 'blur(10px)', // 블러 효과 추가
     borderRadius: '20px',
     padding: '24px',
-    borderWidth: '1px', // 단축 속성을 분리
+    borderWidth: '1px',
     borderStyle: 'solid',
-    borderColor: 'rgba(59, 130, 246, 0.1)'
+    borderColor: 'rgba(59, 130, 246, 0.2)' // 테두리도 약간 더 진하게
   },
   infoTitle: {
     fontSize: '18px',
@@ -177,7 +187,7 @@ export const styles = {
   },
   infoText: {
     fontSize: '14px',
-    color: '#64748b',
+    color: '#475569', // 약간 더 진한 색상으로 가독성 향상
     lineHeight: '1.6'
   },
   ownedOverlay: {
@@ -186,7 +196,6 @@ export const styles = {
     left: 0,
     right: 0,
     bottom: 0,
-    background: 'rgba(34, 197, 94, 0.9)',
     borderRadius: '20px',
     display: 'flex',
     flexDirection: 'column',
@@ -199,10 +208,10 @@ export const styles = {
   },
   lockedOverlay: {
     position: 'absolute',
-    top: 0,
-    left: 0,
+    top: -5,
+    left: -10,
     right: 0,
-    bottom: 0,
+    bottom: 10,
     background: 'rgba(0, 0, 0, 0.8)',
     borderRadius: '20px',
     display: 'flex',
