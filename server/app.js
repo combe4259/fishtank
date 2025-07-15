@@ -14,7 +14,8 @@ const githubRoutes = require('./routes/github');
 const shopRoutes = require('./routes/shop')
 const todoRoutes = require('./routes/todo');
 const friendsRoutes = require('./routes/friends');
-const achievementsRoutes = require('./routes/achievements')
+const notificationsRoutes = require('./routes/notifications');
+const achievementsRoutes = require('./routes/achievements');
 
 var app = express();
 
@@ -109,6 +110,20 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+//CORS 설정
+// app.use(cors({
+//   origin: 'http://localhost:5173',
+//   credentials: true
+// }));
+
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app',
+    'https://fishtank-frontend.vercel.app',
+  ],
+  credentials: true
+}));
 // 🔍 디버깅용 미들웨어 - 모든 요청 로깅
 app.use((req, res, next) => {
   console.log(`📡 ${req.method} ${req.path}`, {
@@ -126,7 +141,8 @@ app.use('/api/github', githubRoutes);
 app.use('/api/shop', shopRoutes);
 app.use('/api/todos', todoRoutes);
 app.use("/api/friends", friendsRoutes);
-app.use('/api/achievements', achievementsRoutes);
+app.use('/api/achievements',achievementsRoutes);
+app.use('/api/notifications', notificationsRoutes);
 
 // Health check 엔드포인트
 app.get('/health', (req, res) => {

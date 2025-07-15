@@ -3,6 +3,13 @@ import { Fish, Github, CheckCircle, Activity, Plus, Trash2, BarChart, Palette } 
 import Card from '../../components/common/Card/Card.jsx';
 import { styles } from './myAquarium-styles.js';
 const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '');
+import { deleteNotification, fetchNotifications } from '../Profile/Notificaitons.jsx';
+
+import {
+  acceptFriendRequest,
+  rejectFriendRequest,
+  fetchFriendRequests,
+} from "../FriendsAquarium/FriendsUtil.jsx";
 
 const user = JSON.parse(localStorage.getItem('user'));
 const userId = user?.id;
@@ -23,6 +30,63 @@ const MyAquarium = () => {
   ]);
   const [myFishes, setMyFishes] = useState([]);
   const [myDecorations, setMyDecorations] = useState([]);
+  const [friendRequests, setFriendRequests] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+
+  // 알림 조회
+  const loadNotifications = async () => {
+    try {
+      const data = await fetchNotifications(userId);
+      setNotifications(data);
+    } catch (err) {
+      console.error('알림 조회 실패:', err);
+    }
+  };
+
+  // 알림 삭제
+  const handleDeleteNotification = async (id) => {
+    try {
+      await deleteNotification(id);
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+    } catch (err) {
+      console.error('알림 삭제 실패:', err);
+    }
+  };
+
+  useEffect(() => {
+    // 친구 요청 및 알림 불러오기
+    refreshFriendRequests();
+    loadNotifications();
+    // 기타 초기 데이터 로드
+  }, []);
+
+
+// ✅ 받은 친구 요청 리스트를 다시 가져오는 함수
+const refreshFriendRequests = async () => {
+  try {
+    const data = await fetchFriendRequests(userId);
+    setFriendRequests(data);
+  } catch (err) {
+    console.error('친구 요청 갱신 실패:', err);
+  }
+};
+
+// 수락/거절 핸들러에서 호출 예시
+const handleAccept = async (reqId) => {
+  const result = await acceptFriendRequest(reqId);
+  if (result) {
+    // 갱신
+    await refreshFriendRequests();
+  }
+};
+
+const handleReject = async (reqId) => {
+  const result = await rejectFriendRequest(reqId);
+  if (result) {
+    // 갱신
+    await refreshFriendRequests();
+  }
+};
 
   // 물고기 위치 계산 함수
   const getFishPosition = (index) => {
@@ -749,6 +813,45 @@ const MyAquarium = () => {
                 </div>
               </div>
             </Card>
+
+            {/* 받은 친구 요청 목록 */}
+            <Card style={styles.mainCard}>
+              <h4>받은 친구 신청</h4>
+              <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+                {friendRequests.map(r => (
+                  <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <span>요청 from {r.requester_id}</span>
+                    <div>
+                      <button onClick={() => handleAccept(r.id)}>수락</button>
+                      <button onClick={() => handleReject(r.id)} style={{ marginLeft: 8 }}>거절</button>
+                    </div>
+                  </div>
+                ))}
+                {friendRequests.length === 0 && <p>신청이 없습니다.</p>}
+              </div>
+            </Card>
+
+            <Card style={styles.mainCard}>
+            <h4>알림</h4>
+              <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+                {notifications.length > 0 ? (
+                  notifications.map((note) => (
+                    <div key={note.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0' }}>
+                      <div>
+                        <strong>{note.title}</strong><br />
+                        <span style={{ fontSize: 12, color: '#555' }}>{note.message}</span>
+                      </div>
+                      <button onClick={() => handleDeleteNotification(note.id)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                        <Trash2 size={16} color="#999" />
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <p>알림이 없습니다.</p>
+                )}
+              </div>
+            </Card>
+
           </div>
 
           {/* 메인 아쿠아리움 */}
