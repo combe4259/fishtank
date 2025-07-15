@@ -1,17 +1,66 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import "./Register.css"; // register랑 같은 css
 const API_URL = 'https://fishtank-2wr5.onrender.com' || 'http://localhost:3001';
 console.log("*********************"+API_URL);
 
 export default function Login() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();  // 🔥 추가
     const [formData, setFormData] = useState({
         email: '',
         password: ''
     });
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
+
+    // 🔥 추가: GitHub 로그인 완료 후 토큰 처리
+    useEffect(() => {
+        const token = searchParams.get('token');
+        const gitAuth = searchParams.get('git_auth');
+
+        console.log('🔍 URL 파라미터 확인:', { token: !!token, gitAuth });
+
+        if (token && gitAuth === 'success') {
+            console.log('✅ GitHub 토큰 발견, localStorage에 저장');
+            // 토큰 저장
+            localStorage.setItem('token', token);
+
+            // 사용자 정보 가져오기
+            fetchUserProfile(token);
+        }
+    }, [searchParams, navigate]);
+
+    // 🔥 추가: 사용자 프로필 가져오기
+    const fetchUserProfile = async (token) => {
+        try {
+            console.log('📡 사용자 프로필 요청 시작');
+            const response = await fetch(`${API_URL}/api/user/profile`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                console.log('✅ 프로필 가져오기 성공:', data.user);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                setMessage('✅ GitHub 로그인 성공!');
+
+                // URL 파라미터 제거하고 /aquarium으로 이동
+                window.history.replaceState({}, '', '/login');
+                setTimeout(() => {
+                    navigate('/aquarium');
+                }, 1000);
+            } else {
+                console.error('❌ 프로필 가져오기 실패:', data);
+                setMessage('❌ 사용자 정보를 가져올 수 없습니다.');
+            }
+        } catch (error) {
+            console.error('💥 프로필 가져오기 에러:', error);
+            setMessage('❌ 로그인 처리 중 오류가 발생했습니다.');
+        }
+    };
 
     // 입력값 변경 처리
     const handleChange = (e) => {
@@ -33,7 +82,6 @@ export default function Login() {
 
         console.log('🔗 GitHub 로그인 시작, Client ID:', clientId);
 
-        // 🔥 수정: 하드코딩된 localhost URL 사용
         const redirectUri = encodeURIComponent(`${API_URL}/api/user/oauth/github/callback`);
         const scope = encodeURIComponent('user:email repo');
 

@@ -302,9 +302,7 @@ router.get('/oauth/github/callback', async (req, res) => {
 
         // 🔥 수정: /aquarium으로 직접 리다이렉트
         const successMessage = isNewConnection ? 'github_connected' : 'github_auth';
-        //const redirectUrl = `http://localhost:5173/aquarium?${successMessage}=success&token=${token}`;
-        //const redirectUrl = `https://fishtank-frontend.vercel.app/aquarium?git_auth=success&token=${token}`;
-        const redirectUrl = `https://fishtank-frontend.vercel.app/aquarium`;
+        const redirectUrl = `https://fishtank-frontend.vercel.app/login?git_auth=success&token=${token}`;
 
 
         console.log('✅ GitHub 로그인 성공, 아쿠아리움으로 리다이렉트:', redirectUrl);
@@ -316,7 +314,7 @@ router.get('/oauth/github/callback', async (req, res) => {
     }
 });
 
-// 사용자 프로필 조회 API - 수정된 버전
+// 사용자 프로필 조회 API
 router.get('/profile', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.userId;
