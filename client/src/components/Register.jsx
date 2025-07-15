@@ -28,7 +28,7 @@ export default function Register() {
         setMessage('');
 
         try {
-            const response = await fetch(`${API_BASE_URL }/api/user/signup`, {
+            const response = await fetch(`${API_BASE_URL}/api/user/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
