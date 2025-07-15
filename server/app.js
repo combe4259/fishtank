@@ -40,6 +40,7 @@ app.use(cors({
   origin: [
     'http://localhost:5173',
     'https://fishtank-frontend.vercel.app',
+    'https://fishtank-frontend.vercel.app/',
   ],
   credentials: true
 }));
