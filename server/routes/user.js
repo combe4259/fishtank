@@ -179,7 +179,6 @@
 
             if (!tokenData.access_token) {
                 console.error('GitHub 토큰 받기 실패');
-                // ✅ 수정: 올바른 프론트엔드 URL 사용
                 return res.redirect(`${process.env.FRONTEND_URL}/login?error=token_failed`);
             }
 
@@ -208,7 +207,6 @@
             let isNewConnection = false;
 
             if (existingGithubUsers.length > 0) {
-                // 이미 GitHub 계정이 연동된 경우 - 기존 사용자 로그인
                 user = existingGithubUsers[0];
 
                 // GitHub 정보 업데이트
@@ -245,7 +243,6 @@
 
                 } else {
                     // 연동할 기존 사용자를 찾을 수 없는 경우
-                    // ✅ 수정: 올바른 프론트엔드 URL 사용
                     return res.redirect(`${process.env.FRONTEND_URL}/login?error=user_not_found`);
                 }
 
@@ -296,7 +293,6 @@
                 { expiresIn: '7d' }
             );
 
-            // ✅ 수정: 올바른 프론트엔드 URL과 파라미터 사용
             const successMessage = isNewConnection ? 'github_connected' : 'github_auth';
             console.log('✅ GitHub 로그인 성공, 리다이렉트:', `${process.env.FRONTEND_URL}/aquarium?${successMessage}=success&token=${token}`);
 

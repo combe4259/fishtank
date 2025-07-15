@@ -26,7 +26,7 @@ app.set('view engine', 'ejs');
 const corsOptions = {
   origin: [
     'http://localhost:5173',
-    'http://localhost:3000',
+    'http://localhost:3001',
     'https://fishtank-frontend.vercel.app',
   ],
   credentials: true,
@@ -61,7 +61,7 @@ app.options('*', (req, res) => {
   const origin = req.headers.origin;
   const allowedOrigins = [
     'http://localhost:5173',
-    'http://localhost:3000',
+    'http://localhost:3001',
     'https://fishtank-frontend.vercel.app'
   ];
 
@@ -82,7 +82,7 @@ app.use((req, res, next) => {
   const origin = req.headers.origin;
   const allowedOrigins = [
     'http://localhost:5173',
-    'http://localhost:3000',
+    'http://localhost:3001',
     'https://fishtank-frontend.vercel.app'
   ];
 

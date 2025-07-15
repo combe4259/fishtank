@@ -1,4 +1,3 @@
-// App.jsx - 이제 훨씬 간단하고 명확해졌습니다
 import React from 'react';
 import './App.css'
 import Register from './components/Register.jsx'
@@ -13,6 +12,7 @@ function App() {
             <Router>
                 <Routes>
                     <Route path="/" element={<Login/>} />
+                    <Route path="/login" element={<Login/>} />
                     <Route path="/user/signup" element={<Register />} />
 
                     <Route
