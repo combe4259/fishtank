@@ -3,7 +3,7 @@ const router = express.Router();
 const { pool, createConnection } = require('../config/database');
 
 // ✅ 1. 할 일 추가
-router.post('/', async (req, res) => {
+router.post('/add', async (req, res) => {
   try {
     const {
       user_id,
@@ -49,12 +49,24 @@ router.put('/:id/complete', async (req, res) => {
   try {
     const { id } = req.params;
     const { is_completed } = req.body;
-    let completed_at = req.body.completed_at ?? null;
+    //let completed_at = req.body.completed_at ?? null;
     if (is_completed) {
       completed_at = new Date(); // 완료 상태일 때 현재 시간으로 설정
     } else {
       completed_at = null; // 미완료 상태일 때는 null로 설정
     }
+
+    // 먼저 해당 todo의 user_id 조회
+    const [todoRows] = await pool.execute(
+      'SELECT user_id FROM todos WHERE id = ?',
+      [id]
+    );
+    if (todoRows.length === 0) {
+      return res.status(404).json({ message: '해당 할 일을 찾을 수 없습니다.' });
+    }
+
+    const userId = todoRows[0].user_id;
+
     await pool.execute(
       `UPDATE todos
        SET is_completed = ?, 
@@ -63,6 +75,16 @@ router.put('/:id/complete', async (req, res) => {
        WHERE id = ?`,
       [is_completed, id]
     );
+
+    if (is_completed) {
+      await pool.execute(
+        `UPDATE users
+         SET fish_coins = fish_coins + 10,
+         experience_points = experience_points + 5
+         WHERE id = ?`,
+        [userId]
+      );
+    }
 
     const [updated] = await pool.execute('SELECT * FROM todos WHERE id = ?', [id]);
     res.json(updated[0]);
@@ -112,6 +134,10 @@ router.delete('/:id', async (req, res) => {
       console.error('getTodos 에러:', err);
       res.status(500).json({ message: '할 일 조회 실패', error: err.message });
     }
+  });
+
+  router.get('/', (req, res) => {
+    res.status(400).json({ message: 'userId가 필요합니다. ex) /api/todos/:userId' });
   });
   
 

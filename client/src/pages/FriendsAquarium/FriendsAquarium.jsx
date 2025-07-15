@@ -68,7 +68,10 @@ const FriendsAquarium = () => {
   }, [selectedFriend]);
 
   useEffect(() => {
-    fetchAquariumLikeCount(selectedFriend.aquarium_id).then(setLikeCount);
+    if (!selectedFriend || !selectedFriend.aquarium_id) return;
+    fetchAquariumLikeCount(selectedFriend.aquarium_id)
+      .then(setLikeCount)
+      .catch(console.error);
   }, [selectedFriend]);
 
 
@@ -256,6 +259,7 @@ useEffect(() => {
   /* ------------------------------------------------------------------
    * 렌더링
    * ----------------------------------------------------------------*/
+
   return (
     <div style={styles.container}>
       {/* 헤더 */}
@@ -268,7 +272,6 @@ useEffect(() => {
           <p style={styles.subtitle}>친구들의 아름다운 어항을 구경하고 좋아요를 눌러주세요!</p>
         </div>
       </div>
-
       {/* 메인 그리드 */}
       <div style={{ display: "grid", gridTemplateColumns: "260px 1fr 320px", gap: 24 }}>
         {/* ----------------------------------------------------------------
@@ -375,12 +378,16 @@ useEffect(() => {
          * ❷ 가운데 – 선택된 친구 어항 (미리보기 → 실제 AquariumView 삽입 가능)
          * --------------------------------------------------------------*/}
         <Card style={styles.mainCard}>
-          <h3>{selectedFriend.github_username}님의 어항</h3>
-          <FriendsTank
-             fishes={fishes} 
-             decorations={decorations}
-          />
+          {selectedFriend ? (
+            <>
+              <h3>{selectedFriend.github_username}님의 어항</h3>
+              <FriendsTank fishes={fishes} decorations={decorations} />
+            </>
+          ) : (
+            <p style={{ color: '#6B7280' }}>친구를 선택하면 어항을 볼 수 있어요 🐠</p>
+          )}
         </Card>
+        
 
         {/* ----------------------------------------------------------------
          * ❸ 오른쪽 – 친구 상세 카드 (프로필)

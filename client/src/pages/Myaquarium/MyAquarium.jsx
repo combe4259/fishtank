@@ -334,7 +334,7 @@ const handleReject = async (reqId) => {
 
   const addTodo = async () => {
     if (newTodo.trim()) {
-      const response = await fetch('http://localhost:3001/api/todos', {
+      const response = await fetch('http://localhost:3001/api/todos/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -353,6 +353,16 @@ const handleReject = async (reqId) => {
         status: newItem.is_completed ? 'completed' : 'pending'
       }]);
       await getTodos(userId);
+      // 1. DB 업데이트 성공 후, 최신 유저 정보 다시 요청
+      const res = await fetch(`/api/users/${userId}`);
+      const updatedUser = await res.json();
+
+      // 2. localStorage 갱신
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      // 3. useState로 관리하고 있다면 상태도 갱신
+
+      console.log("👤 최신 userProfile:", userProfile);
       setNewTodo('');
     }
 
@@ -375,6 +385,7 @@ const handleReject = async (reqId) => {
     setTodos(todos.map(todo =>
       todo.id === id ? { ...todo, ...updated } : todo
     ));
+    await fetchUserProfile();
     await getTodos(userId);
   };
 
@@ -403,19 +414,17 @@ const handleReject = async (reqId) => {
         name: todo.title,
         status: todo.is_completed ? 'completed' : 'pending'
       }));
-
       setTodos(formattedTodos);
-      await getTodos(userId);
     } catch (error) {
       console.error('할 일 조회 실패:', error);
     }
   }
 
+  
   useEffect(() => {
-    if (userId) {
-      getTodos(userId);
-    }
-  }, [userId]);
+    console.log('📌 userProfile updated:', userProfile);
+  }, [userProfile]);
+
 
   const dashboardTabs = [
     { id: 'dashboard', label: '대시보드', icon: BarChart, data: {} },
@@ -779,9 +788,10 @@ const handleReject = async (reqId) => {
   const aquariumFishes = myFishes.filter(fish => fish.is_in_aquarium);
   const aquariumDecorations = myDecorations.filter(decoration => decoration.is_placed);
 
-  console.log('🐠 전체 물고기:', myFishes);
-  console.log('🐠 어항에 있는 물고기:', aquariumFishes);
-  console.log('🎨 어항에 있는 장식품:', aquariumDecorations);
+  // console.log('🐠 전체 물고기:', myFishes);
+  // console.log('🐠 어항에 있는 물고기:', aquariumFishes);
+  // console.log('🎨 어항에 있는 장식품:', aquariumDecorations);
+
 
   return (
       <div style={styles.container}>
