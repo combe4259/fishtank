@@ -3,7 +3,7 @@ import './App.css'
 import Register from './components/Register.jsx'
 import Login from "./components/Login.jsx";
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-// import AuthGuard from './components/auth/AuthGuard.jsx'; // 임시 주석
+import AuthGuard from './components/auth/AuthGuard.jsx';
 import AquariumApp from './pages/AquariumApp.jsx'
 
 function App() {
@@ -15,10 +15,13 @@ function App() {
                     <Route path="/login" element={<Login/>} />
                     <Route path="/user/signup" element={<Register />} />
 
-                    {/* AuthGuard 임시 제거 */}
                     <Route
                         path="/aquarium"
-                        element={<AquariumApp />}
+                        element={
+                            <AuthGuard>
+                                <AquariumApp />
+                            </AuthGuard>
+                        }
                     />
 
                     {/* 잘못된 경로 처리 */}
