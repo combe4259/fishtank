@@ -300,7 +300,7 @@ router.get('/oauth/github/callback', async (req, res) => {
             { expiresIn: '7d' }
         );
 
-        // 🔥 수정: /aquarium으로 직접 리다이렉트
+        // /aquarium으로 직접 리다이렉트
         const successMessage = isNewConnection ? 'github_connected' : 'github_auth';
         const redirectUrl = `https://fishtank-frontend.vercel.app/aquarium?git_auth=success&token=${token}`;
 
