@@ -179,7 +179,7 @@ router.get('/oauth/github/callback', async (req, res) => {
 
         if (!tokenData.access_token) {
             console.error('GitHub 토큰 받기 실패');
-            return res.redirect('http://localhost:5173/login?error=token_failed');
+            return res.redirect('https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app/login?error=token_failed');
         }
 
         const accessToken = tokenData.access_token;
@@ -244,7 +244,7 @@ router.get('/oauth/github/callback', async (req, res) => {
 
             } else {
                 // 연동할 기존 사용자를 찾을 수 없는 경우
-                return res.redirect('http://localhost:5173/login?error=user_not_found');
+                return res.redirect('https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app/login?error=user_not_found');
             }
 
         } else {
@@ -280,12 +280,12 @@ router.get('/oauth/github/callback', async (req, res) => {
             };
         }
 
-        try {
-            await checkAchievements(user.id, 'login_time_special');
-            console.log(`⏰ GitHub 로그인 시간 업적 체크 완료 - 사용자 ${user.id}`);
-        } catch (achievementError) {
-            console.error('GitHub 로그인 업적 체크 에러:', achievementError);
-        }
+        // try {
+        //     await checkAchievements(user.id, 'login_time_special');
+        //     console.log(`⏰ GitHub 로그인 시간 업적 체크 완료 - 사용자 ${user.id}`);
+        // } catch (achievementError) {
+        //     console.error('GitHub 로그인 업적 체크 에러:', achievementError);
+        // }
 
         const token = jwt.sign(
             {
