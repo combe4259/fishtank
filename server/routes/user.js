@@ -115,12 +115,12 @@ router.post('/login', async (req, res) => {
             { expiresIn: '7d' }
         );
 
-        try {
-            await checkAchievements(users[0].id, 'login_time_special');
-            console.log(`로그인 시간 업적 체크 완료 - 사용자 ${users[0].id}`);
-        } catch (achievementError) {
-            console.error('로그인 업적 체크 에러:', achievementError);
-        }
+        // try {
+        //     await checkAchievements(users[0].id, 'login_time_special');
+        //     console.log(`로그인 시간 업적 체크 완료 - 사용자 ${users[0].id}`);
+        // } catch (achievementError) {
+        //     console.error('로그인 업적 체크 에러:', achievementError);
+        // }
 
         res.json({
             success: true,
