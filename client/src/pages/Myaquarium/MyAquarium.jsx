@@ -33,6 +33,16 @@ const MyAquarium = () => {
   const [friendRequests, setFriendRequests] = useState([]);
   const [notifications, setNotifications] = useState([]);
 
+  // 데이터 조회
+  useEffect(() => {
+    fetchUserProfile();
+    fetchAllData();
+    fetchMyFishes();
+    fetchMyDecorations();
+  }, []);
+
+
+
   // 알림 조회
   const loadNotifications = async () => {
     try {
@@ -125,13 +135,7 @@ const handleReject = async (reqId) => {
     };
   };
 
-  // 데이터 조회
-  useEffect(() => {
-    fetchUserProfile();
-    fetchAllData();
-    fetchMyFishes();
-    fetchMyDecorations();
-  }, []);
+
 
   // 사용자 프로필 API 호출
   const fetchUserProfile = async () => {
