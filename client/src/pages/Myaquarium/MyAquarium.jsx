@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Fish, Github, CheckCircle, Activity, Plus, Trash2, BarChart, Palette } from 'lucide-react';
 import Card from '../../components/common/Card/Card.jsx';
 import { styles } from './myAquarium-styles.js';
-const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '');
 
 
 const user = JSON.parse(localStorage.getItem('user'));
@@ -64,16 +63,6 @@ const MyAquarium = () => {
 
   // 데이터 조회
   useEffect(() => {
-    // GitHub OAuth 토큰 처리
-    const urlParams = new URLSearchParams(window.location.search);
-    const session = urlParams.get('session');
-    const authSuccess = urlParams.get('auth_success');
-
-    if (session && authSuccess) {
-      localStorage.setItem('token', session);
-      window.history.replaceState({}, document.title, '/aquarium');
-    }
-
     fetchUserProfile();
     fetchAllData();
     fetchMyFishes();
@@ -89,7 +78,7 @@ const MyAquarium = () => {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
+      const response = await fetch('http://localhost:3001/api/user/profile', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -121,7 +110,7 @@ const MyAquarium = () => {
       }
 
       // GitHub 데이터 호출
-      const todayResponse = await fetch(`${API_BASE_URL}/api/github/commits/today`, {
+      const todayResponse = await fetch('http://localhost:3001/api/github/commits/today', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -137,7 +126,7 @@ const MyAquarium = () => {
         await fetchUserProfile();
       }
 
-      const weeklyResponse = await fetch(`${API_BASE_URL}/api/github/commits/week`, {
+      const weeklyResponse = await fetch('http://localhost:3001/api/github/commits/week', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -150,7 +139,7 @@ const MyAquarium = () => {
         setWeeklyStats(weeklyData.data);
       }
 
-      const statsResponse = await fetch(`${API_BASE_URL}/api/github/stats`, {
+      const statsResponse = await fetch('http://localhost:3001/api/github/stats', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -176,7 +165,7 @@ const MyAquarium = () => {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/shop/my-fish`, {
+      const response = await fetch('http://localhost:3001/api/shop/my-fish', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -205,7 +194,7 @@ const MyAquarium = () => {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/shop/my-decorations`, {
+      const response = await fetch('http://localhost:3001/api/shop/my-decorations', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -229,7 +218,7 @@ const MyAquarium = () => {
   const toggleFishInAquarium = async (fishId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/shop/${fishId}/toggle-aquarium`, {
+      const response = await fetch(`http://localhost:3001/api/shop/${fishId}/toggle-aquarium`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -256,7 +245,7 @@ const MyAquarium = () => {
   const toggleDecorationInAquarium = async (decorationId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/shop/decorations/${decorationId}/toggle-aquarium`, {
+      const response = await fetch(`http://localhost:3001/api/shop/decorations/${decorationId}/toggle-aquarium`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -281,7 +270,7 @@ const MyAquarium = () => {
 
   const addTodo = async () => {
     if (newTodo.trim()) {
-      const response = await fetch(`${API_BASE_URL}/api/todos`, {
+      const response = await fetch('http://localhost:3001/api/todos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -299,6 +288,7 @@ const MyAquarium = () => {
         name: newItem.title,
         status: newItem.is_completed ? 'completed' : 'pending'
       }]);
+      await getTodos(userId);
       setNewTodo('');
     }
 
@@ -308,7 +298,7 @@ const MyAquarium = () => {
     const targetTodo = todos.find(todo => todo.id === id);
     const newStatus = !targetTodo.is_completed;
   
-    const response = await fetch(`${API_BASE_URL}/api/todos/${id}/complete`, {
+    const response = await fetch(`http://localhost:3001/api/todos/${id}/complete`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -328,7 +318,7 @@ const MyAquarium = () => {
 
   const deleteTodo = async (id) => {
     try {
-      await fetch(`${API_BASE_URL}/api/todos/${id}`, {
+      await fetch(`http://localhost:3001/api/todos/${id}`, {
         method: 'DELETE'
       });
       // 삭제 후 다시 할 일 목록 불러오기 등
@@ -341,7 +331,7 @@ const MyAquarium = () => {
 
   const getTodos = async (userId) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/todos/${userId}`);
+      const response = await fetch(`http://localhost:3001/api/todos/${userId}`);
       const data = await response.json();
 
       const formattedTodos = data.map(todo => ({
@@ -362,7 +352,6 @@ const MyAquarium = () => {
       getTodos(userId);
     }
   }, [userId]);
-
 
   const dashboardTabs = [
     { id: 'dashboard', label: '대시보드', icon: BarChart, data: {} },
