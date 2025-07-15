@@ -35,6 +35,7 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+// 알림 조회
 router.get('/', authenticateToken, async (req, res) => {
     try {
       const userId = req.user.userId;
@@ -53,10 +54,7 @@ router.get('/', authenticateToken, async (req, res) => {
     }
   });
   
-  /**
-   * DELETE /api/notifications/:id
-   * Delete a specific notification belonging to the authenticated user
-   */
+// 알림 읽음 처리(삭제)
   router.delete('/:id', authenticateToken, async (req, res) => {
     try {
       const userId = req.user.userId;
