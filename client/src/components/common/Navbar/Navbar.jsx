@@ -1,6 +1,6 @@
 import React from 'react';
 import { Gem } from 'lucide-react';
-import { styles } from './Navbar.styles';
+import { styles } from './Navbar.styles.js';
 
 const Navbar = ({ activeTab, onTabChange, userCoins = 5000 }) => {
     return (

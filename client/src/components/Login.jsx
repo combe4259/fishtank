@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Register.css"; // register랑 같은 css
-
+import "./Login.css";
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '');
 export default function Login() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
@@ -28,7 +28,7 @@ export default function Login() {
             setMessage('GitHub 로그인 설정이 올바르지 않습니다.');
             return;
         }
-        const redirectUri = encodeURIComponent('http://localhost:3001/api/user/oauth/github/callback');
+        const redirectUri = encodeURIComponent(`${API_BASE_URL}/api/user/oauth/github/callback`);
         const scope = encodeURIComponent('user:email repo');
 
         const githubAuthUrl = `https://github.com/login/oauth/authorize?` +
@@ -50,7 +50,8 @@ export default function Login() {
         setMessage('');
 
         try {
-            const response = await fetch('http://localhost:3001/api/user/login', {
+            //FIXME
+            const response = await fetch(`${API_BASE_URL}/api/user/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

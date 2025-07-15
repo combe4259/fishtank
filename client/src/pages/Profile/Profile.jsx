@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { User, Trophy, Target, Calendar, TrendingUp, Award, Star, Activity } from 'lucide-react';
 import Card from '../../components/common/Card/Card.jsx';
 import { styles } from './profile-styles';
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '');
 
 
 const Profile = () => {
@@ -28,7 +29,7 @@ const Profile = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:3001/api/user/profile', {
+      const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -57,7 +58,7 @@ const Profile = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:3001/api/achievements/list', {
+      const response = await fetch(`${API_BASE_URL}/api/achievements/list`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -94,7 +95,7 @@ const Profile = () => {
       console.log(' GitHub 데이터 새로고침 및 업적 체크 중...');
 
       // GitHub 통계 API 호출
-      const response = await fetch('http://localhost:3001/api/github/stats', {
+      const response = await fetch(`${API_BASE_URL}/api/github/stats`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

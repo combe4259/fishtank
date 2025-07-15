@@ -11,6 +11,7 @@ import {
   fetchFriendRequests,
 } from "../FriendsAquarium/FriendsUtil.jsx";
 
+
 const user = JSON.parse(localStorage.getItem('user'));
 const userId = user?.id;
 
@@ -332,12 +333,7 @@ const handleReject = async (reqId) => {
     }
   };
 
-  
-
-
-
   const addTodo = async () => {
-
     if (newTodo.trim()) {
       const response = await fetch('http://localhost:3001/api/todos', {
         method: 'POST',
@@ -410,6 +406,7 @@ const handleReject = async (reqId) => {
       }));
 
       setTodos(formattedTodos);
+      await getTodos(userId);
     } catch (error) {
       console.error('할 일 조회 실패:', error);
     }
@@ -420,12 +417,6 @@ const handleReject = async (reqId) => {
       getTodos(userId);
     }
   }, [userId]);
-
-
-  // const myFishes = [
-  //   { id: 1, name: '코딩이', species: 'JavaScript 문어', level: 5 },
-  //   { id: 2, name: '파이썬이', species: 'Python 뱀물고기', level: 3 },
-  // ];
 
   const dashboardTabs = [
     { id: 'dashboard', label: '대시보드', icon: BarChart, data: {} },
@@ -474,7 +465,6 @@ const handleReject = async (reqId) => {
   const completionPercentage = Math.round((completedCount / todos.length) * 100) || 0;
 
   const renderTabContent = () => {
-    //const currentTab = dashboardTabs.find(tab => tab.id === activeTab);
 
     switch (activeTab) {
       case 'dashboard': {
@@ -555,9 +545,6 @@ const handleReject = async (reqId) => {
                   </div>
                 </div>
 
-
-                {/* 투두리스트 카드 */}
-
                 <div style={styles.metricCard}>
                   <div style={styles.metricHeader}>
                     <CheckCircle style={{ width: '20px', height: '20px', color: '#10b981' }} />
@@ -608,7 +595,6 @@ const handleReject = async (reqId) => {
                                             </span>
                           </div>
                       ))}
-
                     </div>
                   </div>
                   <div style={styles.levelInfo}>
@@ -828,6 +814,7 @@ const handleReject = async (reqId) => {
                 </div>
               </div>
             </Card>
+
             {/* 받은 친구 요청 목록 */}
             <Card style={styles.mainCard}>
               <h4>받은 친구 신청</h4>
@@ -865,6 +852,7 @@ const handleReject = async (reqId) => {
                 )}
               </div>
             </Card>
+
           </div>
 
           {/* 메인 아쿠아리움 */}
