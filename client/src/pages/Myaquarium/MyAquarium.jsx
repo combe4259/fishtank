@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Fish, Github, CheckCircle, Activity, Plus, Trash2, BarChart, Palette } from 'lucide-react';
 import Card from '../../components/common/Card/Card.jsx';
-import { styles } from './myAquarium-styles.js';
+import { styles } from './MyAquarium-styles.js';
 import { deleteNotification, fetchNotifications } from '../Profile/Notificaitons.jsx';
 
 import {
@@ -826,16 +826,6 @@ const handleReject = async (reqId) => {
               </div>
               <h3 style={styles.profileName}>{userProfile?.username || '사용자'}</h3>
               <p style={styles.profileLevel}>Level {userProfile?.level || 1} (경험치: {userProfile?.experience_points || 0}/100)</p>
-              <div style={styles.profileStats}>
-                <div style={styles.statItem}>
-                  <div style={styles.statValue}>{userProfile?.fish_coins || 0}</div>
-                  <div style={styles.statLabel}>코인</div>
-                </div>
-                <div style={styles.statItem}>
-                  <div style={styles.statValue}>{githubData?.totalCommitsToday || 0}</div>
-                  <div style={styles.statLabel}>오늘 커밋</div>
-                </div>
-              </div>
             </Card>
 
             {/* 받은 친구 요청 목록 */}

@@ -37,10 +37,13 @@ export const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+    background: 'rgba(254, 243, 199, 0.4)', // 투명도 적용
+    backdropFilter: 'blur(15px)', // 블러 효과 추가
     padding: '12px 24px',
     borderRadius: '24px',
-    boxShadow: '0 4px 16px rgba(251, 191, 36, 0.1)'
+    boxShadow: '0 4px 16px rgba(251, 191, 36, 0.1)',
+    border: '1px solid rgba(251, 191, 36, 0.3)' // 미묘한 테두리 추가
+
   },
   coinAmount: {
     fontSize: '24px',
@@ -67,7 +70,7 @@ export const styles = {
   categoryLabel: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: 'px',
     fontSize: '16px',
     fontWeight: '600',
     color: '#1f2937' // 더 진한 색상으로 변경하여 가독성 향상
@@ -83,8 +86,8 @@ export const styles = {
     borderWidth: '2px',
     borderStyle: 'solid',
     borderColor: '#d1d5db', // 테두리 색상을 더 진하게
-    background: 'rgba(255, 255, 255, 0.4)', // 버튼 배경도 약간 투명하게
-    backdropFilter: 'blur(5px)', // 버튼에도 블러 효과
+    background: 'rgba(255, 255, 255, 0.1)', // 버튼 배경도 약간 투명하게
+    backdropFilter: 'blur(2px)', // 버튼에도 블러 효과
     fontSize: '14px',
     fontWeight: '500',
     color: '#374151', // 텍스트 색상을 진하게 설정
@@ -99,7 +102,7 @@ export const styles = {
     borderStyle: 'solid',
     borderColor: '#3b82f6',
     color: '#1e40af', // 활성 상태 텍스트 색상
-    background: 'rgba(239, 246, 255, 0.7)' // 활성 상태 배경도 약간 투명하게
+    background: 'rgba(239, 246, 255, 0.4)' // 활성 상태 배경도 약간 투명하게
   },
   categoryDot: {
     width: '8px',
@@ -110,7 +113,7 @@ export const styles = {
 
   // 상점 카드 - 투명도 조정
   shopCard: {
-    background: 'rgba(255, 255, 255, 0.4)', // 더 투명하게 변경 (0.95 → 0.7)
+    background: 'rgba(255, 255, 255, 0.3)', // 더 투명하게 변경 (0.95 → 0.7)
     backdropFilter: 'blur(15px)', // 블러 효과 추가
     borderRadius: '28px',
     padding: '32px',
@@ -119,6 +122,7 @@ export const styles = {
     border: '1px solid rgba(255, 255, 255, 0.3)' // 미묘한 테두리 추가
   },
   shopHeader: {
+
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
