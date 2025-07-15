@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Fish, Github, CheckCircle, Activity, Plus, Trash2, BarChart, Palette } from 'lucide-react';
 import Card from '../../components/common/Card/Card.jsx';
-import { styles } from './MyAquarium-styles';
+import { styles } from './MyAquarium-styles.js';
 
 const MyAquarium = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
