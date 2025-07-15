@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Gem, Plus, Heart } from 'lucide-react';
-import { styles } from './fishCard-styles';
+import { styles } from './fishcard-styles';
 
 const FishCard = ({ fish, onClick, showPrice = false, fishImage, isOwned = false }) => {
     const [isHovered, setIsHovered] = useState(false);
