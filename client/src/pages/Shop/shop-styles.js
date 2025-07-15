@@ -43,6 +43,7 @@ export const styles = {
     borderRadius: '24px',
     boxShadow: '0 4px 16px rgba(251, 191, 36, 0.1)',
     border: '1px solid rgba(251, 191, 36, 0.3)' // 미묘한 테두리 추가
+
   },
   coinAmount: {
     fontSize: '24px',
