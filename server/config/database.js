@@ -10,6 +10,29 @@ const dbConfig = {
 
     connectionLimit: 10
 };
+const dbConfig = {
+    host: 'mysql.railway.internal',
+    port: 3306,
+    user: 'root',
+    password: 'ELLkzaBSwUUzHaDLppQGEzIwxJXnTquX',
+    database: 'railway',
+    connectionLimit: 10
+};
+
+
+
+
+const dbConfig = {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+
+    connectionLimit: 10
+};
+
+
 
 // 커넥션 풀 생성
 const pool = mysql.createPool(dbConfig);
