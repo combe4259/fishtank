@@ -28,7 +28,7 @@ export default function Login() {
             setMessage('GitHub 로그인 설정이 올바르지 않습니다.');
             return;
         }
-        const redirectUri = encodeURIComponent(`{API_BASE_URL}api/user/oauth/github/callback`);
+        const redirectUri = encodeURIComponent(`${API_BASE_URL}api/user/oauth/github/callback`);
         const scope = encodeURIComponent('user:email repo');
 
         const githubAuthUrl = `https://github.com/login/oauth/authorize?` +
