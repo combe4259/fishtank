@@ -353,10 +353,6 @@ const MyAquarium = () => {
     }
   }, [userId]);
 
-  const myFishes = [
-    { id: 1, name: '코딩이', species: 'JavaScript 문어', level: 5 },
-    { id: 2, name: '파이썬이', species: 'Python 뱀물고기', level: 3 },
-  ];
   const dashboardTabs = [
     { id: 'dashboard', label: '대시보드', icon: BarChart, data: {} },
     {

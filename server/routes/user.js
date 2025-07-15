@@ -1,8 +1,8 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const {pool, createConnection} = require('../config/database')
-const achievements = require('./achievements');
-const checkAchievements = achievements.checkAchievements;
+// const achievements = require('./achievements');
+// const checkAchievements = achievements.checkAchievements;
 
 const router = express.Router();
 
@@ -115,12 +115,12 @@ router.post('/login', async (req, res) => {
             { expiresIn: '7d' }
         );
 
-        try {
-            await checkAchievements(users[0].id, 'login_time_special');
-            console.log(`로그인 시간 업적 체크 완료 - 사용자 ${users[0].id}`);
-        } catch (achievementError) {
-            console.error('로그인 업적 체크 에러:', achievementError);
-        }
+        // try {
+        //     await checkAchievements(users[0].id, 'login_time_special');
+        //     console.log(`로그인 시간 업적 체크 완료 - 사용자 ${users[0].id}`);
+        // } catch (achievementError) {
+        //     console.error('로그인 업적 체크 에러:', achievementError);
+        // }
 
         res.json({
             success: true,
@@ -179,7 +179,7 @@ router.get('/oauth/github/callback', async (req, res) => {
 
         if (!tokenData.access_token) {
             console.error('GitHub 토큰 받기 실패');
-            return res.redirect('http://localhost:5173/login?error=token_failed');
+            return res.redirect('https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app/login?error=token_failed');
         }
 
         const accessToken = tokenData.access_token;
@@ -244,7 +244,7 @@ router.get('/oauth/github/callback', async (req, res) => {
 
             } else {
                 // 연동할 기존 사용자를 찾을 수 없는 경우
-                return res.redirect('http://localhost:5173/login?error=user_not_found');
+                return res.redirect('https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app/login?error=user_not_found');
             }
 
         } else {
@@ -280,12 +280,12 @@ router.get('/oauth/github/callback', async (req, res) => {
             };
         }
 
-        try {
-            await checkAchievements(user.id, 'login_time_special');
-            console.log(`⏰ GitHub 로그인 시간 업적 체크 완료 - 사용자 ${user.id}`);
-        } catch (achievementError) {
-            console.error('GitHub 로그인 업적 체크 에러:', achievementError);
-        }
+        // try {
+        //     await checkAchievements(user.id, 'login_time_special');
+        //     console.log(`⏰ GitHub 로그인 시간 업적 체크 완료 - 사용자 ${user.id}`);
+        // } catch (achievementError) {
+        //     console.error('GitHub 로그인 업적 체크 에러:', achievementError);
+        // }
 
         const token = jwt.sign(
             {
@@ -300,11 +300,12 @@ router.get('/oauth/github/callback', async (req, res) => {
 
         // 성공 메시지와 함께 리다이렉트
         const successMessage = isNewConnection ? 'github_connected' : 'auth_success';
-        res.redirect(`http://localhost:5173/aquarium?${successMessage}=true&session=${token}`);
+        // GitHub OAuth 콜백에서 수정
+        res.redirect(`https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app/aquarium?${successMessage}=true&session=${token}`);
 
     } catch (error) {
         console.error('GitHub OAuth 에러:', error);
-        res.redirect('http://localhost:5173/login?error=github_auth_failed');
+        res.redirect(`https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app/login?error=github_auth_failed`);
     }
 });
 
@@ -313,11 +314,11 @@ router.get('/profile', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.userId;
 
-        try {
-            await checkAchievements(userId, 'login_time_special');
-        } catch (achievementError) {
-            console.error('프로필 조회시 업적 체크 에러:', achievementError);
-        }
+        // try {
+        //     await checkAchievements(userId, 'login_time_special');
+        // } catch (achievementError) {
+        //     console.error('프로필 조회시 업적 체크 에러:', achievementError);
+        // }
 
         const [users] = await pool.execute(
             `SELECT id, email, username, github_username, github_id, profile_image_url, 
