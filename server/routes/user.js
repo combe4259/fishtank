@@ -179,7 +179,8 @@
 
             if (!tokenData.access_token) {
                 console.error('GitHub 토큰 받기 실패');
-                return res.redirect('https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app/login?error=token_failed');
+                // ✅ 수정: 올바른 프론트엔드 URL 사용
+                return res.redirect(`${process.env.FRONTEND_URL}/login?error=token_failed`);
             }
 
             const accessToken = tokenData.access_token;
@@ -227,10 +228,10 @@
                     user = existingEmailUsers[0];
 
                     await pool.execute(
-                        `UPDATE users SET 
-                         github_id = ?, github_username = ?, github_token = ?,
-                         profile_image_url = ?, public_repos = ?, followers = ?, following = ?,
-                         updated_at = CURRENT_TIMESTAMP 
+                        `UPDATE users SET
+                                          github_id = ?, github_username = ?, github_token = ?,
+                                          profile_image_url = ?, public_repos = ?, followers = ?, following = ?,
+                                          updated_at = CURRENT_TIMESTAMP
                          WHERE id = ?`,
                         [
                             githubUser.id, githubUser.login, accessToken,
@@ -244,16 +245,17 @@
 
                 } else {
                     // 연동할 기존 사용자를 찾을 수 없는 경우
-                    return res.redirect('https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app/login?error=user_not_found');
+                    // ✅ 수정: 올바른 프론트엔드 URL 사용
+                    return res.redirect(`${process.env.FRONTEND_URL}/login?error=user_not_found`);
                 }
 
             } else {
                 // 완전히 새로운 GitHub 사용자 생성
                 const [result] = await pool.execute(
-                    `INSERT INTO users 
-                     (github_id, github_username, github_token, username, email, 
+                    `INSERT INTO users
+                     (github_id, github_username, github_token, username, email,
                       profile_image_url, public_repos, followers, following,
-                      level, experience_points, fish_coins) 
+                      level, experience_points, fish_coins)
                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         githubUser.id,
@@ -276,36 +278,34 @@
                     github_id: githubUser.id,
                     github_username: githubUser.login,
                     username: githubUser.login,
-                    email: githubUser.email
+                    email: githubUser.email,
+                    level: 1,
+                    experience_points: 0,
+                    fish_coins: 100
                 };
             }
-
-            // try {
-            //     await checkAchievements(user.id, 'login_time_special');
-            //     console.log(`⏰ GitHub 로그인 시간 업적 체크 완료 - 사용자 ${user.id}`);
-            // } catch (achievementError) {
-            //     console.error('GitHub 로그인 업적 체크 에러:', achievementError);
-            // }
 
             const token = jwt.sign(
                 {
                     userId: user.id,
                     githubId: githubUser.id,
                     username: user.username || githubUser.login,
-                    loginType: isNewConnection ? 'email' : 'github' // 연동인 경우 기존 로그인 타입 유지
+                    loginType: isNewConnection ? 'email' : 'github'
                 },
                 process.env.JWT_SECRET,
                 { expiresIn: '7d' }
             );
 
-            // 성공 메시지와 함께 리다이렉트
-            const successMessage = isNewConnection ? 'github_connected' : 'auth_success';
-            // GitHub OAuth 콜백에서 수정
-            res.redirect(`https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app/aquarium?${successMessage}=true&session=${token}`);
+            // ✅ 수정: 올바른 프론트엔드 URL과 파라미터 사용
+            const successMessage = isNewConnection ? 'github_connected' : 'github_auth';
+            console.log('✅ GitHub 로그인 성공, 리다이렉트:', `${process.env.FRONTEND_URL}/aquarium?${successMessage}=success&token=${token}`);
+
+            res.redirect(`${process.env.FRONTEND_URL}/aquarium?${successMessage}=success&token=${token}`);
 
         } catch (error) {
             console.error('GitHub OAuth 에러:', error);
-            res.redirect(`https://fishtank-frontend-git-achievements-combe4259s-projects.vercel.app/login?error=github_auth_failed`);
+            // ✅ 수정: 올바른 프론트엔드 URL 사용
+            res.redirect(`${process.env.FRONTEND_URL}/login?error=github_auth_failed`);
         }
     });
 
