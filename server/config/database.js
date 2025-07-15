@@ -11,10 +11,10 @@ const mysql = require('mysql2/promise');
 //     connectionLimit: 10
 // };
 const dbConfig = {
-    // host: 'centerbeam.proxy.rlwy.net',
-    host: 'mysql-production-f6cf.up.railway.app',
-    // port: 31261,
-    port: 3306,
+    host: 'centerbeam.proxy.rlwy.net',
+    //host: 'mysql-production-f6cf.up.railway.app',
+    port: 31261,
+    //port: 3306,
     user: 'root',
     password: 'ELLkzaBSwUUzHaDLppQGEzIwxJXnTquX',
     database: 'railway',
