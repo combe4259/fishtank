@@ -12,6 +12,8 @@ import {
 import Card from "../../components/common/Card/Card";
 import { styles } from "./friendsAquarium-styles";
 //import { get } from "../../../../server/routes";
+import FriendsTank from "./FriendsTank";
+import { fetchMyFishes, fetchMyDecorations, fetchAquariumLikeCount } from "./FriendsTankUtil";
 
 const user = JSON.parse(localStorage.getItem('user'));
 const userId = user?.id;
@@ -50,6 +52,25 @@ const FriendsAquarium = () => {
   ]);
   const [allFriendships, setAllFriendships] = useState([]);
   const [comments, setComments] = useState([]);
+  const [fishes, setFishes] = useState([]);
+  const [decorations, setDecorations] = useState([]);
+  const [likeCount, setLikeCount] = useState(0);
+
+
+  useEffect(() => {
+    if (!selectedFriend) return;
+    fetchMyFishes(selectedFriend.aquarium_id)
+      .then(fishes => setFishes(fishes))
+      .catch(err => console.error(err));
+    fetchMyDecorations(selectedFriend.aquarium_id)
+      .then(decorations => setDecorations(decorations))
+      .catch(err => console.error(err));
+  }, [selectedFriend]);
+
+  useEffect(() => {
+    fetchAquariumLikeCount(selectedFriend.aquarium_id).then(setLikeCount);
+  }, [selectedFriend]);
+
 
 
 useEffect(() => {
@@ -209,9 +230,6 @@ useEffect(() => {
 
   
 
-  const [isHovered, setIsHovered] = useState(false);
-  const [isPressed, setIsPressed] = useState(false);
-
   const [message, setMessage] = useState("");
 
   const handleMessageChange = (e) => {
@@ -356,38 +374,13 @@ useEffect(() => {
         {/* ----------------------------------------------------------------
          * ❷ 가운데 – 선택된 친구 어항 (미리보기 → 실제 AquariumView 삽입 가능)
          * --------------------------------------------------------------*/}
-        <div style={{ position: "relative" }}>
-          {/* 어항 배경 */}
-          <div
-            style={{
-              width: "100%",
-              height: 460,
-              borderRadius: 24,
-              background: "url('/images/bikini_bottom_bg.jpg') center/cover",
-              filter: "blur(0.5px)",
-            }}
+        <Card style={styles.mainCard}>
+          <h3>{selectedFriend.github_username}님의 어항</h3>
+          <FriendsTank
+             fishes={fishes} 
+             decorations={decorations}
           />
-          {selectedFriend ? (
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "white",
-                fontSize: 32,
-                fontWeight: 600,
-                textShadow: "0 2px 4px rgba(0,0,0,0.3)",
-              }}
-            >
-              {selectedFriend.github_username} 의 어항 🌊
-            </div>
-          ) : null}
-        </div>
+        </Card>
 
         {/* ----------------------------------------------------------------
          * ❸ 오른쪽 – 친구 상세 카드 (프로필)
@@ -428,15 +421,33 @@ useEffect(() => {
               </div>
               {/* 좋아요 */}
               <div style={{ display: "flex", alignItems: "center", marginTop: -15  }}>
-                <button onClick={() => {alert("조아요"), setLiked(!liked), likeAquarium(selectedFriend.id, selectedFriend.aquarium_id)}} 
-                  style={{ background: "transparent", border: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-                  <Heart 
-                   width = {16}
-                   height = {16}
-                   color = "#ef4444"
-                   fill= {liked? "#ef4444" : "none"} 
-                   />
-                  <span style={{ fontWeight: 600, marginLeft: 4 }}>{selectedFriend.likes}</span>
+              <button
+                  onClick={async () => {
+                    await likeAquarium(selectedFriend.id, selectedFriend.aquarium_id);
+                    // 좋아요 누른 뒤에 다시 카운트 갱신
+                    const newCount = await fetchAquariumLikeCount(selectedFriend.aquarium_id);
+                    setLikeCount(newCount);
+                    setLiked(!liked); // 좋아요 상태 토글
+                  }}
+                  style={{
+                    background: 'transparent',
+                    border: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {/* 하트 왼쪽에 좋아요 수 표시 */}
+                  <span style={{ fontWeight: 600, marginRight: 4 }}>
+                    {likeCount}
+                  </span>
+                  <Heart
+                    width={16}
+                    height={16}
+                    color="#ef4444"
+                    fill={liked ? "#ef4444" : "none"}
+                  />
                 </button>
               </div>
 
@@ -452,29 +463,14 @@ useEffect(() => {
                 />
               </div>
               <div className="w-[415px] h-[265px] bg-[#ffffff80] rounded-[20px] overflow-hidden">
-                <button
-                  className={`relative w-[203px] h-[33px] top-[218px] left-[107px] bg-[#c2f0f7d2] rounded-[20px] overflow-hidden shadow-[inset_0px_-4px_4px_#00000026] transition-all duration-150 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 ${
-                    isPressed ? "transform scale-95" : ""
-                  } ${isHovered ? "bg-[#b8edf5d2]" : ""}`}
-                  onClick={postAquariumComment(userId, selectedFriend.aquarium_id, message)}
-                  // onMouseEnter={() => setIsHovered(true)}
-                  // onMouseLeave={() => setIsHovered(false)}
-                  // onMouseDown={() => setIsPressed(true)}
-                  // onMouseUp={() => setIsPressed(false)}
-                  aria-label="쪽지 보내기"
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      postAquariumComment(userId, selectedFriend.aquarium_id, message);
-                    }
-                  }}
-                >
-                  <span className="absolute w-[104px] top-[5px] left-[50px] [font-family:'눈누_기초고딕_Regular-Regular',Helvetica] font-normal text-black text-[15px] text-center tracking-[0] leading-[normal] pointer-events-none">
-                    쪽지 보내기 ✉
-                  </span>
-                </button>
+              <button
+                className="relative w-[203px] h-[33px] top-[218px] left-[107px] bg-[#c2f0f7d2] rounded-[20px] overflow-hidden shadow-[inset_0px_-4px_4px_#00000026] cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50"
+                onClick={() => postAquariumComment(userId, selectedFriend.aquarium_id, message)}
+              >
+                <span className="absolute w-[104px] top-[5px] left-[50px] font-normal text-black text-[15px] text-center pointer-events-none">
+                  쪽지 보내기 ✉
+                </span>
+              </button>
                 <h4>댓글 ({comments.length})</h4>
                 <div style={{ maxHeight: 300, overflowY: 'auto', marginTop: 8 }}>
                   {comments.map(c => (

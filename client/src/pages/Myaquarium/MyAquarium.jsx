@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Fish, Github, CheckCircle, Activity, Plus, Trash2, BarChart, Palette } from 'lucide-react';
 import Card from '../../components/common/Card/Card.jsx';
 import { styles } from './myAquarium-styles.js';
+import { deleteNotification, fetchNotifications } from '../Profile/Notificaitons.jsx';
 
 
 import {
   acceptFriendRequest,
   rejectFriendRequest,
   fetchFriendRequests,
-} from "../../pages/FriendsAquarium/FriendsNotifications.jsx";
+} from "../FriendsAquarium/FriendsUtil.jsx";
 
 const user = JSON.parse(localStorage.getItem('user'));
 const userId = user?.id;
@@ -29,10 +30,36 @@ const MyAquarium = () => {
   ]);
   const [myFishes, setMyFishes] = useState([]);
   const [myDecorations, setMyDecorations] = useState([]);
+  const [friendRequests, setFriendRequests] = useState([]);
+  const [notifications, setNotifications] = useState([]);
 
-    const [friendRequests, setFriendRequests] = useState([]);
+  // 알림 조회
+  const loadNotifications = async () => {
+    try {
+      const data = await fetchNotifications(userId);
+      setNotifications(data);
+    } catch (err) {
+      console.error('알림 조회 실패:', err);
+    }
+  };
 
-    // FriendsAquarium 컴포넌트 내부
+  // 알림 삭제
+  const handleDeleteNotification = async (id) => {
+    try {
+      await deleteNotification(id);
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+    } catch (err) {
+      console.error('알림 삭제 실패:', err);
+    }
+  };
+
+  useEffect(() => {
+    // 친구 요청 및 알림 불러오기
+    refreshFriendRequests();
+    loadNotifications();
+    // 기타 초기 데이터 로드
+  }, []);
+
 
 // ✅ 받은 친구 요청 리스트를 다시 가져오는 함수
 const refreshFriendRequests = async () => {
@@ -815,6 +842,27 @@ const handleReject = async (reqId) => {
                   </div>
                 ))}
                 {friendRequests.length === 0 && <p>신청이 없습니다.</p>}
+              </div>
+            </Card>
+
+            <Card style={styles.mainCard}>
+            <h4>알림</h4>
+              <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+                {notifications.length > 0 ? (
+                  notifications.map((note) => (
+                    <div key={note.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0' }}>
+                      <div>
+                        <strong>{note.title}</strong><br />
+                        <span style={{ fontSize: 12, color: '#555' }}>{note.message}</span>
+                      </div>
+                      <button onClick={() => handleDeleteNotification(note.id)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                        <Trash2 size={16} color="#999" />
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <p>알림이 없습니다.</p>
+                )}
               </div>
             </Card>
           </div>

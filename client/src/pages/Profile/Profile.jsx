@@ -1,9 +1,12 @@
 // client/src/pages/Profile/Profile.jsx 수정
 
+/* global process */
+
 import React, { useState, useEffect } from 'react';
 import { User, Trophy, Target, Calendar, TrendingUp, Award, Star, Activity } from 'lucide-react';
 import Card from '../../components/common/Card/Card.jsx';
 import { styles } from './profile-styles';
+
 
 const Profile = () => {
   const [userProfile, setUserProfile] = useState(null);
