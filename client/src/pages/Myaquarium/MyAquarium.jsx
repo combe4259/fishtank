@@ -4,12 +4,6 @@ import Card from '../../components/common/Card/Card.jsx';
 import { styles } from './myAquarium-styles.js';
 
 
-import {
-  acceptFriendRequest,
-  rejectFriendRequest,
-  fetchFriendRequests,
-} from "../../pages/FriendsAquarium/FriendsNotifications.jsx";
-
 const user = JSON.parse(localStorage.getItem('user'));
 const userId = user?.id;
 
@@ -29,37 +23,6 @@ const MyAquarium = () => {
   ]);
   const [myFishes, setMyFishes] = useState([]);
   const [myDecorations, setMyDecorations] = useState([]);
-
-    const [friendRequests, setFriendRequests] = useState([]);
-
-    // FriendsAquarium 컴포넌트 내부
-
-// ✅ 받은 친구 요청 리스트를 다시 가져오는 함수
-const refreshFriendRequests = async () => {
-  try {
-    const data = await fetchFriendRequests(userId);
-    setFriendRequests(data);
-  } catch (err) {
-    console.error('친구 요청 갱신 실패:', err);
-  }
-};
-
-// 수락/거절 핸들러에서 호출 예시
-const handleAccept = async (reqId) => {
-  const result = await acceptFriendRequest(reqId);
-  if (result) {
-    // 갱신
-    await refreshFriendRequests();
-  }
-};
-
-const handleReject = async (reqId) => {
-  const result = await rejectFriendRequest(reqId);
-  if (result) {
-    // 갱신
-    await refreshFriendRequests();
-  }
-};
 
   // 물고기 위치 계산 함수
   const getFishPosition = (index) => {
@@ -305,12 +268,7 @@ const handleReject = async (reqId) => {
     }
   };
 
-  
-
-
-
   const addTodo = async () => {
-
     if (newTodo.trim()) {
       const response = await fetch('http://localhost:3001/api/todos', {
         method: 'POST',
@@ -383,6 +341,7 @@ const handleReject = async (reqId) => {
       }));
 
       setTodos(formattedTodos);
+      await getTodos(userId);
     } catch (error) {
       console.error('할 일 조회 실패:', error);
     }
@@ -393,12 +352,6 @@ const handleReject = async (reqId) => {
       getTodos(userId);
     }
   }, [userId]);
-
-
-  // const myFishes = [
-  //   { id: 1, name: '코딩이', species: 'JavaScript 문어', level: 5 },
-  //   { id: 2, name: '파이썬이', species: 'Python 뱀물고기', level: 3 },
-  // ];
 
   const dashboardTabs = [
     { id: 'dashboard', label: '대시보드', icon: BarChart, data: {} },
@@ -447,7 +400,6 @@ const handleReject = async (reqId) => {
   const completionPercentage = Math.round((completedCount / todos.length) * 100) || 0;
 
   const renderTabContent = () => {
-    //const currentTab = dashboardTabs.find(tab => tab.id === activeTab);
 
     switch (activeTab) {
       case 'dashboard': {
@@ -528,9 +480,6 @@ const handleReject = async (reqId) => {
                   </div>
                 </div>
 
-
-                {/* 투두리스트 카드 */}
-
                 <div style={styles.metricCard}>
                   <div style={styles.metricHeader}>
                     <CheckCircle style={{ width: '20px', height: '20px', color: '#10b981' }} />
@@ -581,7 +530,6 @@ const handleReject = async (reqId) => {
                                             </span>
                           </div>
                       ))}
-
                     </div>
                   </div>
                   <div style={styles.levelInfo}>
@@ -799,22 +747,6 @@ const handleReject = async (reqId) => {
                   <div style={styles.statValue}>{githubData?.totalCommitsToday || 0}</div>
                   <div style={styles.statLabel}>오늘 커밋</div>
                 </div>
-              </div>
-            </Card>
-            {/* 받은 친구 요청 목록 */}
-            <Card style={styles.mainCard}>
-              <h4>받은 친구 신청</h4>
-              <div style={{ maxHeight: 200, overflowY: 'auto' }}>
-                {friendRequests.map(r => (
-                  <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <span>요청 from {r.requester_id}</span>
-                    <div>
-                      <button onClick={() => handleAccept(r.id)}>수락</button>
-                      <button onClick={() => handleReject(r.id)} style={{ marginLeft: 8 }}>거절</button>
-                    </div>
-                  </div>
-                ))}
-                {friendRequests.length === 0 && <p>신청이 없습니다.</p>}
               </div>
             </Card>
           </div>
