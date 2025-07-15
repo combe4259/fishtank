@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./Register.css";
+const API_BASE_URL = import.meta.env.VITE_API_URL
 
 export default function Register() {
     const [formData, setFormData] = useState({
@@ -27,7 +28,7 @@ export default function Register() {
         setMessage('');
 
         try {
-            const response = await fetch('http://localhost:3001/api/user/signup', {
+            const response = await fetch(`{API_BASE_URL }/api/user/signup`, {
                 method: 'POST',
                 headers: {
                     'Con.tent-Type': 'application/json',
