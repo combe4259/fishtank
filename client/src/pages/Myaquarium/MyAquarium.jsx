@@ -40,80 +40,12 @@ const MyAquarium = () => {
   const [friendRequests, setFriendRequests] = useState([]);
   const [notifications, setNotifications] = useState([]);
 
-  // GitHub OAuth 토큰 처리 로직 추가
   useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
-    const token = urlParams.get('token');
-    const githubAuth = urlParams.get('github_auth');
-    const githubConnected = urlParams.get('github_connected');
-    const error = urlParams.get('error');
-
-    if (error) {
-      // 에러 처리
-      switch (error) {
-        case 'token_failed':
-          setMessage('❌ GitHub 토큰 받기에 실패했습니다.');
-          break;
-        case 'user_not_found':
-          setMessage('❌ 연동할 사용자를 찾을 수 없습니다.');
-          break;
-        case 'github_auth_failed':
-          setMessage('❌ GitHub 인증에 실패했습니다.');
-          break;
-        default:
-          setMessage('❌ 로그인 중 오류가 발생했습니다.');
-      }
-
-      // URL 파라미터 정리
-      navigate('/aquarium', { replace: true });
-      return;
+    if (user) {
+      setUserProfile(user);
+      console.log('🐠 MyAquarium에서 받은 user prop:', user);
     }
-
-    if (token) {
-      try {
-        console.log('🎫 토큰 처리 시작:', token.substring(0, 50) + '...');
-
-        // 토큰을 로컬 스토리지에 저장
-        localStorage.setItem('token', token);
-
-        // 토큰에서 사용자 정보 추출 (JWT 디코딩)
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        console.log('🔓 토큰 디코딩 결과:', payload);
-
-        // 사용자 정보 저장
-        const userData = {
-          id: payload.userId,
-          githubId: payload.githubId,
-          username: payload.username,
-          loginType: payload.loginType
-        };
-        localStorage.setItem('user', JSON.stringify(userData));
-
-        // 성공 메시지 표시
-        if (githubAuth === 'success') {
-          setMessage('✅ GitHub 로그인에 성공했습니다!');
-        } else if (githubConnected === 'success') {
-          setMessage('✅ GitHub 계정이 연동되었습니다!');
-        }
-
-        // URL 파라미터 정리 (토큰 노출 방지)
-        navigate('/aquarium', { replace: true });
-
-        // 사용자 프로필 정보 가져오기
-        setTimeout(() => {
-          fetchUserProfile();
-          setMessage(''); // 메시지 제거
-        }, 2000);
-
-      } catch (error) {
-        console.error('토큰 처리 에러:', error);
-        setMessage('❌ 로그인 정보 처리 중 오류가 발생했습니다.');
-        setTimeout(() => {
-          navigate('/login', { replace: true });
-        }, 2000);
-      }
-    }
-  }, [location.search, navigate]);
+  }, [user]);
 
   // 알림 조회
   const loadNotifications = async () => {
@@ -139,19 +71,18 @@ const MyAquarium = () => {
   };
 
   useEffect(() => {
-    // 토큰 처리가 완료된 후에만 데이터 로드
-    const token = localStorage.getItem('token');
-    if (token) {
-      // 친구 요청 및 알림 불러오기
+    // 초기 데이터 로드
+    const currentUser = userProfile || getUser();
+    if (currentUser?.id) {
       refreshFriendRequests();
       loadNotifications();
-      // 기타 초기 데이터 로드
       fetchUserProfile();
       fetchAllData();
       fetchMyFishes();
       fetchMyDecorations();
+      getTodos(currentUser.id);
     }
-  }, []);
+  }, [userProfile]);
 
   // ✅ 받은 친구 요청 리스트를 다시 가져오는 함수
   const refreshFriendRequests = async () => {
