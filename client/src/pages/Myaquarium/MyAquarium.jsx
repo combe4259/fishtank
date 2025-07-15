@@ -226,7 +226,6 @@ const MyAquarium = () => {
       const token = localStorage.getItem('token');
       if (!token) {
         console.error('토큰이 없습니다.');
-        setLoading(false);
         return;
       }
 
@@ -244,16 +243,12 @@ const MyAquarium = () => {
 
       if (data.success) {
         setUserProfile(data.user);
-
-        // 로컬 스토리지의 사용자 정보도 업데이트
         localStorage.setItem('user', JSON.stringify(data.user));
       } else {
         console.error('프로필 조회 실패:', data.message);
       }
     } catch (error) {
       console.error('프로필 조회 에러:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
