@@ -6,6 +6,7 @@ import Login from "./components/Login.jsx";
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import AuthGuard from './components/auth/AuthGuard.jsx';
 import AquariumApp from './pages/AquariumApp.jsx'
+import { Users } from 'lucide-react';
 
 function App() {
     return (
@@ -19,7 +20,7 @@ function App() {
                         path="/aquarium"
                         element={
                             <AuthGuard>
-                                <AquariumApp />
+                                <AquariumApp user={Users}/>
                             </AuthGuard>
                         }
                     />
