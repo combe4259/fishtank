@@ -41,14 +41,14 @@ const FriendsAquarium = () => {
   const [globalQuery, setGlobalQuery] = useState("");
   const [liked, setLiked] = useState(false);
   const [friends, setFriends] = useState([
-      { id: 1, github_username: 'React 컴포넌트 개발', status: 'accepted' },
-      { id: 2, github_username: 'API 연동 작업', status: 'accepted' },
-      { id: 3, github_username: 'UI 디자인 수정', status: 'accepted' }
-    ]);
+    {id: 1, github_username: 'React 컴포넌트 개발', status: 'accepted'},
+    {id: 2, github_username: 'API 연동 작업', status: 'accepted'},
+    {id: 3, github_username: 'UI 디자인 수정', status: 'accepted'}
+  ]);
   const [allUsers, setAllUsers] = useState([
-      { id: 1, github_username: '0000' },
-      { id: 2, github_username: '1111'},
-      { id: 3, github_username: '2222' }
+    {id: 1, github_username: '0000'},
+    {id: 2, github_username: '1111'},
+    {id: 3, github_username: '2222'}
   ]);
   const [allFriendships, setAllFriendships] = useState([]);
   const [comments, setComments] = useState([]);
@@ -63,45 +63,44 @@ const FriendsAquarium = () => {
     fetchAllUsers();
     fetchSentRequests(); // 새로 추가
   }, [userId]);
-  
+
   // 4) 보낸 친구 요청 목록 조회
-const fetchSentRequests = async () => {
-  try {
-    const res = await fetch(`${API_URL}/api/friends/sent/${userId}`);
-    if (!res.ok) throw new Error('보낸 친구 요청 목록 조회 실패');
-    const data = await res.json();
-    setSentRequests(data);
-  } catch (err) {
-    console.error(err);
-  }
-};
+  const fetchSentRequests = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/friends/sent/${userId}`);
+      if (!res.ok) throw new Error('보낸 친구 요청 목록 조회 실패');
+      const data = await res.json();
+      setSentRequests(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
 
   useEffect(() => {
     if (!selectedFriend) return;
     fetchMyFishes(selectedFriend.aquarium_id)
-      .then(fishes => setFishes(fishes))
-      .catch(err => console.error(err));
+        .then(fishes => setFishes(fishes))
+        .catch(err => console.error(err));
     fetchMyDecorations(selectedFriend.aquarium_id)
-      .then(decorations => setDecorations(decorations))
-      .catch(err => console.error(err));
+        .then(decorations => setDecorations(decorations))
+        .catch(err => console.error(err));
   }, [selectedFriend]);
 
   useEffect(() => {
     if (!selectedFriend || !selectedFriend.aquarium_id) return;
     fetchAquariumLikeCount(selectedFriend.aquarium_id)
-      .then(setLikeCount)
-      .catch(console.error);
+        .then(setLikeCount)
+        .catch(console.error);
   }, [selectedFriend]);
 
 
-
-useEffect(() => {
-  fetch(`/api/friendships/all/${userId}`)  // 모든 관계(pending·accepted·rejected)를 가져오는 엔드포인트
-    .then(res => res.json())
-    .then(data => setAllFriendships(data))
-    .catch(console.error);
-}, [userId]);
+  useEffect(() => {
+    fetch(`/api/friendships/all/${userId}`)  // 모든 관계(pending·accepted·rejected)를 가져오는 엔드포인트
+        .then(res => res.json())
+        .then(data => setAllFriendships(data))
+        .catch(console.error);
+  }, [userId]);
 
   /* ------------------------------------------------------------------
    * MOCK DATA (🧪 샘플)
@@ -126,12 +125,12 @@ useEffect(() => {
     return filteredGlobal.filter(u => {
       // ① GitHub 아이디가 있어야 하고
       if (!u.github_username) return false;
-  
+
       // ② allFriendships 에 requester_id 또는 addressee_id 로
       //     나와 해당 유저(u.id) 간의 레코드가 있으면 제외
       const hasRelation = allFriendships.some(f =>
-        (f.requester_id === userId && f.addressee_id === u.id) ||
-        (f.requester_id === u.id      && f.addressee_id === userId)
+          (f.requester_id === userId && f.addressee_id === u.id) ||
+          (f.requester_id === u.id && f.addressee_id === userId)
       );
       return !hasRelation;
     });
@@ -203,8 +202,8 @@ useEffect(() => {
     try {
       const res = await fetch(`${API_URL}/api/friends/like`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, aquarium_id: aquariumId }),
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({userId, aquarium_id: aquariumId}),
       });
       if (!res.ok) throw new Error('어항 좋아요 실패');
       const data = await res.json();
@@ -220,8 +219,8 @@ useEffect(() => {
     try {
       const res = await fetch(`${API_URL}/api/friends/comment`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, aquarium_id: aquariumId, content, parentCommentId }),
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({userId, aquarium_id: aquariumId, content, parentCommentId}),
       });
       if (!res.ok) throw new Error('쪽지 작성 실패');
       const data = await res.json();
@@ -252,7 +251,6 @@ useEffect(() => {
     fetchAllUsers();
   }, [userId]);
 
-  
 
   const [message, setMessage] = useState("");
 
@@ -260,21 +258,21 @@ useEffect(() => {
     setMessage(e.target.value);
   };
 
- // 선택된 친구가 바뀔 때마다 댓글을 불러옵니다
-useEffect(() => {
-  if (!selectedFriend) return;           // 친구가 선택되지 않았으면 스킵
-  fetchAquariumComments(selectedFriend.id)
-    .then(data => setComments(data))
-    .catch(err => console.error('댓글 로드 실패', err));
-}, [selectedFriend]);
+  // 선택된 친구가 바뀔 때마다 댓글을 불러옵니다
+  useEffect(() => {
+    if (!selectedFriend) return;           // 친구가 선택되지 않았으면 스킵
+    fetchAquariumComments(selectedFriend.id)
+        .then(data => setComments(data))
+        .catch(err => console.error('댓글 로드 실패', err));
+  }, [selectedFriend]);
 
 // 댓글이 등록될 때(setComments로 배열이 바뀔 때)도 다시 불러옵니다
-useEffect(() => {
-  if (!selectedFriend) return;
-  fetchAquariumComments(selectedFriend.id)
-    .then(data => setComments(data))
-    .catch(err => console.error('댓글 재로드 실패', err));
-}, [comments.length]);
+  useEffect(() => {
+    if (!selectedFriend) return;
+    fetchAquariumComments(selectedFriend.id)
+        .then(data => setComments(data))
+        .catch(err => console.error('댓글 재로드 실패', err));
+  }, [comments.length]);
 
 
   /* ------------------------------------------------------------------
@@ -282,349 +280,287 @@ useEffect(() => {
    * ----------------------------------------------------------------*/
 
   return (
-    <div style={styles.container}>
-      {/* 헤더 */}
-      <div style={styles.header}>
-        <div style={styles.titleSection}>
-          <h2 style={styles.title}>
-            <Users style={{ width: 32, height: 32, color: "#3b82f6" }} />
-            친구 어항 보기
-          </h2>
-          <p style={styles.subtitle}>친구들의 아름다운 어항을 구경하고 좋아요를 눌러주세요!</p>
-        </div>
-      </div>
-      {/* 메인 그리드 */}
-      <div style={{ display: "grid", gridTemplateColumns: "260px 1fr 320px", gap: 24 }}>
-        {/* ----------------------------------------------------------------
-         * ❶ 왼쪽 – 친구 목록 + 검색 UI
-         * --------------------------------------------------------------*/}
-         <div style={{ display: "grid", gridTemplateColumns: "260px 1fr 320px", gap: 24 }}>
-        <Card style={{ ...styles.mainCard, padding: 0, height: "fit-content" }}>
-          {/* 상단 친구 검색 */}
-          <div style={{ padding: "16px", borderBottom: "1px solid #e5e7eb" }}>
-            <div style={{ position: "relative" }}>
-              <Search
-                style={{ position: "absolute", top: 10, left: 12, width: 16, height: 16, color: "#9CA3AF" }}
-              />
-              <input
-                type="text"
-                placeholder="친구 검색..."
-                value={friendQuery}
-                onChange={(e) => setFriendQuery(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "8px 12px 8px 32px",
-                  borderRadius: 12,
-                  border: "1px solid #D1D5DB",
-                  fontSize: 14,
-                }}
-              />
-            </div>
+      <div style={styles.container}>
+        {/* 헤더 */}
+        <div style={styles.header}>
+          <div style={styles.titleSection}>
+            <h2 style={styles.title}>
+              <Users style={{width: 32, height: 32, color: "#3b82f6"}}/>
+              친구 어항 보기
+            </h2>
+            <p style={styles.subtitle}>친구들의 아름다운 어항을 구경하고 좋아요를 눌러주세요!</p>
           </div>
+        </div>
 
-          {/* 친구 리스트 */}
-          <div style={{ maxHeight: 320, overflowY: "auto" }}>
-            {filteredFriends.map((friend) => (
-              <button
-                key={friend.id}
-                onClick={() => visitFriend(friend)}
-                style={{
+        {/* 메인 그리드 - 중복 제거 */}
+        <div style={{display: "grid", gridTemplateColumns: "260px 1fr 320px", gap: 24}}>
+          {/* ❶ 왼쪽 사이드바 - 친구 목록 */}
+          <div style={{display: "flex", flexDirection: "column", gap: 16}}>
+            {/* 친구 목록 카드 */}
+            <Card style={{...styles.mainCard, padding: 0, height: "fit-content"}}>
+              {/* 상단 친구 검색 */}
+              <div style={{padding: "16px", borderBottom: "1px solid #e5e7eb"}}>
+                <div style={{position: "relative"}}>
+                  <Search
+                      style={{position: "absolute", top: 10, left: 12, width: 16, height: 16, color: "#9CA3AF"}}
+                  />
+                  <input
+                      type="text"
+                      placeholder="친구 검색..."
+                      value={friendQuery}
+                      onChange={(e) => setFriendQuery(e.target.value)}
+                      style={styles.searchInput}
+                  />
+                </div>
+              </div>
+
+              {/* 친구 리스트 */}
+              <div style={{maxHeight: 320, overflowY: "auto"}}>
+                {filteredFriends.map((friend) => (
+                    <button
+                        key={friend.id}
+                        onClick={() => visitFriend(friend)}
+                        style={{
+                          ...styles.friendListItem,
+                          ...(selectedFriend?.id === friend.id ? styles.friendListItemActive : {})
+                        }}
+                    >
+                      <span style={{width: 24, height: 24, fontSize: 20}}>🐠</span>
+                      <span style={{fontSize: 14, color: "#111827", flex: 1, textAlign: "left"}}>
+                  {friend.github_username}
+                </span>
+                    </button>
+                ))}
+              </div>
+
+              {/* 하단 – 새 친구 검색 / 추가 */}
+              <div style={{padding: 16, borderTop: "1px solid #e5e7eb"}}>
+                <div style={{position: "relative", marginBottom: 12}}>
+                  <Search
+                      style={{position: "absolute", top: 10, left: 12, width: 16, height: 16, color: "#9CA3AF"}}
+                  />
+                  <input
+                      type="text"
+                      placeholder="사용자 검색..."
+                      value={globalQuery}
+                      onChange={(e) => setGlobalQuery(e.target.value)}
+                      style={styles.searchInput}
+                  />
+                </div>
+
+                {/* 검색 결과 */}
+                {displayGlobal.length > 0 && (
+                    <div style={{maxHeight: 180, overflowY: "auto"}}>
+                      {displayGlobal.map((user) => (
+                          <div key={user.id} style={styles.userSearchResult}>
+                            <span style={{fontSize: 14}}>{user.github_username}</span>
+                            <button
+                                onClick={() => sendFriendRequest(user.id)}
+                                style={styles.friendRequestButton}
+                            >
+                              <UserPlus style={{width: 14, height: 14}}/>
+                              친구 신청
+                            </button>
+                          </div>
+                      ))}
+                    </div>
+                )}
+              </div>
+            </Card>
+
+            {/* 보낸 친구 요청 카드 - 독립적으로 분리 */}
+            <Card style={{...styles.mainCard, padding: 0, height: "fit-content"}}>
+              <div style={{padding: "16px", borderBottom: "1px solid #e5e7eb"}}>
+                <h4 style={{
+                  fontSize: 16,
+                  fontWeight: "600",
+                  color: "#374151",
+                  margin: 0,
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
-                  width: "100%",
-                  padding: 12,
-                  cursor: "pointer",
-                  background: selectedFriend?.id === friend.id ? "#DBEAFE" : "transparent",
-                  border: "none",
-                }}
-              >
-                <span style={{ width: 24, height: 24, fontSize: 20 }}>🐠</span>
-                <span style={{ fontSize: 14, color: "#111827", flex: 1, textAlign: "left" }}>{friend.github_username}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* 하단 – 새 친구 검색 / 추가 */}
-          <div style={{ padding: 16, borderTop: "1px solid #e5e7eb" }}>
-            <div style={{ position: "relative", marginBottom: 12 }}>
-              <Search
-                style={{ position: "absolute", top: 10, left: 12, width: 16, height: 16, color: "#9CA3AF" }}
-              />
-              <input
-                type="text"
-                placeholder="사용자 검색..."
-                value={globalQuery}
-                onChange={(e) => setGlobalQuery(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "8px 12px 8px 32px",
-                  borderRadius: 12,
-                  border: "1px solid #D1D5DB",
-                  fontSize: 14,
-                }}
-              />
-            </div>
-            {/* 검색 결과 */}
-            <div style={{ maxHeight: 180, overflowY: "auto", display: displayGlobal.length ? "block" : "none" }}>
-              {displayGlobal.map((user) => (
-                <div
-                  key={user.id}
-                  style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 0" }}
-                >
-                  <span style={{ fontSize: 14 }}>{user.github_username}</span>
-                  <button
-                    onClick={() => sendFriendRequest(user.id)}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                      padding: "4px 8px",
-                      borderRadius: 8,
-                      border: "none",
-                      background: "linear-gradient(135deg,#3b82f6 0%,#2563eb 100%)",
-                      color: "white",
-                      fontSize: 12,
-                      cursor: "pointer",
-                    }}
-                  >
-                    <UserPlus style={{ width: 14, height: 14 }} /> 친구 신청
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Card>
-        {/* 보낸 친구 요청 카드 */}
-        <Card style={{ ...styles.mainCard, padding: 0, height: "fit-content", marginTop: 16 }}>
-          <div style={{ padding: "16px", borderBottom: "1px solid #e5e7eb" }}>
-            <h4 style={{ 
-              fontSize: 16, 
-              fontWeight: "600", 
-              color: "#374151", 
-              margin: 0,
-              display: "flex",
-              alignItems: "center",
-              gap: 8
-            }}>
-              <span style={{ fontSize: 20 }}>📤</span>
-              보낸 친구 요청
-              {sentRequests.length > 0 && (
-                <span style={{ 
-                  background: "#3b82f6", 
-                  color: "white", 
-                  borderRadius: "50%", 
-                  width: 20, 
-                  height: 20, 
-                  display: "flex", 
-                  alignItems: "center", 
-                  justifyContent: "center", 
-                  fontSize: 12 
+                  gap: 8
                 }}>
+                  <span style={{fontSize: 20}}>📤</span>
+                  보낸 친구 요청
+                  {sentRequests.length > 0 && (
+                      <span style={{
+                        background: "#3b82f6",
+                        color: "white",
+                        borderRadius: "50%",
+                        width: 20,
+                        height: 20,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 12
+                      }}>
                   {sentRequests.length}
                 </span>
-              )}
-            </h4>
-          </div>
-
-          <div style={{ maxHeight: 250, overflowY: "auto" }}>
-            {sentRequests.length === 0 ? (
-              <div style={{ 
-                padding: "24px", 
-                textAlign: "center", 
-                color: "#6B7280",
-                fontSize: 14
-              }}>
-                보낸 친구 요청이 없습니다
+                  )}
+                </h4>
               </div>
-            ) : (
-              sentRequests.map((request) => (
-                <div
-                  key={request.id}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "12px 16px",
-                    borderBottom: "1px solid #f3f4f6"
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <span style={{ width: 24, height: 24, fontSize: 20 }}>👤</span>
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                      <span style={{ fontSize: 14, color: "#111827", fontWeight: "500" }}>
+
+              <div style={{maxHeight: 250, overflowY: "auto"}}>
+                {sentRequests.length === 0 ? (
+                    <div style={{
+                      padding: "24px",
+                      textAlign: "center",
+                      color: "#6B7280",
+                      fontSize: 14
+                    }}>
+                      보낸 친구 요청이 없습니다
+                    </div>
+                ) : (
+                    sentRequests.map((request) => (
+                        <div key={request.id} style={styles.commentItem}>
+                          <div style={{display: "flex", alignItems: "center", gap: 10}}>
+                            <span style={{width: 24, height: 24, fontSize: 20}}>👤</span>
+                            <div style={{display: "flex", flexDirection: "column"}}>
+                      <span style={{fontSize: 14, color: "#111827", fontWeight: "500"}}>
                         {request.addressee?.github_username || `사용자 ${request.addressee_id}`}
                       </span>
-                      <span style={{ 
-                        fontSize: 12, 
-                        color: request.status === 'pending' ? '#f59e0b' : 
-                              request.status === 'accepted' ? '#10b981' : '#ef4444',
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 4
-                      }}>
+                              <span style={{
+                                fontSize: 12,
+                                color: request.status === 'pending' ? '#f59e0b' :
+                                    request.status === 'accepted' ? '#10b981' : '#ef4444'
+                              }}>
                         {request.status === 'pending' && '⏳ 대기중'}
-                        {request.status === 'accepted' && '✅ 수락됨'}
-                        {request.status === 'rejected' && '❌ 거절됨'}
+                                {request.status === 'accepted' && '✅ 수락됨'}
+                                {request.status === 'rejected' && '❌ 거절됨'}
                       </span>
-                    </div>
-                  </div>
-                  
-                  {request.status === 'pending' && (
-                    <button
-                      onClick={() => {
-                        // 여기에 요청 취소 로직 추가 가능
-                        console.log('요청 취소:', request.id);
-                      }}
-                      style={{
-                        padding: "4px 8px",
-                        borderRadius: 6,
-                        border: "none",
-                        background: "#ef4444",
-                        color: "white",
-                        fontSize: 12,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 2
-                      }}
-                    >
-                      취소
-                    </button>
-                  )}
-                </div>
-              ))
-            )}
+                            </div>
+                          </div>
+                        </div>
+                    ))
+                )}
+              </div>
+            </Card>
           </div>
-        </Card>
-        </div>
 
-        
-
-        {/* ----------------------------------------------------------------
-         * ❷ 가운데 – 선택된 친구 어항 (미리보기 → 실제 AquariumView 삽입 가능)
-         * --------------------------------------------------------------*/}
-        <Card style={styles.mainCard}>
-          {selectedFriend ? (
-            <>
-              <h3>{selectedFriend.github_username}님의 어항</h3>
-              <FriendsTank fishes={fishes} decorations={decorations} />
-            </>
-          ) : (
-            <p style={{ color: '#6B7280' }}>친구를 선택하면 어항을 볼 수 있어요 🐠</p>
-          )}
-        </Card>
-        
-
-        {/* ----------------------------------------------------------------
-         * ❸ 오른쪽 – 친구 상세 카드 (프로필)
-         * --------------------------------------------------------------*/}
-        {selectedFriend && (
-          <Card style={{ ...styles.mainCard, width: 320 }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-              <div
-                style={{
-                  width: 80,
-                  height: 80,
-                  borderRadius: "50%",
-                  background: selectedFriend.profileColor,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 48,
-                }}
-              >
-                🐠
-              </div>
-              <h3 style={{ fontSize: 20, fontWeight: "600", marginBottom: 2 }}>{selectedFriend.github_username}</h3>
-              <p style={{ fontSize: 14, color: "#6B7280", marginTop: -10 }}>Lv.{selectedFriend.level}</p>
-              {/* 레벨 프로그레스 바 */}
-              <div style={{ width: "100%"}}>
-                <div style={{ height: 8, background: "#E5E7EB", borderRadius: 8, overflow: "hidden" }}>
-                  <div
-                    style={{
-                      width: `${Math.min(selectedFriend.level * 5, 100)}%`,
-                      height: "100%",
-                      background: "#10b981",
-                    }}
-                  />
+          {/* ❷ 가운데 – 선택된 친구 어항 */}
+          <Card style={styles.mainCard}>
+            {selectedFriend ? (
+                <>
+                  <h3 style={{marginBottom: 20}}>{selectedFriend.github_username}님의 어항</h3>
+                  <FriendsTank fishes={fishes} decorations={decorations}/>
+                </>
+            ) : (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '300px',
+                  flexDirection: 'column',
+                  gap: 16
+                }}>
+                  <span style={{fontSize: 48}}>🐠</span>
+                  <p style={{color: '#6B7280', fontSize: 18}}>친구를 선택하면 어항을 볼 수 있어요!</p>
                 </div>
-                <span style={{ fontSize: 12, color: "#6B7280" }}>
-                  {Math.min(selectedFriend.level * 5, 100)}%
-                </span>
-              </div>
-              {/* 좋아요 */}
-              <div style={{ display: "flex", alignItems: "center", marginTop: -15  }}>
-              <button
-                  onClick={async () => {
-                    await likeAquarium(selectedFriend.id, selectedFriend.aquarium_id);
-                    // 좋아요 누른 뒤에 다시 카운트 갱신
-                    const newCount = await fetchAquariumLikeCount(selectedFriend.aquarium_id);
-                    setLikeCount(newCount);
-                    setLiked(!liked); // 좋아요 상태 토글
-                  }}
-                  style={{
-                    background: 'transparent',
-                    border: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {/* 하트 왼쪽에 좋아요 수 표시 */}
-                  <span style={{ fontWeight: 600, marginRight: 4 }}>
-                    {likeCount}
-                  </span>
-                  <Heart
-                    width={16}
-                    height={16}
-                    color="#ef4444"
-                    fill={liked ? "#ef4444" : "none"}
-                  />
-                </button>
-              </div>
+            )}
+          </Card>
 
-              {/* 쪽지보내기 */}
-              <div className="relative w-[363px] h-[190px] bg-[#ffffff80] rounded-[20px] overflow-hidden">
-                <textarea
-                  id="message-input"
+          {/* ❸ 오른쪽 – 친구 상세 프로필 */}
+          {selectedFriend && (
+              <Card style={styles.profileCard}>
+                <div style={{display: "flex", flexDirection: "column", alignItems: "center", gap: 16}}>
+                  {/* 프로필 정보 */}
+                  <div style={styles.friendAvatar}>
+                    <span style={styles.avatarEmoji}>🐠</span>
+                  </div>
+
+                  <div style={{textAlign: 'center'}}>
+                    <h3 style={{fontSize: 20, fontWeight: "600", marginBottom: 4}}>
+                      {selectedFriend.github_username}
+                    </h3>
+                    <p style={{fontSize: 14, color: "#6B7280"}}>Lv.{selectedFriend.level}</p>
+                  </div>
+
+                  {/* 레벨 프로그레스 바 */}
+                  <div style={{width: "100%", marginBottom: 8}}>
+                    <div style={styles.levelProgressBar}>
+                      <div
+                          style={{
+                            ...styles.levelProgressFill,
+                            width: `${Math.min(selectedFriend.level * 5, 100)}%`
+                          }}
+                      />
+                    </div>
+                    <span style={{fontSize: 12, color: "#6B7280", marginTop: 4, display: 'block'}}>
+                {Math.min(selectedFriend.level * 5, 100)}%
+              </span>
+                  </div>
+
+                  {/* 좋아요 */}
+                  <button
+                      onClick={async () => {
+                        await likeAquarium(selectedFriend.id, selectedFriend.aquarium_id);
+                        const newCount = await fetchAquariumLikeCount(selectedFriend.aquarium_id);
+                        setLikeCount(newCount);
+                        setLiked(!liked);
+                      }}
+                      style={styles.likeButton}
+                  >
+              <span style={{fontWeight: 600, marginRight: 8}}>
+                {likeCount}
+              </span>
+                    <Heart
+                        width={16}
+                        height={16}
+                        color="#ef4444"
+                        fill={liked ? "#ef4444" : "none"}
+                    />
+                  </button>
+
+                  {/* 쪽지 보내기 영역 - 인라인 스타일로 통일 */}
+                  <div style={styles.messageArea}>
+              <textarea
                   value={message}
                   onChange={handleMessageChange}
                   placeholder={`${selectedFriend.github_username} 님께 하고 싶은 말을 적어 보세요!`}
-                  className="absolute w-[265px] top-[11px] left-[17px] [font-family:'눈누_기초고딕_Regular-Regular',Helvetica] font-normal text-[#707070] text-base text-center tracking-[0] leading-[normal] resize-none h-[168px] placeholder:text-[#707070] focus:outline-none"
-                  aria-label={`${selectedFriend.github_username}님에게 보낼 메시지를 입력하세요`}
-                />
-              </div>
-              <div className="w-[415px] h-[265px] bg-[#ffffff80] rounded-[20px] overflow-hidden">
-              <button
-                className="relative w-[203px] h-[33px] top-[218px] left-[107px] bg-[#c2f0f7d2] rounded-[20px] overflow-hidden shadow-[inset_0px_-4px_4px_#00000026] cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50"
-                onClick={() => postAquariumComment(userId, selectedFriend.aquarium_id, message)}
-              >
-                <span className="absolute w-[104px] top-[5px] left-[50px] font-normal text-black text-[15px] text-center pointer-events-none">
-                  쪽지 보내기 ✉
-                </span>
-              </button>
-                <h4>댓글 ({comments.length})</h4>
-                <div style={{ maxHeight: 300, overflowY: 'auto', marginTop: 8 }}>
-                  {comments.map(c => (
-                    <div key={c.id} style={{ marginBottom: 12 }}>
-                      <strong>{c.author.github_username}</strong>
-                      <p style={{ margin: '4px 0' }}>{c.content}</p>
-                    </div>
-                  ))}
-                  {comments.length === 0 && <p style={{ color: '#6B7280' }}>아직 작성된 댓글이 없습니다.</p>}
-                </div>
-              </div>
-            </div>
-          </Card>
-        )}
-      </div>
+                  style={styles.messageTextarea}
+              />
+                  </div>
 
-      
-    </div>
+                  {/* 댓글 영역 */}
+                  <div style={styles.commentsArea}>
+                    <h4 style={{marginBottom: 12}}>댓글 ({comments.length})</h4>
+                    <div style={{
+                      maxHeight: 180,
+                      overflowY: 'auto',
+                      marginBottom: 50
+                    }}>
+                      {comments.map(c => (
+                          <div key={c.id} style={styles.commentItem}>
+                            <div style={styles.commentAuthor}>
+                              {c.author.github_username}
+                            </div>
+                            <div style={styles.commentContent}>
+                              {c.content}
+                            </div>
+                          </div>
+                      ))}
+                      {comments.length === 0 && (
+                          <p style={{color: '#6B7280', textAlign: 'center', marginTop: 40}}>
+                            아직 작성된 댓글이 없습니다.
+                          </p>
+                      )}
+                    </div>
+
+                    {/* 쪽지 보내기 버튼 */}
+                    <button
+                        onClick={() => postAquariumComment(userId, selectedFriend.aquarium_id, message)}
+                        style={styles.sendMessageButton}
+                    >
+                      쪽지 보내기 ✉
+                    </button>
+                  </div>
+                </div>
+              </Card>
+          )}
+        </div>
+      </div>
   );
-};
+}
 
 export default FriendsAquarium;
 
