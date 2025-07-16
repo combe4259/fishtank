@@ -12,28 +12,9 @@ import {
 } from "../FriendsAquarium/FriendsUtil.jsx";
 
 
-const fetchUserIdFromToken = async () => {
-  const token = localStorage.getItem("token");
-  if (!token) return null;
-
-  try {
-    const res = await fetch("https://fishtank-2wr5.onrender.com/api/user/profile", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const data = await res.json();
-    if (data.success) return data.user.id;
-    else return null;
-  } catch (err) {
-    console.error("유저 ID 불러오기 실패:", err);
-    return null;
-  }
-};
 
 
-const MyAquarium = () => {
-  const [userId, setUserId] = useState();
+const MyAquarium = ({user}) => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [newTodo, setNewTodo] = useState('');
   const [userProfile, setUserProfile] = useState(null);
@@ -51,27 +32,7 @@ const MyAquarium = () => {
   const [friendRequests, setFriendRequests] = useState([]);
   const [notifications, setNotifications] = useState([]);
     
-  useEffect(() => {
-    const getUserId = async () => {
-      const iiid = await fetchUserIdFromToken();
-      if (!iiid) {
-        console.warn("🚫 userId를 불러올 수 없습니다.");
-        return;
-      }
-
-      setUserId(iiid); // 또는 필요한 로직에 넘기기
-
-    };
-    getUserId();
-  }, []);
-
-  useEffect(() => {
-    if (userId !== null) {
-      console.log("🆗 userId 변경됨:", userId);
-      // 여기서 이 userId로 API 호출 등 안전하게 가능
-    }
-  }, [userId]);
-
+  const userId = user?.id;
   // 알림 조회
   const loadNotifications = async () => {
     try {
