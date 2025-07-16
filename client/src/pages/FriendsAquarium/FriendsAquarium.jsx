@@ -128,8 +128,8 @@ useEffect(() => {
   // 1) 내 친구 목록 (status='accepted') 불러오기
   const fetchFriends = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/friendships/${userId}`);
-      if (!res.ok) throw new Error('친구 목록 조회 실패');
+      const res = await fetch(`${API_BASE_URL}/api/friends/${userId}`);
+      if (!res.ok) throw new Error('dfdfdfd친구 목록 조회 실패');
       const data = await res.json();
       setFriends(data);
     } catch (err) {
@@ -181,7 +181,7 @@ useEffect(() => {
   // ✅ 7) 어항 좋아요 함수
   const likeAquarium = async (userId, aquariumId) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/friendships/like`, {
+      const res = await fetch(`${API_BASE_URL}/api/friends/like`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, aquarium_id: aquariumId }),
@@ -198,7 +198,7 @@ useEffect(() => {
   // ✅ 8) 어항에 댓글 작성 함수
   const postAquariumComment = async (userId, aquariumId, content, parentCommentId = null) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/friendships/comment`, {
+      const res = await fetch(`${API_BASE_URL}/api/friends/comment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, aquarium_id: aquariumId, content, parentCommentId }),
@@ -215,7 +215,7 @@ useEffect(() => {
   // ✅ 9) 어항 댓글 리스트 조회 함수
   const fetchAquariumComments = async (aquariumId) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/friendships/comments/${aquariumId}`);
+      const res = await fetch(`${API_BASE_URL}/api/friends/comments/${aquariumId}`);
       if (!res.ok) throw new Error('댓글 리스트 조회 실패');
       const data = await res.json();
       setComments(data);  // 댓글 상태 업데이트
