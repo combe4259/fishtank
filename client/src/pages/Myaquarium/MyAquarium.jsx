@@ -409,9 +409,9 @@ const handleReject = async (reqId) => {
     await getTodos(user.id);
   };
 
-  const getTodos = async (user.id) => {
+  const getTodos = async (userId) => {
     try {
-      const response = await fetch(`${API_URL}/api/todos/${user.id}`);
+      const response = await fetch(`${API_URL}/api/todos/${userId}`);
       const data = await response.json();
 
       const formattedTodos = data.map(todo => ({
