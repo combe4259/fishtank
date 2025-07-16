@@ -11,11 +11,11 @@ import {
   fetchFriendRequests,
 } from "../FriendsAquarium/FriendsUtil.jsx";
 
-const user = JSON.parse(localStorage.getItem('user'));
-const userId = user?.id;
 
 
-const MyAquarium = () => {
+
+const MyAquarium = ({user}) => {
+  console.log("🎯 MyAquarium 진입. user:", user);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [newTodo, setNewTodo] = useState('');
   const [userProfile, setUserProfile] = useState(null);
@@ -32,10 +32,22 @@ const MyAquarium = () => {
   const [myDecorations, setMyDecorations] = useState([]);
   const [friendRequests, setFriendRequests] = useState([]);
   const [notifications, setNotifications] = useState([]);
+    
+  const userId = user?.id;
+
+  useEffect(() => {
+    if (user) {
+      console.log("✅ userId 사용 가능:", user.id);
+      // 여기서 fetchFriendRequests 등 호출
+    } else {
+      console.warn("⚠️ userId가 없습니다. 친구 요청을 불러올 수 없습니다.");
+    }
+  }, [user]);
 
   // 알림 조회
   const loadNotifications = async () => {
     try {
+      console.log('알림 조회 시작', userId);
       const data = await fetchNotifications(userId);
       setNotifications(data);
     } catch (err) {
@@ -54,11 +66,10 @@ const MyAquarium = () => {
   };
 
   useEffect(() => {
-    // 친구 요청 및 알림 불러오기
+    if (!userId) return; // userId 없으면 실행하지 않음
     refreshFriendRequests();
     loadNotifications();
-    // 기타 초기 데이터 로드
-  }, []);
+  }, [userId]);
 
 
 // ✅ 받은 친구 요청 리스트를 다시 가져오는 함수
