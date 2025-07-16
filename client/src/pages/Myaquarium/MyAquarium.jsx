@@ -35,13 +35,13 @@ const MyAquarium = ({user}) => {
   const userId = user?.id;
 
   useEffect(() => {
-    if (userId) {
-      console.log("✅ userId 사용 가능:", userId);
+    if (user) {
+      console.log("✅ userId 사용 가능:", user.id);
       // 여기서 fetchFriendRequests 등 호출
     } else {
       console.warn("⚠️ userId가 없습니다. 친구 요청을 불러올 수 없습니다.");
     }
-  }, [userId]);
+  }, [user]);
 
   // 알림 조회
   const loadNotifications = async () => {
