@@ -37,7 +37,7 @@ const MyAquarium = () => {
 
 
   useEffect(() => {
-    const rawUser = localStorage.getItem('user');
+    const rawUser = localStorage.getItem('users');
     console.log('✅ localStorage[user]:', rawUser);
   
     const user = rawUser ? JSON.parse(rawUser) : null;
