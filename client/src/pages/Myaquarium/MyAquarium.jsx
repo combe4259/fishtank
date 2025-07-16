@@ -15,6 +15,7 @@ import {
 
 
 const MyAquarium = ({user}) => {
+  console.log("🎯 MyAquarium 진입. user:", user);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [newTodo, setNewTodo] = useState('');
   const [userProfile, setUserProfile] = useState(null);
