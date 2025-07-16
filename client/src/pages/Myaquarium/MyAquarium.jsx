@@ -33,6 +33,7 @@ const MyAquarium = () => {
   const rawUser = localStorage.getItem('user');
   const user = rawUser ? JSON.parse(rawUser) : null;
   const userId = user?.id;
+  console.log('👤 userId:', userId);
 
   // 알림 조회
   const loadNotifications = async () => {
