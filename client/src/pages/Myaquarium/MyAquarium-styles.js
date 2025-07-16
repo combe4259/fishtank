@@ -505,7 +505,7 @@ export const styles = {
 
   weeklyActivityTitle: {
     fontSize: '14px', // 16px → 14px
-    color: '#f0f0f0',
+    color: '#000000',
     marginBottom: '8px' // 10px → 8px
   },
 
@@ -545,21 +545,22 @@ export const styles = {
   activityTitle: {
     fontSize: '13px', // 14px → 13px
     fontWeight: '600',
-    color: '#f0f0f0',
+    color: '#000000',
     marginBottom: '10px' // 12px → 10px
   },
 
   commitList: {
     display: 'flex',
     flexDirection: 'column',
+    color: '#000000',
     gap: '6px' // 8px → 6px
   },
 
   commitItem: {
     fontSize: '12px', // 13px → 12px
-    color: '#d1d5db',
     padding: '6px 10px', // 8px 12px → 6px 10px
     background: 'rgba(255, 255, 255, 0.0)',
+    color: '#000000',
     backdropFilter: 'blur(5px)',
     borderRadius: '6px', // 8px → 6px
     border: '1px solid rgba(255, 255, 255, 0.1)',

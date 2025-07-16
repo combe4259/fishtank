@@ -715,9 +715,9 @@ const handleReject = async (reqId) => {
                   {githubData?.commits?.length > 0 ? (
                       githubData.commits.map((commit, index) => (
                           <div key={index} style={styles.commitItem}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' ,color: '#000000',}}>
                               <div>
-                                <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{commit.message}</div>
+                                <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#000000' }}>{commit.message}</div>
                                 <div style={{ fontSize: '12px', color: '#000000' }}>
                                   {commit.repository} • {commit.sha}
                                 </div>
