@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/database');
+const jwt = require('jsonwebtoken');
 
 // JWT 검증 미들웨어
-const authenticateToken = (req, res, next) => {
+    const authenticateToken = (req, res, next) => {
     // console.log('JWT 인증 미들웨어 시작...');
     // console.log('요청 헤더 확인:', {
     //     authorization: req.headers['authorization'] ? '존재함' : '없음'
@@ -37,7 +38,7 @@ const authenticateToken = (req, res, next) => {
 
 // ✅ 0. 전체 유저 목록 조회
 //    GET /api/friendships/:userId
-router.get('/', async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
     try {
         // users 테이블에서 모든 컬럼을 가져옵니다.
         // 필요하다면 SELECT id, username, profileImageUrl 등으로 컬럼을 제한하세요.
@@ -52,7 +53,7 @@ router.get('/', async (req, res) => {
   
 // ✅ 1. 친구 신청
 //    POST /api/friendships/add
-router.post('/add', async (req, res) => {
+router.post('/add', authenticateToken, async (req, res) => {
   try {
     const { requester_id, addressee_id } = req.body;
     if (!requester_id || !addressee_id) {
@@ -93,7 +94,7 @@ router.post('/add', async (req, res) => {
 
 // ✅ 2. 친구 수락
 //    PUT /api/friendships/:id/accept
-router.put('/:id/accept', async (req, res) => {
+router.put('/:id/accept', authenticateToken, async (req, res) => {
     try {
       const { id } = req.params;
       const [found] = await pool.execute(
@@ -126,7 +127,7 @@ router.put('/:id/accept', async (req, res) => {
   
   // ✅ 3. 친구 거절
   //    PUT /api/friendships/:id/reject
-  router.put('/:id/reject', async (req, res) => {
+  router.put('/:id/reject',authenticateToken, async (req, res) => {
     try {
       const { id } = req.params;
       const [found] = await pool.execute(
@@ -162,7 +163,7 @@ router.put('/:id/accept', async (req, res) => {
 
 // ✅ 4. 친구 목록 조회
 //    GET /api/friendships/:userId
-router.get('/:userId', async (req, res) => {
+router.get('/:userId',authenticateToken, async (req, res) => {
     const { userId } = req.params;
     if (!userId) {
       return res.status(400).json({ message: 'userId 누락' });
@@ -184,7 +185,7 @@ router.get('/:userId', async (req, res) => {
 
 // ✅ 5. 받은 친구 요청 목록
 //    GET /api/friendships/requests/:userId
-router.get('/requests', async (req, res) => {
+router.get('/requests', authenticateToken, async (req, res) => {
     try {
       const { userId } = req.params;
       const [rows] = await pool.execute(
@@ -201,7 +202,7 @@ router.get('/requests', async (req, res) => {
   
   // ✅ 6. 어항 좋아요
   //    POST /api/friendships/like
-  router.post('/like', async (req, res) => {
+  router.post('/like', authenticateToken,async (req, res) => {
     try {
       const { userId, aquarium_id } = req.body;
       if (!userId || !aquarium_id) {
@@ -259,7 +260,7 @@ router.get('/requests', async (req, res) => {
   
   // ✅ 7. 어항 쪽지(댓글) 작성
   //    POST /api/friendships/comment
-  router.post('/comment', async (req, res) => {
+  router.post('/comment', authenticateToken, async (req, res) => {
     try {
       const { userId, aquarium_id, content, parentCommentId = null } = req.body;
       if (!userId || !aquarium_id || !content || !content.trim()) {
@@ -284,7 +285,7 @@ router.get('/requests', async (req, res) => {
   
   // ✅ 8. 어항 댓글 리스트 조회
   //    GET /api/friendships/comments/:aquarium_id
-  router.get('/comments/:aquarium_id', async (req, res) => {
+  router.get('/comments/:aquarium_id', authenticateToken, async (req, res) => {
     try {
       const { aquarium_id } = req.params;
       const [rows] = await pool.execute(
@@ -299,7 +300,7 @@ router.get('/requests', async (req, res) => {
   });
 
   // ✅ 9. 어항 좋아요 수 조회
-  router.get('/:aquariumId/likes/count', async (req, res) => {
+  router.get('/:aquariumId/likes/count', authenticateToken, async (req, res) => {
     const { aquariumId } = req.params;
   
     try {
