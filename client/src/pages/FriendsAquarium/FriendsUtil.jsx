@@ -1,4 +1,5 @@
 const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '');
+console.log("🌐 API_BASE_URL:", API_BASE_URL);
 
 //✅ 4) 친구 수락 함수
 export async function acceptFriendRequest(requestId) {
