@@ -213,7 +213,7 @@ export default function Login() {
                                         width="18"
                                         fill="currentColor"
                                         style={{
-                                            color: 'black'
+                                            color: 'darkgray'
                                         }}
                                     >
                                         <path
@@ -224,11 +224,6 @@ export default function Login() {
                                 </div>
                                 <div className="github-login-text">GitHub로 로그인</div>
                             </div>
-                        </div>
-
-                        {/* 구분선 */}
-                        <div className="divider">
-                            <span>또는</span>
                         </div>
 
                         {/* 일반 로그인 버튼 */}

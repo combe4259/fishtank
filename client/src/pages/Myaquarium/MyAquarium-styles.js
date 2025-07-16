@@ -11,6 +11,7 @@ export const styles = {
     width: '100%'
   },
 
+
   // 메인 그리드 크기 축소
   mainGrid: {
     display: 'grid',
