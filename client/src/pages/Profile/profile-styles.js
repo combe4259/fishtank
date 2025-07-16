@@ -12,7 +12,7 @@ export const styles = {
     marginBottom: '24px'
   },
   mainProfileCard: {
-    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(249, 250, 251, 0.98) 100%)',
+    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(249, 250, 251, 0.92) 100%)', // Reduced opacity
     borderRadius: '28px',
     padding: '32px',
     boxShadow: '0 10px 40px rgba(0, 0, 0, 0.08)'
@@ -27,7 +27,7 @@ export const styles = {
   profileAvatar: {
     width: '120px',
     height: '120px',
-    background: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)',
+    background: 'linear-gradient(135deg, rgba(167, 139, 250, 0.3) 0%, rgba(139, 92, 246, 0.3) 100%)', // Slightly transparent
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
@@ -42,7 +42,7 @@ export const styles = {
     position: 'absolute',
     bottom: '-5px',
     right: '-5px',
-    background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+    background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.8) 100%)', // Slightly transparent
     color: 'white',
     padding: '4px 12px',
     borderRadius: '20px',
@@ -77,7 +77,7 @@ export const styles = {
   },
   editButton: {
     padding: '12px 24px',
-    background: 'white',
+    background: 'rgba(255, 255, 255, 0.5)', // Slightly transparent
     border: '2px solid #e5e7eb',
     borderRadius: '16px',
     fontSize: '14px',
@@ -87,7 +87,7 @@ export const styles = {
   },
   shareButton: {
     padding: '12px 24px',
-    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.4) 0%, rgba(37, 99, 235, 0.6) 100%)', // Slightly transparent
     color: 'white',
     border: 'none',
     borderRadius: '16px',
@@ -100,7 +100,7 @@ export const styles = {
 
   // 경험치 섹션
   experienceSection: {
-    background: '#f9fafb',
+    background: 'rgba(249, 250, 251, 0.3)', // Slightly transparent
     borderRadius: '20px',
     padding: '24px'
   },
@@ -121,14 +121,14 @@ export const styles = {
   },
   experienceBar: {
     height: '20px',
-    background: '#e5e7eb',
+    background: 'rgba(229, 231, 235, 0.5)', // Slightly transparent
     borderRadius: '10px',
     overflow: 'hidden',
     position: 'relative'
   },
   experienceFill: {
     height: '100%',
-    background: 'linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%)',
+    background: 'linear-gradient(90deg, rgba(139, 92, 246, 0.5) 0%, rgba(167, 139, 250, 0.9) 100%)', // Slightly transparent
     borderRadius: '10px',
     transition: 'width 0.5s ease-out',
     position: 'relative',
@@ -157,19 +157,19 @@ export const styles = {
     gap: '20px'
   },
   statCard: {
-    background: 'white',
+    background: 'rgba(255, 255, 255, 0.35)', // Slightly transparent
     borderRadius: '20px',
     padding: '24px',
     display: 'flex',
     flexDirection: 'column',
     gap: '16px',
     transition: 'all 0.3s',
-    border: '1px solid #e5e7eb'
+    border: '1px solid rgba(229, 231, 235, 0.9)' // Slightly transparent border
   },
   statIcon: {
     width: '56px',
     height: '56px',
-    background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+    background: 'linear-gradient(135deg, rgba(254, 243, 199, 0.9) 0%, rgba(253, 230, 138, 0.9) 100%)', // Slightly transparent
     borderRadius: '16px',
     display: 'flex',
     alignItems: 'center',
@@ -198,7 +198,7 @@ export const styles = {
 
   // 업적 섹션
   achievementsSection: {
-    background: 'white',
+    background: 'rgba(255, 255, 255, 0.2)', // Slightly transparent
     borderRadius: '28px',
     padding: '32px'
   },
@@ -208,7 +208,7 @@ export const styles = {
     alignItems: 'center',
     marginBottom: '28px',
     paddingBottom: '20px',
-    borderBottom: '1px solid #e5e7eb'
+    borderBottom: '1px solid rgba(229, 231, 235, 0.3)' // Slightly transparent
   },
   achievementsTitle: {
     fontSize: '24px',
@@ -264,34 +264,9 @@ export const styles = {
   }
 };
 
-// 애니메이션 및 호버 효과
-const animationStyles = `
-  @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(200%); }
-  }
-  
-  .statCard:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  }
-  
-  .achievementCard:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  }
-  
-  .editButton:hover {
-    background: #f3f4f6;
-    border-color: #d1d5db;
-  }
-  
-  .shareButton:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
-  }
-`;
-
-const styleSheet = document.createElement("style");
-styleSheet.textContent = animationStyles;
-document.head.appendChild(styleSheet);
+const rarityColors = {
+  common: { bg: 'rgba(229, 231, 235, 0.4)', color: '#6b7280' }, // Slightly transparent
+  rare: { bg: 'rgba(219, 234, 254, 0.4)', color: '#1e40af' },
+  epic: { bg: 'rgba(233, 213, 255, 0.4)', color: '#6b21a8' },
+  legendary: { bg: 'rgba(254, 243, 199, 0.4)', color: '#92400e' }
+};

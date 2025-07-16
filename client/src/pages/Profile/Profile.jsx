@@ -190,7 +190,6 @@ const Profile = () => {
               </div>
 
               <div style={styles.profileActions}>
-                <button style={styles.editButton}>프로필 편집</button>
                 <button
                     style={styles.shareButton}
                     onClick={refreshGitHubData}
@@ -304,7 +303,8 @@ const Profile = () => {
               padding: '6px 12px',
               border: '1px solid #e5e7eb',
               borderRadius: '8px',
-              background: 'white',
+              background: 'rgba(240, 253, 244, 0.6)', // Slightly transparent background
+              color: '#10b981',
               fontSize: '12px',
               cursor: 'pointer'
             }}>
@@ -314,7 +314,7 @@ const Profile = () => {
               padding: '6px 12px',
               border: '1px solid #10b981',
               borderRadius: '8px',
-              background: '#f0fdf4',
+              background: 'rgba(240, 253, 244, 0.6)', // Slightly transparent background
               color: '#10b981',
               fontSize: '12px',
               cursor: 'pointer'
@@ -325,7 +325,7 @@ const Profile = () => {
               padding: '6px 12px',
               border: '1px solid #6b7280',
               borderRadius: '8px',
-              background: '#f9fafb',
+              background: 'rgba(240, 253, 244, 0.6)', // Slightly transparent background
               color: '#6b7280',
               fontSize: '12px',
               cursor: 'pointer'
@@ -400,36 +400,6 @@ const Profile = () => {
             ))}
           </div>
 
-          {/* 디버그 정보 (개발용) */}
-          {process.env.NODE_ENV === 'development' && (
-              <div style={{
-                marginTop: '20px',
-                padding: '12px',
-                background: '#f3f4f6',
-                borderRadius: '8px',
-                fontSize: '12px',
-                color: '#6b7280'
-              }}>
-                <strong>디버그 정보:</strong><br/>
-                완료된 업적: {achievementStats.completed}개<br/>
-                전체 업적: {achievementStats.total}개<br/>
-                완료율: {achievementStats.completionRate}%<br/>
-                <button
-                    onClick={() => console.log('현재 업적 데이터:', achievements)}
-                    style={{
-                      marginTop: '8px',
-                      padding: '4px 8px',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '4px',
-                      background: 'white',
-                      fontSize: '11px',
-                      cursor: 'pointer'
-                    }}
-                >
-                  콘솔에 업적 데이터 출력
-                </button>
-              </div>
-          )}
         </Card>
       </div>
   );
