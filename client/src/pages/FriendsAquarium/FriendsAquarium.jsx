@@ -41,9 +41,9 @@ const FriendsAquarium = () => {
   const [globalQuery, setGlobalQuery] = useState("");
   const [liked, setLiked] = useState(false);
   const [friends, setFriends] = useState([
-    {id: 1, github_username: 'React 컴포넌트 개발', status: 'accepted'},
-    {id: 2, github_username: 'API 연동 작업', status: 'accepted'},
-    {id: 3, github_username: 'UI 디자인 수정', status: 'accepted'}
+    {id: 1, github_username: '뚱이', status: 'accepted'},
+    {id: 2, github_username: '징징이', status: 'accepted'},
+    {id: 3, github_username: '집게 사장', status: 'accepted'}
   ]);
   const [allUsers, setAllUsers] = useState([
     {id: 1, github_username: '0000'},
@@ -55,7 +55,11 @@ const FriendsAquarium = () => {
   const [fishes, setFishes] = useState([]);
   const [decorations, setDecorations] = useState([]);
   const [likeCount, setLikeCount] = useState(0);
-  const [sentRequests, setSentRequests] = useState([]);
+  const [sentRequests, setSentRequests] = useState([
+    { id: 1, requester_id: 6, addressee_id: 1, status: 'pending' },
+    { id: 2, requester_id: 6, addressee_id: 2, status: 'pending' },
+    { id: 3, requester_id: 6, addressee_id: 3, status: 'pending' }
+  ]);
 
   useEffect(() => {
     if (!userId) return;
