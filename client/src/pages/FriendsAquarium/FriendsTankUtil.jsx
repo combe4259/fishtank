@@ -1,3 +1,5 @@
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '');
+
 // 보유한 물고기 목록 가져오기
 export const fetchMyFishes = async (friendId) => {
     try {
@@ -7,7 +9,7 @@ export const fetchMyFishes = async (friendId) => {
         return;
       }
 
-      const response = await fetch(`http://localhost:3001/api/friends/${friendId}/fishes`, {
+      const response = await fetch(`${API_BASE_URL}/api/friends/${friendId}/fishes`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -36,7 +38,7 @@ export const fetchMyFishes = async (friendId) => {
         return;
       }
 
-      const response = await fetch(`http://localhost:3001/api/friends/${friendId}/decorations`, {
+      const response = await fetch(`${API_BASE_URL}/api/friends/${friendId}/decorations`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

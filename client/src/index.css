@@ -66,3 +66,20 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+html, body, #root {
+  /* 높이가 콘텐츠에 맞춰 늘어나도록 */
+  height: auto;      /* 또는 제거해도 OK */
+  min-height: 100vh; /* 최소 한 화면 만큼은 차지 */
+  margin: 0;
+  padding: 0;
+  /* 스크롤 허용 */
+  overflow-y: auto;
+}
+
+/* 기존에 있던 flex 센터링을 없애거나, 
+   body가 아닌 #root에만 flex 레이아웃을 줍니다. */
+body {
+  display: block;  /* 혹은 그냥 display 속성 제거 */
+  place-items: unset;
+}

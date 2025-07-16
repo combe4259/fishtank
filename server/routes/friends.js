@@ -184,7 +184,7 @@ router.get('/:userId', async (req, res) => {
 
 // ✅ 5. 받은 친구 요청 목록
 //    GET /api/friendships/requests/:userId
-router.get('/requests', async (req, res) => {
+router.get('/requests/:userId', async (req, res) => {
     try {
       const { userId } = req.params;
       const [rows] = await pool.execute(
@@ -198,6 +198,23 @@ router.get('/requests', async (req, res) => {
       res.status(500).json({ message: '요청 목록 조회 실패' });
     }
   });
+
+    // ✅ 11. 보낸 친구 요청 목록
+//    GET /api/friends/sent/:userId
+router.get('/sent/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const [rows] = await pool.execute(
+      `SELECT * FROM friendships
+       WHERE status='pending' AND requester_id=?`,
+      [userId]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('요청 목록 조회 에러:', err);
+    res.status(500).json({ message: '요청 목록 조회 실패' });
+  }
+});
   
   // ✅ 6. 어항 좋아요
   //    POST /api/friendships/like
@@ -383,6 +400,7 @@ router.get('/requests', async (req, res) => {
           res.status(500).json({ success: false, message: '보유 장식품을 불러오는데 실패했습니다.' });
       }
   });
+
 
 
 

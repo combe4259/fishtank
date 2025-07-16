@@ -1,8 +1,10 @@
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '');
+
 export async function fetchNotifications() {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('로그인 정보가 없습니다.');
   
-    const res = await fetch('http://localhost:3001/api/notifications', {
+    const res = await fetch(`${API_BASE_URL}/api/notifications`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -28,7 +30,7 @@ export async function fetchNotifications() {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('로그인 정보가 없습니다.');
   
-    const res = await fetch(`http://localhost:3001/api/notifications/${notificationId}`, {
+    const res = await fetch(`${API_BASE_URL}/api/notifications/${notificationId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,

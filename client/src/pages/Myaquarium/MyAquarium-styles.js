@@ -3,8 +3,13 @@ export const styles = {
     display: 'grid',
     gridTemplateColumns: '300px 1fr 300px',
     gap: '24px',
-    height: '100%',
-    minHeight: '600px'
+
+    // ▼ 변경
+    height: '200vh',       // 뷰포트 전체 높이
+    overflowY: 'auto',     // 세로 스크롤 활성화
+
+    // 이건 필요 없을 수 있어요.
+    // minHeight: '600px'
   },
 
   // 왼쪽 사이드바
