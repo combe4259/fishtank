@@ -708,7 +708,7 @@ const handleReject = async (reqId) => {
               </div>
 
               <div style={styles.recentActivity}>
-                <h4 style={styles.activityTitle}>
+                <h4 style={{ ...styles.activityTitle, color: '#000000' }}>
                   오늘의 커밋 ({githubData?.date || new Date().toLocaleDateString('ko-KR')})
                 </h4>
                 <div style={styles.commitList}>
@@ -718,11 +718,11 @@ const handleReject = async (reqId) => {
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                               <div>
                                 <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{commit.message}</div>
-                                <div style={{ fontSize: '12px', color: '#94a3b8' }}>
+                                <div style={{ fontSize: '12px', color: '#000000' }}>
                                   {commit.repository} • {commit.sha}
                                 </div>
                               </div>
-                              <div style={{ fontSize: '12px', color: '#94a3b8' }}>{commit.time}</div>
+                              <div style={{ fontSize: '12px', color: '#000000' }}>{commit.time}</div>
                             </div>
                           </div>
                       ))
@@ -743,10 +743,10 @@ const handleReject = async (reqId) => {
             <div style={styles.tabContent}>
               <div style={styles.progressSection}>
                 <div style={styles.progressCircle}>
-                  <div style={styles.progressText}>{completionPercentage}%</div>
+                  <div style={{ ...styles.progressText, color: '#000000' }}>{completionPercentage}%</div>
                 </div>
                 <div style={styles.progressInfo}>
-                  <div style={styles.completedTasks}>
+                  <div style={{ ...styles.completedTasks, color: '#000000' }}>
                     완료: {completedCount}/{todos.length}
                   </div>
                   <div style={styles.progressBar}>
@@ -761,10 +761,10 @@ const handleReject = async (reqId) => {
                     onChange={(e) => setNewTodo(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && addTodo()}
                     placeholder="새로운 할일을 입력하세요..."
-                    style={styles.todoInput}
+                    style={{ ...styles.todoInput, color: '#000000' }}
                 />
                 <button onClick={addTodo} style={styles.addTodoButton}>
-                  <Plus style={{ width: '25px', height: '25px' }} />
+                  <Plus style={{ width: '25px', height: '25px', color: '#000000' }} />
                 </button>
               </div>
               <div style={styles.todoList}>
@@ -775,15 +775,20 @@ const handleReject = async (reqId) => {
                             style={{
                               width: '16px',
                               height: '16px',
-                              color: todo.status === 'completed' ? '#10b981' : '#e5e7eb',
+                              color: todo.status === 'completed' ? '#10b981' : '#000000',
                             }}
                         />
                       </button>
-                      <span style={todo.status === 'completed' ? styles.completedTodo : styles.pendingTodo}>
-                                    {todo.name}
-                                </span>
+                      <span
+                          style={{
+                            ...(todo.status === 'completed' ? styles.completedTodo : styles.pendingTodo),
+                            color: '#000000',
+                          }}
+                      >
+              {todo.name}
+            </span>
                       <button onClick={() => deleteTodo(todo.id)} style={styles.deleteTodoButton}>
-                        <Trash2 style={{ width: '14px', height: '14px' }} />
+                        <Trash2 style={{ width: '14px', height: '14px', color: '#ef4444' }} />
                       </button>
                     </div>
                 ))}
