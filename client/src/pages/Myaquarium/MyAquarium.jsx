@@ -30,7 +30,7 @@ const MyAquarium = () => {
   const [friendRequests, setFriendRequests] = useState([]);
   const [notifications, setNotifications] = useState([]);
     
-  const rawUser = localStorage.getItem('user');
+  const rawUser = localStorage.getItem('users');
   const user = rawUser ? JSON.parse(rawUser) : null;
   const userId = user?.id;
   console.log('👤 userId:', userId);
