@@ -36,6 +36,7 @@ const MyAquarium = ({user}) => {
   // 알림 조회
   const loadNotifications = async () => {
     try {
+      console.log('알림 조회 시작', userId);
       const data = await fetchNotifications(userId);
       setNotifications(data);
     } catch (err) {
