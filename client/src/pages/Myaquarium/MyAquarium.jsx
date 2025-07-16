@@ -11,9 +11,9 @@ import {
   fetchFriendRequests,
 } from "../FriendsAquarium/FriendsUtil.jsx";
 
-const user = JSON.parse(localStorage.getItem('user'));
+const rawUser = localStorage.getItem('user');
+const user = rawUser ? JSON.parse(rawUser) : null;
 const userId = user?.id;
-
 
 const MyAquarium = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -54,11 +54,10 @@ const MyAquarium = () => {
   };
 
   useEffect(() => {
-    // 친구 요청 및 알림 불러오기
+    if (!userId) return; // userId 없으면 실행하지 않음
     refreshFriendRequests();
     loadNotifications();
-    // 기타 초기 데이터 로드
-  }, []);
+  }, [userId]);
 
 
 // ✅ 받은 친구 요청 리스트를 다시 가져오는 함수
