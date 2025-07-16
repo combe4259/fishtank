@@ -12,7 +12,28 @@ import {
 } from "../FriendsAquarium/FriendsUtil.jsx";
 
 
+const fetchUserIdFromToken = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+
+  try {
+    const res = await fetch("https://fishtank-2wr5.onrender.com/api/user/profile", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await res.json();
+    if (data.success) return data.user.id;
+    else return null;
+  } catch (err) {
+    console.error("유저 ID 불러오기 실패:", err);
+    return null;
+  }
+};
+
+
 const MyAquarium = () => {
+  const [userId, setUserId] = useState('dashboard');
   const [activeTab, setActiveTab] = useState('dashboard');
   const [newTodo, setNewTodo] = useState('');
   const [userProfile, setUserProfile] = useState(null);
@@ -30,21 +51,17 @@ const MyAquarium = () => {
   const [friendRequests, setFriendRequests] = useState([]);
   const [notifications, setNotifications] = useState([]);
     
-  const rawUser = localStorage.getItem('users');
-  const user = rawUser ? JSON.parse(rawUser) : null;
-  const userId = user.id;
-  console.log('👤 userId:', userId);
-
-
   useEffect(() => {
-    const rawUser = localStorage.getItem('users');
-    console.log('✅ localStorage[user]:', rawUser);
-  
-    const user = rawUser ? JSON.parse(rawUser) : null;
-    console.log('✅ user parsed:', user);
-  
-    const userId = user?.id;
-    console.log('👤 userId:', userId);
+    const getUserId = async () => {
+      const id = await fetchUserIdFromToken();
+      if (!id) {
+        console.warn("🚫 userId를 불러올 수 없습니다.");
+        return;
+      }
+      console.log("✅ 유저 ID:", id);
+      setUserId(id); // 또는 필요한 로직에 넘기기
+    };
+    getUserId();
   }, []);
 
   // 알림 조회
