@@ -1,5 +1,5 @@
 const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '');
-console.log("🌐 API_BASE_URL:", API_BASE_URL);
+
 
 //✅ 4) 친구 수락 함수
 export async function acceptFriendRequest(requestId) {
@@ -9,6 +9,7 @@ export async function acceptFriendRequest(requestId) {
       });
       if (!res.ok) throw new Error('친구 수락 실패');
       const data = await res.json();
+
       return data;
     } catch (err) {
       console.error(err);
@@ -37,6 +38,7 @@ export async function acceptFriendRequest(requestId) {
       const res = await fetch(`${API_BASE_URL}/api/friends/requests/${userId}`);
       if (!res.ok) throw new Error('친구 요청 목록 조회 실패');
       const data = await res.json();
+      console.log("🌐 API_BASE_URL:", API_BASE_URL);
   
       // null 또는 undefined일 경우 빈 배열로 처리
       return data ?? [];
