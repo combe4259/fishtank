@@ -11,13 +11,8 @@ import {
   fetchFriendRequests,
 } from "../FriendsAquarium/FriendsUtil.jsx";
 
-const rawUser = localStorage.getItem('user');
-const user = rawUser ? JSON.parse(rawUser) : null;
-const userId = user?.id;
 
 const MyAquarium = () => {
-  console.log("👤 userId:", userId); // userId 확인용
-
   const [activeTab, setActiveTab] = useState('dashboard');
   const [newTodo, setNewTodo] = useState('');
   const [userProfile, setUserProfile] = useState(null);
@@ -34,6 +29,10 @@ const MyAquarium = () => {
   const [myDecorations, setMyDecorations] = useState([]);
   const [friendRequests, setFriendRequests] = useState([]);
   const [notifications, setNotifications] = useState([]);
+    
+  const rawUser = localStorage.getItem('user');
+  const user = rawUser ? JSON.parse(rawUser) : null;
+  const userId = user?.id;
 
   // 알림 조회
   const loadNotifications = async () => {
