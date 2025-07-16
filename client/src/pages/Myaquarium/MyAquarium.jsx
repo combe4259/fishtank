@@ -388,10 +388,10 @@ const handleReject = async (reqId) => {
       await getTodos(userId);
       // 1. DB 업데이트 성공 후, 최신 유저 정보 다시 요청
       const res = await fetch(`/api/users/${userId}`);
-      const updatedUser = await res.json();
+      //const updatedUser = await res.json();
 
       // 2. localStorage 갱신
-      localStorage.setItem("user", JSON.stringify(updatedUser));
+      //localStorage.setItem("user", JSON.stringify(updatedUser));
 
       // 3. useState로 관리하고 있다면 상태도 갱신
 
