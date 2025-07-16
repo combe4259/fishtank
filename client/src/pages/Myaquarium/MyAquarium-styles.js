@@ -450,8 +450,9 @@ export const styles = {
     display: 'flex',
     alignItems: 'center',
     marginBottom: '16px', // 20px → 16px
-    background: 'rgba(75, 85, 99, 0.2)',
+    background: 'rgba(255, 255, 255, 0.2)',
     backdropFilter: 'blur(15px)',
+    color: '#000000',
     padding: '10px', // 12px → 10px
     borderRadius: '10px', // 12px → 10px
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
@@ -466,7 +467,7 @@ export const styles = {
   streakText: {
     fontSize: '14px', // 16px → 14px
     fontWeight: 'bold',
-    color: '#f0f0f0'
+    color: '#000000'
   },
 
   githubStats: {
@@ -807,11 +808,11 @@ export const styles = {
   rewardSection: {
     marginBottom: '16px', // 20px → 16px
     padding: '10px', // 12px → 10px
-    background: 'rgba(75, 85, 99, 0.4)',
+    background: 'rgba(255, 255, 255, 0.4)',
     backdropFilter: 'blur(15px)',
     borderRadius: '10px', // 12px → 10px
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-    color: '#f0f0f0',
+    color: '#000000',
     fontSize: '13px', // 14px → 13px
     border: '1px solid rgba(255, 255, 255, 0.2)'
   },
