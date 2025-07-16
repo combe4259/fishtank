@@ -32,8 +32,20 @@ const MyAquarium = () => {
     
   const rawUser = localStorage.getItem('users');
   const user = rawUser ? JSON.parse(rawUser) : null;
-  const userId = user?.id;
+  const userId = user.id;
   console.log('👤 userId:', userId);
+
+
+  useEffect(() => {
+    const rawUser = localStorage.getItem('user');
+    console.log('✅ localStorage[user]:', rawUser);
+  
+    const user = rawUser ? JSON.parse(rawUser) : null;
+    console.log('✅ user parsed:', user);
+  
+    const userId = user?.id;
+    console.log('👤 userId:', userId);
+  }, []);
 
   // 알림 조회
   const loadNotifications = async () => {
