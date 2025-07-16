@@ -1,3 +1,4 @@
+const API_URL = 'https://fishtank-2wr5.onrender.com'
 // 보유한 물고기 목록 가져오기
 export const fetchMyFishes = async (friendId) => {
     try {
@@ -7,7 +8,7 @@ export const fetchMyFishes = async (friendId) => {
         return;
       }
 
-      const response = await fetch(`http://localhost:3001/api/friends/${friendId}/fishes`, {
+      const response = await fetch(`${API_URL}/api/friends/${friendId}/fishes`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -36,7 +37,7 @@ export const fetchMyFishes = async (friendId) => {
         return;
       }
 
-      const response = await fetch(`http://localhost:3001/api/friends/${friendId}/decorations`, {
+      const response = await fetch(`${API_URL}/api/friends/${friendId}/decorations`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -59,7 +60,7 @@ export const fetchMyFishes = async (friendId) => {
 // 친구 어항 좋아요 수 조회 함수
   export const fetchAquariumLikeCount = async (aquariumId) => {
     try {
-      const response = await fetch(`/api/aquariums/${aquariumId}/likes/count`, {
+      const response = await fetch(`${API_URL}/api/aquariums/${aquariumId}/likes/count`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

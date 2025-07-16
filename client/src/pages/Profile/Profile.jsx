@@ -6,7 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { User, Trophy, Target, Calendar, TrendingUp, Award, Star, Activity } from 'lucide-react';
 import Card from '../../components/common/Card/Card.jsx';
 import { styles } from './profile-styles';
-const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '');
+const API_URL = 'https://fishtank-2wr5.onrender.com'
 
 const Profile = () => {
   const [userProfile, setUserProfile] = useState(null);
@@ -28,7 +28,7 @@ const Profile = () => {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
+      const response = await fetch(`${API_URL}/api/user/profile`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -57,7 +57,7 @@ const Profile = () => {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/achievements/list`, {
+      const response = await fetch(`${API_URL}/api/achievements/list`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -94,7 +94,7 @@ const Profile = () => {
       console.log(' GitHub 데이터 새로고침 및 업적 체크 중...');
 
       // GitHub 통계 API 호출
-      const response = await fetch(`${API_BASE_URL}/api/github/stats`, {
+      const response = await fetch(`${API_URL}/api/github/stats`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
