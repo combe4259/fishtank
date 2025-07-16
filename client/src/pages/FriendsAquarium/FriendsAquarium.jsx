@@ -295,7 +295,7 @@ useEffect(() => {
         </div>
       </div>
       {/* 메인 그리드 */}
-      <div style={{ display: "grid", gridTemplateColumns: "260px 1fr 320px", gap: 24 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {/* ----------------------------------------------------------------
          * ❶ 왼쪽 – 친구 목록 + 검색 UI
          * --------------------------------------------------------------*/}
@@ -396,107 +396,107 @@ useEffect(() => {
           </div>
         </Card>
         {/* 보낸 친구 요청 카드 */}
-<Card style={{ ...styles.mainCard, padding: 0, height: "fit-content", marginTop: 16 }}>
-  <div style={{ padding: "16px", borderBottom: "1px solid #e5e7eb" }}>
-    <h4 style={{ 
-      fontSize: 16, 
-      fontWeight: "600", 
-      color: "#374151", 
-      margin: 0,
-      display: "flex",
-      alignItems: "center",
-      gap: 8
-    }}>
-      <span style={{ fontSize: 20 }}>📤</span>
-      보낸 친구 요청
-      {sentRequests.length > 0 && (
-        <span style={{ 
-          background: "#3b82f6", 
-          color: "white", 
-          borderRadius: "50%", 
-          width: 20, 
-          height: 20, 
-          display: "flex", 
-          alignItems: "center", 
-          justifyContent: "center", 
-          fontSize: 12 
-        }}>
-          {sentRequests.length}
-        </span>
-      )}
-    </h4>
-  </div>
-
-  <div style={{ maxHeight: 250, overflowY: "auto" }}>
-    {sentRequests.length === 0 ? (
-      <div style={{ 
-        padding: "24px", 
-        textAlign: "center", 
-        color: "#6B7280",
-        fontSize: 14
-      }}>
-        보낸 친구 요청이 없습니다
-      </div>
-    ) : (
-      sentRequests.map((request) => (
-        <div
-          key={request.id}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "12px 16px",
-            borderBottom: "1px solid #f3f4f6"
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ width: 24, height: 24, fontSize: 20 }}>👤</span>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span style={{ fontSize: 14, color: "#111827", fontWeight: "500" }}>
-                {request.addressee?.github_username || `사용자 ${request.addressee_id}`}
-              </span>
-              <span style={{ 
-                fontSize: 12, 
-                color: request.status === 'pending' ? '#f59e0b' : 
-                       request.status === 'accepted' ? '#10b981' : '#ef4444',
-                display: "flex",
-                alignItems: "center",
-                gap: 4
-              }}>
-                {request.status === 'pending' && '⏳ 대기중'}
-                {request.status === 'accepted' && '✅ 수락됨'}
-                {request.status === 'rejected' && '❌ 거절됨'}
-              </span>
-            </div>
+        <Card style={{ ...styles.mainCard, padding: 0, height: "fit-content", marginTop: 16 }}>
+          <div style={{ padding: "16px", borderBottom: "1px solid #e5e7eb" }}>
+            <h4 style={{ 
+              fontSize: 16, 
+              fontWeight: "600", 
+              color: "#374151", 
+              margin: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: 8
+            }}>
+              <span style={{ fontSize: 20 }}>📤</span>
+              보낸 친구 요청
+              {sentRequests.length > 0 && (
+                <span style={{ 
+                  background: "#3b82f6", 
+                  color: "white", 
+                  borderRadius: "50%", 
+                  width: 20, 
+                  height: 20, 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center", 
+                  fontSize: 12 
+                }}>
+                  {sentRequests.length}
+                </span>
+              )}
+            </h4>
           </div>
-          
-          {request.status === 'pending' && (
-            <button
-              onClick={() => {
-                // 여기에 요청 취소 로직 추가 가능
-                console.log('요청 취소:', request.id);
-              }}
-              style={{
-                padding: "4px 8px",
-                borderRadius: 6,
-                border: "none",
-                background: "#ef4444",
-                color: "white",
-                fontSize: 12,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 2
-              }}
-            >
-              취소
-            </button>
-          )}
-        </div>
-      ))
-    )}
-  </div>
-</Card>
+
+          <div style={{ maxHeight: 250, overflowY: "auto" }}>
+            {sentRequests.length === 0 ? (
+              <div style={{ 
+                padding: "24px", 
+                textAlign: "center", 
+                color: "#6B7280",
+                fontSize: 14
+              }}>
+                보낸 친구 요청이 없습니다
+              </div>
+            ) : (
+              sentRequests.map((request) => (
+                <div
+                  key={request.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "12px 16px",
+                    borderBottom: "1px solid #f3f4f6"
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ width: 24, height: 24, fontSize: 20 }}>👤</span>
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                      <span style={{ fontSize: 14, color: "#111827", fontWeight: "500" }}>
+                        {request.addressee?.github_username || `사용자 ${request.addressee_id}`}
+                      </span>
+                      <span style={{ 
+                        fontSize: 12, 
+                        color: request.status === 'pending' ? '#f59e0b' : 
+                              request.status === 'accepted' ? '#10b981' : '#ef4444',
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4
+                      }}>
+                        {request.status === 'pending' && '⏳ 대기중'}
+                        {request.status === 'accepted' && '✅ 수락됨'}
+                        {request.status === 'rejected' && '❌ 거절됨'}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {request.status === 'pending' && (
+                    <button
+                      onClick={() => {
+                        // 여기에 요청 취소 로직 추가 가능
+                        console.log('요청 취소:', request.id);
+                      }}
+                      style={{
+                        padding: "4px 8px",
+                        borderRadius: 6,
+                        border: "none",
+                        background: "#ef4444",
+                        color: "white",
+                        fontSize: 12,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2
+                      }}
+                    >
+                      취소
+                    </button>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </Card>
 
         
 
