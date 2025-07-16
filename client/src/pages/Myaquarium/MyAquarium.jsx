@@ -33,7 +33,7 @@ const fetchUserIdFromToken = async () => {
 
 
 const MyAquarium = () => {
-  const [userId, setUserId] = useState('dashboard');
+  const [userId, setUserId] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [newTodo, setNewTodo] = useState('');
   const [userProfile, setUserProfile] = useState(null);
@@ -58,8 +58,9 @@ const MyAquarium = () => {
         console.warn("🚫 userId를 불러올 수 없습니다.");
         return;
       }
-      console.log("✅ 유저 ID:", iiid, userId);
+
       setUserId(iiid); // 또는 필요한 로직에 넘기기
+      console.log("✅ 유저 ID:", iiid, userId);
     };
     getUserId();
   }, []);
@@ -388,10 +389,10 @@ const handleReject = async (reqId) => {
       await getTodos(userId);
       // 1. DB 업데이트 성공 후, 최신 유저 정보 다시 요청
       const res = await fetch(`/api/users/${userId}`);
-      //const updatedUser = await res.json();
+      const updatedUser = await res.json();
 
       // 2. localStorage 갱신
-      //localStorage.setItem("user", JSON.stringify(updatedUser));
+      localStorage.setItem("user", JSON.stringify(updatedUser));
 
       // 3. useState로 관리하고 있다면 상태도 갱신
 
