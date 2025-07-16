@@ -58,7 +58,7 @@ const MyAquarium = () => {
         console.warn("🚫 userId를 불러올 수 없습니다.");
         return;
       }
-      console.log("✅ 유저 ID:", id);
+      console.log("✅ 유저 ID:", id, userId);
       setUserId(id); // 또는 필요한 로직에 넘기기
     };
     getUserId();
