@@ -30,7 +30,11 @@ const MyAquarium = ({user}) => {
   ]);
   const [myFishes, setMyFishes] = useState([]);
   const [myDecorations, setMyDecorations] = useState([]);
-  const [friendRequests, setFriendRequests] = useState([]);
+  const [friendRequests, setFriendRequests] = useState([
+    { id: 4, requester_id: 4, addressee_id: 6, status: 'pending' },
+    { id: 5, requester_id: 5, addressee_id: 6, status: 'pending'  },
+    { id: 6, requester_id: 10, addressee_id: 6, status: 'pending' }
+  ]);
   const [notifications, setNotifications] = useState([]);
     
   const userId = user?.id;
