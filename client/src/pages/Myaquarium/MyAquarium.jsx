@@ -14,6 +14,7 @@ import {
 const rawUser = localStorage.getItem('user');
 const user = rawUser ? JSON.parse(rawUser) : null;
 const userId = user?.id;
+console.log("👤 userId:", userId); // userId 확인용
 
 const MyAquarium = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
