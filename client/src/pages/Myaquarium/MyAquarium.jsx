@@ -609,12 +609,7 @@ const handleReject = async (reqId) => {
                       ))}
                     </div>
                   </div>
-                  <div style={styles.levelInfo}>
-                                <span>
-                                    레벨: {githubData?.currentLevel || userProfile?.level || 1}
-                                  (경험치: {githubData?.currentExperience || userProfile?.experience_points || 0}/100)
-                                </span>
-                  </div>
+
                 </div>
               </div>
             </div>
@@ -831,7 +826,7 @@ const handleReject = async (reqId) => {
 
             {/* 받은 친구 요청 목록 */}
             <Card style={styles.mainCard}>
-              <h4>받은 친구 신청</h4>
+              <h4 style={{ color: '#1a1a1a' }}>받은 친구 신청</h4>
               <div style={{ maxHeight: 200, overflowY: 'auto' }}>
                 {friendRequests.map(r => (
                   <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -842,12 +837,12 @@ const handleReject = async (reqId) => {
                     </div>
                   </div>
                 ))}
-                {friendRequests.length === 0 && <p>신청이 없습니다.</p>}
+                {friendRequests.length === 0 && <p style={{ color: '#1b7280' }}>신청이 없습니다.</p>}
               </div>
             </Card>
 
             <Card style={styles.mainCard}>
-            <h4>알림</h4>
+              <h4 style={{ color: '#1a1a1a' }}>알림</h4>
               <div style={{ maxHeight: 200, overflowY: 'auto' }}>
                 {notifications.length > 0 ? (
                   notifications.map((note) => (
@@ -862,7 +857,7 @@ const handleReject = async (reqId) => {
                     </div>
                   ))
                 ) : (
-                  <p>알림이 없습니다.</p>
+                    <p style={{ color: '#1b7280' }}>알림이 없습니다.</p>
                 )}
               </div>
             </Card>

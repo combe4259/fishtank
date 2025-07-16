@@ -434,21 +434,21 @@ router.get('/stats', authenticateToken, async (req, res) => {
         // 업적 체크 시작
         console.log('GitHub 통계 기반 업적 체크 시작...');
 
-        // Git플루언서 - GitHub 팔로워 1000명 달성
-        await checkAchievements(userId, 'github_followers', {
+// Git플루언서 - GitHub 팔로워 1000명 달성
+        await checkAchievements(req, userId, 'github_followers', {
             followers: userInfo.followers || 0
         });
 
-        // 첫 커밋 체크
+// 첫 커밋 체크
         const totalCommits = repos.reduce((sum, repo) => sum + (repo.size || 0), 0);
         if (totalCommits > 0 || totalCommitsToday > 0) {
-            await checkAchievements(userId, 'github_first_commit', {
+            await checkAchievements(req, userId, 'github_first_commit', {
                 totalCommits: Math.max(totalCommits, totalCommitsToday)
             });
         }
 
-        // 별 따러가자 - 레포지토리 첫 스타 받기
-        await checkAchievements(userId, 'github_first_star', {
+// 별 따러가자 - 레포지토리 첫 스타 받기
+        await checkAchievements(req, userId, 'github_first_star', {
             totalStars: totalStars
         });
 

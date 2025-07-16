@@ -1,6 +1,6 @@
 export const styles = {
     navbar: {
-        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        backgroundColor: 'rgba(255, 255, 255, 0.3)',
         borderRadius: '35px',
         height: '63px',
         overflow: 'hidden',
