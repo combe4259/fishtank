@@ -33,7 +33,7 @@ const fetchUserIdFromToken = async () => {
 
 
 const MyAquarium = () => {
-  const [userId, setUserId] = useState(null);
+  const [userId, setUserId] = useState();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [newTodo, setNewTodo] = useState('');
   const [userProfile, setUserProfile] = useState(null);
@@ -60,10 +60,17 @@ const MyAquarium = () => {
       }
 
       setUserId(iiid); // 또는 필요한 로직에 넘기기
-      console.log("✅ 유저 ID:", iiid, userId);
+
     };
     getUserId();
   }, []);
+
+  useEffect(() => {
+    if (userId !== null) {
+      console.log("🆗 userId 변경됨:", userId);
+      // 여기서 이 userId로 API 호출 등 안전하게 가능
+    }
+  }, [userId]);
 
   // 알림 조회
   const loadNotifications = async () => {
