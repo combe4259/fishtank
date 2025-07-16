@@ -33,22 +33,13 @@ const MyAquarium = ({user}) => {
   const [friendRequests, setFriendRequests] = useState([]);
   const [notifications, setNotifications] = useState([]);
     
-  const userId = user?.id;
 
-  useEffect(() => {
-    if (userId) {
-      console.log("✅ userId 사용 가능:", user.id);
-      // 여기서 fetchFriendRequests 등 호출
-    } else {
-      console.warn("⚠️ userId가 없습니다. 친구 요청을 불러올 수 없습니다.");
-    }
-  }, [userId]);
 
   // 알림 조회
   const loadNotifications = async () => {
     try {
-      console.log('알림 조회 시작', userId);
-      const data = await fetchNotifications(userId);
+      console.log('알림 조회 시작', user.id);
+      const data = await fetchNotifications(user.id);
       setNotifications(data);
     } catch (err) {
       console.error('알림 조회 실패:', err);
@@ -66,16 +57,16 @@ const MyAquarium = ({user}) => {
   };
 
   useEffect(() => {
-    if (!userId) return; // userId 없으면 실행하지 않음
+    if (!user.id) return; // user.id 없으면 실행하지 않음
     refreshFriendRequests();
     loadNotifications();
-  }, [userId]);
+  }, [user.id]);
 
 
 // ✅ 받은 친구 요청 리스트를 다시 가져오는 함수
 const refreshFriendRequests = async () => {
   try {
-    const data = await fetchFriendRequests(userId);
+    const data = await fetchFriendRequests(user.id);
     setFriendRequests(data);
   } catch (err) {
     console.error('친구 요청 갱신 실패:', err);
@@ -352,7 +343,7 @@ const handleReject = async (reqId) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_id: userId,                        // ⚠️ 나중에 로그인 유저 정보로 바꿔야 함
+          user_id: user.id,                        // ⚠️ 나중에 로그인 유저 정보로 바꿔야 함
           title: newTodo.trim(),            // 🟢 제목으로 사용
           description: '',                  // ✏️ 일단 빈 문자열로 기본값
           is_completed: false              // 기본은 미완료
@@ -366,9 +357,9 @@ const handleReject = async (reqId) => {
         name: newItem.title,
         status: newItem.is_completed ? 'completed' : 'pending'
       }]);
-      await getTodos(userId);
+      await getTodos(user.id);
       // 1. DB 업데이트 성공 후, 최신 유저 정보 다시 요청
-      const res = await fetch(`/api/users/${userId}`);
+      const res = await fetch(`/api/users/${user.id}`);
       const updatedUser = await res.json();
 
       // 2. localStorage 갱신
@@ -400,7 +391,7 @@ const handleReject = async (reqId) => {
       todo.id === id ? { ...todo, ...updated } : todo
     ));
     await fetchUserProfile();
-    await getTodos(userId);
+    await getTodos(user.id);
   };
 
 
@@ -415,12 +406,12 @@ const handleReject = async (reqId) => {
       console.error('할 일 삭제 실패:', err);
     }
     setTodos(todos.filter(todo => todo.id !== id));
-    await getTodos(userId);
+    await getTodos(user.id);
   };
 
-  const getTodos = async (userId) => {
+  const getTodos = async (user.id) => {
     try {
-      const response = await fetch(`${API_URL}/api/todos/${userId}`);
+      const response = await fetch(`${API_URL}/api/todos/${user.id}`);
       const data = await response.json();
 
       const formattedTodos = data.map(todo => ({
