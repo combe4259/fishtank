@@ -295,10 +295,11 @@ useEffect(() => {
         </div>
       </div>
       {/* 메인 그리드 */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "260px 1fr 320px", gap: 24 }}>
         {/* ----------------------------------------------------------------
          * ❶ 왼쪽 – 친구 목록 + 검색 UI
          * --------------------------------------------------------------*/}
+         <div style={{ display: "grid", gridTemplateColumns: "260px 1fr 320px", gap: 24 }}>
         <Card style={{ ...styles.mainCard, padding: 0, height: "fit-content" }}>
           {/* 상단 친구 검색 */}
           <div style={{ padding: "16px", borderBottom: "1px solid #e5e7eb" }}>
@@ -497,6 +498,7 @@ useEffect(() => {
             )}
           </div>
         </Card>
+        </div>
 
         
 

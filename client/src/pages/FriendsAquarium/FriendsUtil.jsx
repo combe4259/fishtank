@@ -36,7 +36,9 @@ export async function acceptFriendRequest(requestId) {
       const res = await fetch(`${API_BASE_URL}/api/friends/requests/${userId}`);
       if (!res.ok) throw new Error('친구 요청 목록 조회 실패');
       const data = await res.json();
-      return data;
+  
+      // null 또는 undefined일 경우 빈 배열로 처리
+      return data ?? [];
     } catch (err) {
       console.error(err);
       return [];
